@@ -5,6 +5,10 @@ Live: https://skinproof.aether-soft.tech
 
 **SkinProof is an agent that tells you whether to keep buying a skincare product, and only believes a change in your skin when it beats the noise measured on your own face, twice in a row.**
 
+## Why it matters
+
+Skincare is a USD 160 to 200 billion a year market (estimates vary), and a growing share is bought online where shoppers cannot test. In a 2024 survey of 3,224 US women, 86% believed some brands exaggerate. Brands and retailers must keep claims within the evidence (EU Regulation 655/2013), yet the shopper's only tool is a selfie score that moves with light and angle. We measured that: acne moved about 10 points between two selfies 10 seconds apart. SkinProof is for shoppers deciding whether to rebuy, for honest brands and retailers who want verifiable results, and for clinics comparing before/after photos. Sources, what we have not proven (no longitudinal study yet) and the next steps are in [docs/IMPACT.md](docs/IMPACT.md). Devpost text: [docs/DEVPOST.md](docs/DEVPOST.md).
+
 ## The problem
 
 People judge skincare in the bathroom mirror, under a different light every day. Skin-analysis scores move with light, angle and distance even when the skin has not changed, and most apps turn that wobble into a "progress score". People then rebuy a serum because a number rose three points under a kinder lamp. SkinProof never outputs an overall score. It answers one question, KEEP, STOP or WAIT, and shows every step it took.
