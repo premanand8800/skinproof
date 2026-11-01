@@ -12,7 +12,7 @@ Every camera-based measurement varies with light, angle and framing, and skin an
 
 People judge skincare in the bathroom mirror under a different light every day. Surveys show shoppers do not trust the claims (86% of 3,224 US women believed some brands exaggerate; The Benchmarking Company, 2024), and retailers and brands are required to keep performance claims within the supporting evidence (EU Regulation 655/2013). Dermatology guidance says even small changes in capture conditions change photos drastically (Nair and Santhanam, 2016), and trials of ingredients run for weeks (a 12-week niacinamide trial with images every 4 weeks).
 
-YouCam gives a precise reading of each photo. What a shopper needs next is to know how far that reading moves between two photos of the same skin, so a score can drive a decision. We built that layer. Sources and what we could not verify are in [docs/IMPACT.md](IMPACT.md).
+YouCam gives a precise reading of each photo. What a shopper needs next is to know how far that reading moves between two photos of the same skin, so a score can drive a decision. We built that layer. Sources and what we could not verify are in [docs/IMPACT.md](https://github.com/premanand8800/skinproof/blob/master/docs/IMPACT.md).
 
 ## What it does
 
@@ -24,13 +24,13 @@ YouCam gives a precise reading of each photo. What a shopper needs next is to kn
 
 It never outputs an overall score. A change beyond noise on one check-in is only "likely, needs confirmation". It is "proven" only when the two most recent check-ins are both beyond the threshold in the same direction. Each product claim gets one of SUPPORTED, CONTRADICTED, NEEDS_CONFIRMATION, NOT_YET_SHOWN, TOO_EARLY or NOT_MEASURABLE (a photo cannot measure scent or "dermatologist tested").
 
-**What we measured on a real face** (a volunteer, with consent; scores only, no images are published). These are normal capture variations, which is why per-person noise matters:
+**What we measured on a real face** (a volunteer, with consent to analysis and public display). These are normal capture variations, which is why per-person noise matters:
 - Two selfies 10 seconds apart, same room, same light: acne moved 9.4 points (uncropped) or 9.9 (cropped, opposite direction), pores 6.0 to 8.3.
 - Six same-evening frontal photos: pore readings 61.3, 63.8, 63.5, 35.9, 58.4, 60.0, a 27.9-point range. One odd photo accounts for all of it (without it the range is 5.4).
 - The live agent run on this face ends **WAIT, nothing proven**.
 - We tested Photo Lighting as a variation reducer: it cut the median range by 22%, just under our pre-registered 25% bar, so we left it off.
 
-Full tables: [bench/noise_RESULTS.md](../bench/noise_RESULTS.md), [bench/lighting_RESULTS.md](../bench/lighting_RESULTS.md).
+Full tables: [bench/noise_RESULTS.md](https://github.com/premanand8800/skinproof/blob/master/bench/noise_RESULTS.md), [bench/lighting_RESULTS.md](https://github.com/premanand8800/skinproof/blob/master/bench/lighting_RESULTS.md).
 
 ## How we built it
 
@@ -78,7 +78,7 @@ Python backend, a single-page UI that streams the agent's steps over server-sent
 - Catching our own false alarm, publishing it, and fixing the method.
 - A pre-registered experiment that came out negative (lighting, 22% < 25%) and was reported as negative.
 - An agent whose budget and decision rule live in code, whose every step is visible, and that is allowed to answer "WAIT, nothing proven".
-- Consent-based real-face data, with only scores published.
+- Consent-based real-face data, shown with the volunteer's permission.
 - Mirror Mode: on-device capture alignment with a ghost of your last photo, plus a 60-second quick noise check.
 - Using YouCam both ways over MCP, with identical results to 0.001.
 
@@ -92,7 +92,7 @@ Python backend, a single-page UI that streams the agent's steps over server-sent
 
 ## What's next
 
-See [docs/IMPACT.md](IMPACT.md). In short:
+See [docs/IMPACT.md](https://github.com/premanand8800/skinproof/blob/master/docs/IMPACT.md). In short:
 1. An 8-week pilot with 10 to 20 shoppers on products they already use; publish the results either way.
 2. A consistent-capture guide.
 3. A retailer "Verified on real faces" badge (shown today as a labelled concept in `/buy`): a brand lists a claim and timeframe, opted-in customers are measured with the same rule, and only aggregate counts are shown.
@@ -124,4 +124,4 @@ No sign-up and no key needed for the replays.
 7. **Repo:** https://github.com/premanand8800/skinproof. To run locally: `uv sync`, copy `.env.example` to `.env`, add your keys, `uv run skinproof serve --port 8100`, `uv run pytest -q` (155 tests).
 8. **Demo video:** _(add link before submitting)_
 
-Honest limitations: one volunteer, one evening; Mirror Mode capture thresholds were tuned on a synthetic feed; no longitudinal study yet. The volunteer consented to the use of their scores; no images of them are published.
+Honest limitations: one volunteer, one evening; Mirror Mode capture thresholds were tuned on a synthetic feed; no longitudinal study yet. The volunteer consented to analysis and to public display of his photos and scores.
