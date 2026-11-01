@@ -2,116 +2,243 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
 <title>SkinProof</title>
+<meta name="description" content="Should I keep buying this? SkinProof measures your skin against your own photo noise and gives one honest answer.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%231f3a8a'/%3E%3Cpath d='M8 17l5 5 11-12' stroke='%23f4f0e8' stroke-width='3' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#f5f6f4;--card:#fff;--ink:#14201d;--mute:#5d6b67;--line:#dfe4e1;--accent:#0f6b63;--accent-ink:#fff;
---good:#1c7a46;--goodbg:#e6f3ec;--bad:#a8451c;--badbg:#f8ebe3;--neutral:#4a5a66;--neutralbg:#eaeff2;--band:#c9d5dc}
-@media(prefers-color-scheme:dark){:root{--bg:#0f1514;--card:#172120;--ink:#e8efec;--mute:#92a29d;--line:#2a3836;--accent:#4fb3a6;--accent-ink:#06201c;
---good:#6cd197;--goodbg:#14301f;--bad:#f0976a;--badbg:#35200f;--neutral:#a9bac4;--neutralbg:#1f2b31;--band:#3a4c56}}
+:root{
+ --paper:#f4f0e8;--paper2:#ece7dc;--card:#fbf9f4;--ink:#1a1d1c;--mute:#5f655f;--line:#d9d3c4;--line2:#c7c0ae;
+ --accent:#1f3a8a;--accent-ink:#f7f4ec;--accent-soft:#e1e5f2;
+ --good:#1d6b43;--goodbg:#dfeee4;--bad:#a8321f;--badbg:#f3ddd5;--wait:#8a5a08;--waitbg:#f4e6c4;
+ --neutral:#4b5456;--neutralbg:#e6e4dc;--band:#c3c8d8;--sample:#f6e7b0;--sampleink:#4e3a00;
+ --serif:"Fraunces",Georgia,"Times New Roman",serif;--sans:"Instrument Sans",system-ui,-apple-system,"Segoe UI",sans-serif;--mono:"JetBrains Mono",ui-monospace,"SF Mono",Menlo,monospace;
+ --shadow:0 1px 0 rgba(26,29,28,.04),0 8px 24px -12px rgba(26,29,28,.18)}
+@media(prefers-color-scheme:dark){:root{
+ --paper:#14161a;--paper2:#1b1e24;--card:#1c2026;--ink:#ece9e1;--mute:#a1a59f;--line:#2e333b;--line2:#3d434c;
+ --accent:#8fa6f2;--accent-ink:#0f1630;--accent-soft:#232b4a;
+ --good:#7fd3a0;--goodbg:#173325;--bad:#f2a08c;--badbg:#3a1f18;--wait:#e9be63;--waitbg:#3a2d10;
+ --neutral:#b0b8ba;--neutralbg:#262b30;--band:#3b4468;--sample:#4a3d10;--sampleink:#f6e7b0;--shadow:0 8px 24px -12px rgba(0,0,0,.6)}}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
-.wrap{max-width:720px;margin:0 auto;padding:16px 16px 80px}
-header{display:flex;justify-content:space-between;align-items:center;padding:8px 0 16px}
-.logo{font-weight:700;letter-spacing:.02em;display:flex;gap:8px;align-items:center;cursor:pointer}
-.logo i{width:20px;height:20px;border:2px solid var(--accent);border-radius:50%;display:inline-block;position:relative}
-.logo i:after{content:"";position:absolute;left:4px;top:3px;width:6px;height:9px;border:solid var(--accent);border-width:0 2px 2px 0;transform:rotate(40deg)}
-.units{font-size:13px;color:var(--mute);border:1px solid var(--line);border-radius:99px;padding:3px 10px}
-h1{font-size:30px;line-height:1.15;margin:8px 0 12px;letter-spacing:-.01em}
-h2{font-size:20px;margin:0 0 8px}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.55 var(--sans);-webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:760px;margin:0 auto;padding:0 16px 72px}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:6px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+a{color:var(--accent)}
+header.top{display:flex;justify-content:space-between;align-items:center;padding:14px 0 10px;gap:10px}
+.logo{display:flex;gap:9px;align-items:center;cursor:pointer;background:none;border:0;color:var(--ink);font:600 19px/1 var(--serif);letter-spacing:-.01em;padding:4px;margin-left:-4px}
+.logo svg{width:26px;height:26px}
+.pill{font:500 12px/1 var(--mono);color:var(--mute);border:1px solid var(--line2);border-radius:99px;padding:6px 10px;white-space:nowrap}
+.nav{display:flex;gap:6px;align-items:center}
+.linkbtn{background:none;border:0;color:var(--mute);font:500 13px var(--sans);cursor:pointer;padding:6px 8px;border-radius:8px;text-decoration:underline;text-underline-offset:3px}
+h1,h2,h3{font-family:var(--serif);font-weight:600;letter-spacing:-.02em;margin:0}
+h1{font-size:clamp(34px,9vw,58px);line-height:1.04}
+h2{font-size:clamp(24px,6vw,30px);line-height:1.15;margin-bottom:8px}
+h3{font-size:18px;margin-bottom:6px}
 p{margin:0 0 12px}.mute{color:var(--mute)}.small{font-size:13px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin:0 0 14px}
-.btn{appearance:none;border:0;background:var(--accent);color:var(--accent-ink);font:inherit;font-weight:600;padding:12px 20px;border-radius:10px;cursor:pointer}
-.btn.ghost{background:transparent;color:var(--accent);border:1px solid var(--accent)}
-.btn:disabled{opacity:.5;cursor:wait}
+.eyebrow{font:500 12px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin:0 0 12px;display:block}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;margin:0 0 14px;box-shadow:var(--shadow)}
+.btn{appearance:none;border:1px solid var(--accent);background:var(--accent);color:var(--accent-ink);font:600 16px var(--sans);padding:14px 22px;border-radius:12px;cursor:pointer;min-height:48px;transition:transform .12s,opacity .12s}
+.btn:hover{transform:translateY(-1px)}.btn:active{transform:none}
+.btn.ghost{background:transparent;color:var(--accent)}
+.btn.sm{padding:9px 14px;min-height:40px;font-size:14px}
+.btn:disabled{opacity:.45;cursor:not-allowed;transform:none}
 .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-.steps{display:flex;gap:6px;margin:0 0 16px}.steps span{flex:1;height:4px;border-radius:2px;background:var(--line)}.steps span.on{background:var(--accent)}
-input[type=text],input[type=date]{font:inherit;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--card);color:var(--ink);width:100%}
-.chips{display:flex;flex-wrap:wrap;gap:8px}.chip{border:1px solid var(--line);border-radius:99px;padding:6px 12px;cursor:pointer;user-select:none;background:var(--card)}
-.chip.on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
-.tips{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}
-.tips div{font-size:14px;background:var(--neutralbg);border-radius:10px;padding:8px 10px}
-.guide{width:130px;height:170px;margin:6px auto;display:block}
-.drop{border:2px dashed var(--line);border-radius:12px;padding:22px;text-align:center;cursor:pointer;color:var(--mute)}
-.drop.has{border-color:var(--accent);color:var(--ink)}
+.stepper{display:flex;gap:6px;margin:6px 0 20px;font:500 11px var(--mono);color:var(--mute);letter-spacing:.06em;text-transform:uppercase}
+.stepper span{flex:1;border-top:3px solid var(--line2);padding-top:6px}.stepper span.on{border-color:var(--accent);color:var(--ink)}
+label.f{display:block;font:500 12px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--mute);margin:14px 0 6px}
+input[type=text],input[type=date],input[type=url],textarea{font:inherit;padding:12px 14px;border:1px solid var(--line2);border-radius:10px;background:var(--paper);color:var(--ink);width:100%;min-height:48px}
+textarea{min-height:92px;resize:vertical}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:1px solid var(--line2);border-radius:99px;padding:9px 14px;cursor:pointer;background:var(--paper);color:var(--ink);font:500 14px var(--sans);min-height:40px}
+.chip[aria-pressed=true]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.sample{display:flex;gap:10px;align-items:center;background:var(--sample);color:var(--sampleink);border-radius:10px;padding:9px 12px;font-size:13px;margin:0 0 14px;border:1px solid rgba(0,0,0,.08)}
+.sample b{font:600 11px var(--mono);letter-spacing:.1em;text-transform:uppercase}
+.err{background:var(--badbg);color:var(--bad);border-radius:10px;padding:10px 12px;margin:12px 0;font-size:14px}
 .notebar{background:var(--neutralbg);border-radius:10px;padding:10px 12px;font-size:14px;margin:0 0 14px}
-.sample{background:#fff4d6;color:#5b4300;border:1px solid #ecd48a;border-radius:10px;padding:8px 12px;font-size:14px;margin:0 0 14px}
-.err{background:var(--badbg);color:var(--bad);border-radius:10px;padding:10px 12px;margin:10px 0;font-size:14px}
-.bar{display:flex;align-items:center;gap:10px;margin:8px 0;font-size:14px}.bar b{width:96px;font-weight:500}
-.bar .t{flex:1;height:10px;background:var(--neutralbg);border-radius:5px;overflow:hidden}.bar .t i{display:block;height:100%;background:var(--accent)}
-.bar em{width:56px;text-align:right;font-style:normal;color:var(--mute)}
+/* hero */
+.hero{padding:18px 0 8px}
+.hero h1 em{font-style:italic;color:var(--accent);font-weight:500}
+.lede{font-size:18px;color:var(--mute);max-width:34em;margin:16px 0 22px}
+.specimen{margin:26px 0 8px}
+.specimen .rowv{display:grid;grid-template-columns:96px 1fr 70px;gap:10px;align-items:center;font-size:13px;padding:8px 0;border-top:1px solid var(--line)}
+.specimen .rowv:first-child{border-top:0}
+.specimen .rowv .v{font:500 11px var(--mono);text-align:right}
+.how{display:grid;gap:12px;margin:26px 0}
+@media(min-width:640px){.how{grid-template-columns:repeat(3,1fr)}}
+.how .card{margin:0}.how .n{font:500 12px var(--mono);color:var(--accent)}
+.api{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 0}
+.chipapi{display:inline-flex;align-items:center;gap:6px;font:500 11px/1 var(--mono);color:var(--accent);background:var(--accent-soft);border-radius:6px;padding:5px 8px;white-space:nowrap}
+.chipapi:before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
+.chipapi.llm{color:var(--wait);background:var(--waitbg)}
+/* face guide / dropzone */
+.guidebox{position:relative;aspect-ratio:3/4;max-width:260px;margin:0 auto 12px;border-radius:14px;background:var(--paper2);overflow:hidden;border:1px solid var(--line)}
+.guidebox svg{position:absolute;inset:0;width:100%;height:100%;color:var(--accent)}
+.guidebox img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.tips{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0 14px}
+.tips div{font-size:13px;background:var(--paper2);border-radius:10px;padding:9px 10px;display:flex;gap:8px;line-height:1.35}
+.tips div:before{content:"+";font:600 13px var(--mono);color:var(--accent)}
+.drop{display:block;width:100%;border:1.5px dashed var(--line2);border-radius:12px;padding:20px;text-align:center;cursor:pointer;color:var(--mute);background:transparent;font:500 15px var(--sans);min-height:56px}
+.drop.has{border-color:var(--accent);color:var(--ink);border-style:solid}
+.thumbs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:10px 0}
+.thumbs img{width:100%;aspect-ratio:3/4;object-fit:cover;border-radius:8px;border:1px solid var(--line)}
+/* noise bars */
+.nbar{display:grid;grid-template-columns:104px 1fr 54px;gap:10px;align-items:center;margin:10px 0;font-size:14px}
+.nbar .t{position:relative;height:12px;background:repeating-linear-gradient(90deg,var(--line2) 0 1px,transparent 1px 10%);border-bottom:1px solid var(--line2)}
+.nbar .t i{position:absolute;left:0;top:2px;bottom:0;background:var(--band);border-right:3px solid var(--accent);transition:width .8s cubic-bezier(.2,.8,.2,1)}
+.nbar em{font:500 12px var(--mono);font-style:normal;text-align:right;color:var(--mute)}
+/* ===== agent ===== */
+.agenthead{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.meter{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin:0 0 16px;position:sticky;top:6px;z-index:5;box-shadow:var(--shadow)}
+.meter .mh{display:flex;justify-content:space-between;font:500 12px var(--mono);color:var(--mute);margin-bottom:8px;letter-spacing:.04em;text-transform:uppercase}
+.meter .mh b{color:var(--ink);font-weight:500}
+.ticks{display:grid;grid-template-columns:repeat(40,1fr);gap:2px;height:14px}
+.ticks i{background:var(--line);border-radius:1px;transition:background .3s}
+.ticks i.on{background:var(--accent)}.ticks i.on.hot{background:var(--wait)}
+.tl{list-style:none;margin:0 0 18px;padding:0;position:relative}
+.tl:before{content:"";position:absolute;left:15px;top:8px;bottom:8px;width:2px;background:var(--line)}
+.st{position:relative;display:grid;grid-template-columns:32px 1fr;gap:12px;padding:0 0 18px;animation:rise .45s cubic-bezier(.2,.8,.2,1)}
+.st .dot{width:32px;height:32px;border-radius:50%;background:var(--card);border:2px solid var(--line2);display:grid;place-items:center;z-index:1;color:var(--accent)}
+.st.done .dot{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.st.run .dot{border-color:var(--accent)}
+.st.fail .dot{background:var(--bad);border-color:var(--bad);color:#fff}
+.st .dot svg{width:16px;height:16px}
+.spinner{width:14px;height:14px;border:2px solid var(--accent);border-right-color:transparent;border-radius:50%;animation:spin 1s linear infinite}
+.st .body{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px;min-width:0}
+.st.run .body{border-color:var(--accent)}
+.st .t{font:600 15px/1.3 var(--sans);margin:0 0 4px}
+.st .s{font-size:14px;color:var(--mute);margin:0;overflow-wrap:anywhere}
+.st .meta{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:8px}
+.st .u{font:500 11px var(--mono);color:var(--mute)}
+.note{margin:0 0 16px 44px;font:italic 400 14px/1.45 var(--serif);color:var(--mute);border-left:2px solid var(--line2);padding-left:10px;animation:rise .4s}
+.thinking{display:flex;gap:8px;align-items:center;color:var(--mute);font-size:14px;margin:0 0 18px 4px}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+/* decision */
+.decision{border-radius:20px;padding:22px 20px;margin:6px 0 16px;border:1px solid;animation:rise .6s cubic-bezier(.2,.8,.2,1);position:relative;overflow:hidden}
+.decision.KEEP{background:var(--goodbg);border-color:var(--good);color:var(--ink)}
+.decision.STOP{background:var(--badbg);border-color:var(--bad)}
+.decision.WAIT{background:var(--waitbg);border-color:var(--wait)}
+.decision .big{font:700 clamp(44px,13vw,76px)/.95 var(--serif);letter-spacing:-.03em;margin:4px 0 12px}
+.decision.KEEP .big{color:var(--good)}.decision.STOP .big{color:var(--bad)}.decision.WAIT .big{color:var(--wait)}
+.decision .eyebrow{color:var(--mute)}
+.decision .hl{font:600 clamp(19px,4.6vw,24px)/1.25 var(--serif);margin:0 0 12px}
+.decision ul{margin:0;padding:0;list-style:none}
+.decision li{padding:8px 0 8px 22px;position:relative;font-size:15px;border-top:1px solid rgba(0,0,0,.1)}
+@media(prefers-color-scheme:dark){.decision li{border-top-color:rgba(255,255,255,.12)}}
+.decision li:before{content:"";position:absolute;left:2px;top:16px;width:8px;height:8px;background:currentColor;opacity:.55;transform:rotate(45deg)}
+.sect{font:500 12px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--mute);margin:26px 0 10px;display:flex;align-items:center;gap:10px}
+.sect:after{content:"";flex:1;height:1px;background:var(--line2)}
 .vc{border-left:5px solid var(--neutral)}.vc.IMPROVED{border-left-color:var(--good)}.vc.WORSE{border-left-color:var(--bad)}
-.badge{display:inline-block;font-size:12px;font-weight:700;letter-spacing:.04em;padding:3px 9px;border-radius:99px;background:var(--neutralbg);color:var(--neutral)}
-.IMPROVED .badge{background:var(--goodbg);color:var(--good)}.WORSE .badge{background:var(--badbg);color:var(--bad)}
-.vh{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}.vh strong{font-size:18px}
-.axis{position:relative;height:34px;margin:14px 6px 4px}
-.axis .line{position:absolute;left:0;right:0;top:16px;height:2px;background:var(--line)}
-.axis .band{position:absolute;top:6px;height:22px;background:var(--band);opacity:.8;border-radius:4px}
+.vh{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:6px}.vh strong{font:600 17px var(--serif)}
+.badge{display:inline-block;font:500 11px/1 var(--mono);letter-spacing:.06em;text-transform:uppercase;padding:6px 9px;border-radius:6px;background:var(--neutralbg);color:var(--neutral);white-space:nowrap}
+.IMPROVED .badge,.b-good{background:var(--goodbg);color:var(--good)}.WORSE .badge,.b-bad{background:var(--badbg);color:var(--bad)}.b-wait{background:var(--waitbg);color:var(--wait)}
+.axis{position:relative;height:40px;margin:12px 4px 2px;background:repeating-linear-gradient(90deg,var(--line2) 0 1px,transparent 1px calc(100%/20));-webkit-mask:none}
+.axis .line{position:absolute;left:0;right:0;top:19px;height:2px;background:var(--line2)}
+.axis .band{position:absolute;top:8px;height:24px;background:var(--band);border-radius:3px;border-left:1px solid var(--accent);border-right:1px solid var(--accent)}
 .axis .zero{position:absolute;top:2px;bottom:2px;width:1px;background:var(--mute)}
-.axis .mk{position:absolute;top:2px;width:4px;height:30px;margin-left:-2px;border-radius:2px;background:var(--neutral)}
-.IMPROVED .axis .mk{background:var(--good)}.WORSE .axis .mk{background:var(--bad)}
-.axlab{display:flex;justify-content:space-between;font-size:12px;color:var(--mute);margin:0 6px}
+.axis .mk{position:absolute;top:3px;width:4px;height:34px;margin-left:-2px;border-radius:2px;background:var(--neutral);transition:left .9s cubic-bezier(.2,.8,.2,1)}
+.axis .mk:after{content:"";position:absolute;left:-4px;top:-4px;border:6px solid transparent;border-top-color:inherit;border-width:6px 6px 0;border-top-color:var(--neutral)}
+.IMPROVED .axis .mk{background:var(--good)}.IMPROVED .axis .mk:after{border-top-color:var(--good)}
+.WORSE .axis .mk{background:var(--bad)}.WORSE .axis .mk:after{border-top-color:var(--bad)}
+.axlab{display:flex;justify-content:space-between;font:400 11px var(--mono);color:var(--mute);margin:0 4px;gap:8px}
+.axlab span:nth-child(2){text-align:center}
+.next{font-size:14px;border-top:1px solid var(--line);padding-top:8px;margin-top:10px}.next b{color:var(--accent)}
+.claim{display:grid;grid-template-columns:1fr auto;gap:6px 12px;align-items:start}
+.claim q{font:italic 400 15px/1.4 var(--serif);quotes:"\201C" "\201D"}
+.claim .sub{grid-column:1/-1;font-size:13px;color:var(--mute)}
+.simbox{position:relative;border-radius:14px;overflow:hidden;border:1px solid var(--line);background:var(--paper2);max-width:340px}
+.simbox img{display:block;width:100%}
+.simbox .tag{position:absolute;left:0;right:0;bottom:0;background:rgba(20,22,26,.82);color:#f7f4ec;font:500 12px var(--mono);letter-spacing:.06em;text-transform:uppercase;padding:9px 12px}
+.simph{aspect-ratio:16/9;display:grid;place-items:center;text-align:center;padding:20px;color:var(--mute);font-size:13px}
 .ba{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}
 .ba figure{margin:0;text-align:center;font-size:12px;color:var(--mute)}
 .ba img,.ba .ph{width:100%;aspect-ratio:3/4;object-fit:cover;border-radius:8px;background:var(--neutralbg);display:flex;align-items:center;justify-content:center;font-size:12px;padding:8px}
-.next{font-size:14px;border-top:1px solid var(--line);padding-top:8px;margin-top:8px}
-.next b{color:var(--accent)}
-.hist{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0}.hist span{font-size:12px;border:1px solid var(--line);border-radius:6px;padding:2px 8px}.hist .x{color:var(--bad);border-color:var(--bad)}
-footer{font-size:12px;color:var(--mute);text-align:center;margin-top:30px}
-.spin{display:inline-block;width:14px;height:14px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;animation:s 1s linear infinite;vertical-align:-2px;margin-right:6px}
-@keyframes s{to{transform:rotate(360deg)}}
+.hist{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0}.hist span{font:400 12px var(--mono);border:1px solid var(--line2);border-radius:6px;padding:3px 8px}.hist .x{color:var(--bad);border-color:var(--bad)}
+.cta{padding:12px 0;margin-top:10px}
+footer{font-size:12px;color:var(--mute);text-align:center;margin-top:36px;line-height:1.5}
+.spin{display:inline-block;width:14px;height:14px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;animation:spin 1s linear infinite;vertical-align:-2px;margin-right:8px}
+@media(min-width:900px){.wrap{padding-bottom:96px}.card{padding:22px}.st .body{padding:14px 18px}.decision{padding:30px 32px}}
+@media(max-width:380px){.nbar{grid-template-columns:84px 1fr 48px}.tips{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}.spinner,.spin{animation:none;border-right-color:currentColor}}
 </style>
 </head>
 <body>
 <div class="wrap">
-<header><div class="logo" onclick="go('home')"><i></i>SkinProof</div><div class="units" id="units" hidden></div></header>
-<main id="main"></main>
-<footer>SkinProof is a measurement tool, not medical advice. Photos stay on this machine.</footer>
+<header class="top"><button class="logo" data-go="home" aria-label="SkinProof home"><svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="8" fill="var(--accent)"/><path d="M8 17l5 5 11-12" stroke="var(--accent-ink)" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>SkinProof</button>
+<div class="nav"><span class="pill" id="units" hidden></span></div></header>
+<main id="main" tabindex="-1" aria-live="polite"></main>
+<footer>SkinProof is a measurement tool, not medical advice.<br>Photos stay on this machine. Simulations are never your result.</footer>
 </div>
 <script>
 const $=s=>document.querySelector(s), main=$('#main');
-const st={pid:null,concerns:{},status:{},cal:null,product:null,files:[],picked:new Set(),demo:false};
+const st={pid:null,concerns:{},status:{},cal:null,files:[],picked:new Set(),demo:false,run:0};
 try{st.pid=localStorage.getItem('sp_pid')}catch(e){}
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
 async function api(path,opt){const r=await fetch('/api'+path,opt);let b={};try{b=await r.json()}catch(e){}
  if(!r.ok&&r.status!==422)throw new Error(b.detail||b.error||('Request failed ('+r.status+')'));return {ok:r.ok,status:r.status,body:b}}
 function setUnits(u){const el=$('#units');if(u==null){el.hidden=true;return}el.hidden=false;el.textContent=Math.round(u)+' units left'}
-function steps(n){return '<div class="steps">'+[1,2,3,4].map(i=>'<span class="'+(i<=n?'on':'')+'"></span>').join('')+'</div>'}
-const guideSvg='<svg class="guide" viewBox="0 0 130 170" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="65" cy="85" rx="48" ry="64" stroke-dasharray="6 5" opacity=".6"/><circle cx="48" cy="72" r="3"/><circle cx="82" cy="72" r="3"/><path d="M50 108q15 12 30 0" stroke-linecap="round"/></svg>';
+function stepper(n){const l=['Calibrate','Product','Check-in','Verdict'];return '<div class="stepper" aria-label="Progress">'+l.map((x,i)=>`<span class="${i<n?'on':''}"${i===n-1?' aria-current="step"':''}>${i+1} ${x}</span>`).join('')+'</div>'}
+function show(html){st.run++;main.innerHTML=html;window.scrollTo({top:0,behavior:reduce?'auto':'smooth'})}
+const IC={check:'<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5l3.2 3.2L13 4.5"/></svg>',x:'<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M4 4l8 8M12 4l-8 8"/></svg>'};
+const guideSvg=`<svg viewBox="0 0 120 160" fill="none" stroke="currentColor" aria-hidden="true"><g stroke-width="2" stroke-linecap="round" opacity=".9"><path d="M8 26V8h18M94 8h18v18M112 134v18H94M26 152H8v-18"/></g><g stroke-width="1" opacity=".35"><path d="M60 8v144M8 80h104M8 53h104M8 107h104"/></g><ellipse cx="60" cy="80" rx="37" ry="50" stroke-width="2" stroke-dasharray="5 5"/><g stroke-width="1.5" opacity=".6"><circle cx="46" cy="70" r="2.5"/><circle cx="74" cy="70" r="2.5"/><path d="M48 100q12 9 24 0" stroke-linecap="round"/></g></svg>`;
+function tipsHtml(extra){return `<div class="guidebox" id="gb">${guideSvg}</div><div class="tips"><div>No glasses, hair off your face</div><div>Even light, face a window</div><div>Face fills the oval, over 60% of width</div><div>${extra||'Straight on, neutral expression'}</div></div>`}
+function pick(multi){return new Promise(res=>{const i=document.createElement('input');i.type='file';i.accept='image/*';i.multiple=multi;if(!multi)i.setAttribute('capture','user');i.onchange=()=>res([...i.files]);i.click()})}
+function chipApi(label,cls){return label?`<span class="chipapi ${cls||''}">${esc(label)}</span>`:''}
 
-async function go(screen){
- if(screen==='home')return home();
- if(screen==='calibrate')return calibrate();
- if(screen==='product')return product();
- if(screen==='checkin')return checkin();
- if(screen==='results')return results();
-}
+document.addEventListener('click',e=>{const t=e.target.closest('[data-go]');if(t){e.preventDefault();go(t.dataset.go)}});
+async function go(s){({home,start,calibrate,product,checkin:()=>checkin(),results,sample:trySample,agent:()=>runAgent({live:true})}[s]||home)()}
+
+/* ================= HOME ================= */
 function home(){
  st.demo=false;
- main.innerHTML=`<h1>Is your skincare actually working?</h1>
- <p style="font-size:18px">Skin scores move with lighting, angle and distance, even when your skin has not changed. SkinProof measures that noise on <em>your</em> face and only says "improved" when the change is bigger than it. <b>No fake progress. Just proof.</b></p>
- <div class="card"><div class="row"><button class="btn" onclick="start()">Start</button><button class="btn ghost" onclick="showDemo()">See a sample (no photo needed)</button></div>
- <p class="small mute" style="margin-top:12px">Powered by the YouCam AI Skin Analysis API. Takes 3 same-day photos once, then one photo per check-in.</p></div>
- <div class="card"><h2>How it works</h2><ol class="mute" style="margin:0;padding-left:20px"><li>Take 3-6 photos today, in different light. We measure the wobble per concern.</li><li>Tell us the product you are testing and what it claims to fix.</li><li>Check in weekly. We compare against the wobble, not against hope.</li></ol></div>`;
+ const sp=[['Pores','Improved',58,'b-good'],['Redness','No proven change',18,''],['Texture','Improved',66,'b-good']];
+ show(`<section class="hero"><span class="eyebrow">Skincare, audited</span>
+ <h1>Should I keep <em>buying</em> this?</h1>
+ <p class="lede">Skin scores wobble with light, angle and distance, even when your skin has not changed. SkinProof measures that wobble on <em>your</em> face, checks the product's claims against what changed, and gives you one answer: keep, stop, or wait.</p>
+ <div class="row"><button class="btn" data-go="start">Start</button><button class="btn ghost" data-go="sample">Try the sample</button></div>
+ <p class="small mute" style="margin-top:12px">The sample needs no photo and no account. <b>No fake progress. Just proof.</b></p></section>
+ <div class="specimen card" aria-label="Example of a report">
+  <span class="eyebrow">Specimen report</span>
+  ${sp.map(r=>`<div class="rowv"><span>${r[0]}</span><div class="axis" style="height:22px;margin:0"><div class="line" style="top:10px"></div><div class="band" style="left:42%;width:16%;top:3px;height:16px"></div><div class="zero"></div><div class="mk" style="left:${r[2]+ (r[0]==='Redness'?32:0)}%;top:0;height:22px;background:${r[3]?'var(--good)':'var(--neutral)'}"></div></div><span class="v ${r[3]}" style="padding:3px 0">${r[1]==='No proven change'?'NOT PROVEN':r[1].toUpperCase()}</span></div>`).join('')}
+  <p class="small mute" style="margin:10px 0 0">Shaded band = your own measurement noise. A change only counts when the marker leaves it.</p></div>
+ <div class="how"><div class="card"><span class="n">01</span><h3>Measure your noise</h3><p class="small mute">Three same-day photos of your face. Differences between them are pure measurement error.</p></div>
+ <div class="card"><span class="n">02</span><h3>Name the product</h3><p class="small mute">Paste its claims, a link, or photograph the label. We read what it promises.</p></div>
+ <div class="card"><span class="n">03</span><h3>Let the agent check</h3><p class="small mute">It decides which tests to run, shows every step, and stays inside a hard budget of 40 units.</p></div></div>
+ <div class="api"><span class="small mute" style="margin-right:4px">Built on</span>${['Skin Analysis','Skin Tone','Fitzpatrick','Face Attributes','Skin Simulation','Photo Lighting'].map(x=>chipApi('YouCam · '+x)).join('')}</div>`);
 }
+
+/* ================= FLOW ================= */
 async function start(){
  try{const s=await api('/status');st.status=s.body;st.concerns=s.body.concerns;setUnits(s.body.units)}catch(e){}
- if(!st.status.has_key){main.innerHTML='<div class="err">The server has no YouCam API key configured. Try the sample instead.</div><button class="btn" onclick="showDemo()">See sample</button>';return}
+ if(!st.status.has_key){show('<div class="err">The server has no YouCam API key configured, so live runs are off. The sample shows everything.</div><button class="btn" data-go="sample">Try the sample</button>');return}
  if(!st.pid){const p=await api('/profiles',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({name:'Me'})});st.pid=p.body.id;try{localStorage.setItem('sp_pid',st.pid)}catch(e){}}
- const p=(await api('/profiles/'+st.pid)).body;st.cal=p.calibration;
+ let p;try{p=(await api('/profiles/'+st.pid)).body}catch(e){st.pid=null;try{localStorage.removeItem('sp_pid')}catch(_){}return start()}
+ st.cal=p.calibration;
  if(!p.calibration)return calibrate();
  if(!p.products.length)return product();
  return checkin(p);
 }
-function tipsHtml(){return guideSvg+`<div class="tips"><div>No glasses, hair off the face</div><div>Even light, face a window</div><div>Face fills the frame (over 60% of width)</div><div>Straight on, neutral expression</div></div>`}
-function pick(multi){return new Promise(res=>{const i=document.createElement('input');i.type='file';i.accept='image/*';i.multiple=multi;if(!multi)i.setAttribute('capture','user');i.onchange=()=>res([...i.files]);i.click()})}
 function calibrate(){
  st.files=[];
- main.innerHTML=steps(1)+`<h2>1. Measure your photo noise</h2><p>Take 3 to 6 photos of your face <b>today</b>, changing light, angle and distance a little between each. Your skin is the same in all of them, so any score difference is pure measurement noise.</p>
- <div class="card">${tipsHtml()}<div class="drop" id="drop">Tap to choose 3-6 photos</div><div id="msg"></div><p class="small mute" style="margin-top:10px">Uses about 12 units per photo (${st.status.units_per_analysis||12}). Identical photos are never charged twice.</p>
- <button class="btn" id="go" disabled>Measure noise</button></div>`;
- $('#drop').onclick=async()=>{st.files=await pick(true);$('#drop').textContent=st.files.length+' photo(s) selected';$('#drop').classList.toggle('has',st.files.length>0);$('#go').disabled=st.files.length<3||st.files.length>6;if(st.files.length<3||st.files.length>6)$('#msg').innerHTML='<div class="err">Choose between 3 and 6 photos.</div>';else $('#msg').innerHTML=''};
- $('#go').onclick=async()=>{const b=$('#go');b.disabled=true;b.innerHTML='<span class="spin"></span>Analysing, about 20 s per photo';
+ show(stepper(1)+`<span class="eyebrow">Step 1 of 4</span><h2>Measure your photo noise</h2><p class="mute">Take 3 to 6 photos of your face <b>today</b>, changing light, angle and distance a little each time. Your skin is identical in all of them, so any score difference is measurement noise.</p>
+ <div class="card">${tipsHtml('Move a little between shots')}<div class="thumbs" id="th" hidden></div><button class="drop" id="drop">Tap to choose 3 to 6 photos</button><div id="msg"></div>
+ <p class="small mute" style="margin:12px 0">About ${st.status.units_per_analysis||12} units per photo. Identical photos are never charged twice.</p>
+ <button class="btn" id="go" disabled>Measure noise</button></div>`);
+ $('#drop').onclick=async()=>{const f=await pick(true);if(!f.length)return;st.files=f;const ok=f.length>=3&&f.length<=6;
+  $('#drop').textContent=f.length+' photo(s) selected. Tap to change';$('#drop').classList.toggle('has',ok);$('#go').disabled=!ok;
+  $('#msg').innerHTML=ok?'':'<div class="err">Choose between 3 and 6 photos.</div>';
+  const th=$('#th');th.hidden=false;th.innerHTML=f.slice(0,6).map(x=>`<img alt="Selected photo" src="${URL.createObjectURL(x)}">`).join('')};
+ $('#go').onclick=async()=>{const b=$('#go');b.disabled=true;b.innerHTML='<span class="spin"></span>Measuring, about 20 s per photo';
   const fd=new FormData();st.files.forEach(f=>fd.append('files',f));
   try{const r=await api('/profiles/'+st.pid+'/calibrate',{method:'POST',body:fd});
    if(!r.ok){$('#msg').innerHTML='<div class="err">'+esc(r.body.error)+(r.body.rejected||[]).map(x=>'<br>Photo '+(x.index+1)+': '+esc(x.message)).join('')+'</div>';b.disabled=false;b.textContent='Measure noise';return}
@@ -119,68 +246,201 @@ function calibrate(){
   catch(e){$('#msg').innerHTML='<div class="err">'+esc(e.message)+'</div>';b.disabled=false;b.textContent='Measure noise'}}
 }
 function noiseView(cal,rej,next,sample){
- const rows=Object.entries(cal.concerns);const mx=Math.max(...rows.map(([,v])=>v.threshold),10);
- main.innerHTML=(sample?'<div class="sample"><b>Sample data.</b> Invented scores, no real face.</div>':steps(1))+`<h2>Your measurement noise</h2><p>Same face, same day, different light and angle. These are the swings in score that mean <b>nothing</b>. A change must beat the bar to count.</p>
- <div class="card">${rows.map(([c,v])=>`<div class="bar"><b>${esc(st.concerns[c]||c)}</b><div class="t"><i style="width:${v.threshold/mx*100}%"></i></div><em>${Math.round(v.threshold)} pts</em></div>`).join('')}
- <p class="small mute" style="margin-top:10px">Rule: threshold = largest of the observed range, 2x standard deviation, or 3 points.</p></div>
+ const rows=Object.entries(cal.concerns);const mx=Math.max(...rows.map(([,v])=>v.threshold),10)*1.1;
+ show((sample?sampleRibbon('Invented scores, no real face.'):stepper(1))+`<span class="eyebrow">Your noise floor</span><h2>The wobble that means nothing</h2><p class="mute">Same face, same day, different light and angle. A real change must beat these bars to count.</p>
+ <div class="card">${rows.map(([c,v])=>`<div class="nbar"><b style="font-weight:500">${esc(st.concerns[c]||c)}</b><div class="t"><i style="width:0" data-w="${v.threshold/mx*100}"></i></div><em>&plusmn;${Math.round(v.threshold)} pts</em></div>`).join('')}
+ <p class="small mute" style="margin:12px 0 0">Rule: threshold is the largest of the observed range, 2x standard deviation, or 3 points.</p></div>
  ${(rej&&rej.length)?'<div class="err">'+rej.map(x=>'Photo '+(x.index+1)+' skipped: '+esc(x.message)).join('<br>')+'</div>':''}
- <button class="btn" id="n">${sample?'Back to results':'Next: the product you are testing'}</button>`;
+ <button class="btn" id="n">${sample?'Back to the verdict':'Next: the product you are testing'}</button>`);
+ requestAnimationFrame(()=>document.querySelectorAll('.nbar i').forEach(i=>i.style.width=i.dataset.w+'%'));
  $('#n').onclick=next;
 }
 function product(){
- const c=Object.entries(st.concerns);st.picked=new Set();
- main.innerHTML=steps(2)+`<h2>2. What are you testing?</h2><div class="card"><label class="small mute">Product name</label><input type="text" id="pn" placeholder="e.g. Niacinamide 10% serum"><br><br>
- <label class="small mute">Start date</label><input type="date" id="pd" value="${new Date().toISOString().slice(0,10)}"><br><br>
- <label class="small mute">What does it claim to help? (tap all that apply)</label><div class="chips" id="ch">${c.map(([k,v])=>`<span class="chip" data-k="${k}">${esc(v)}</span>`).join('')}</div><br>
- <button class="btn" id="sv">Save and take first check-in</button></div>`;
- document.querySelectorAll('.chip').forEach(e=>e.onclick=()=>{const k=e.dataset.k;st.picked.has(k)?st.picked.delete(k):st.picked.add(k);e.classList.toggle('on')});
- $('#sv').onclick=async()=>{const name=$('#pn').value.trim();if(!name||!st.picked.size){alert('Add a name and pick at least one concern.');return}
-  await api('/profiles/'+st.pid+'/products',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({name,start_date:$('#pd').value,concerns:[...st.picked]})});checkin()}
+ const c=Object.entries(st.concerns);st.picked=new Set();st.label=null;
+ show(stepper(2)+`<span class="eyebrow">Step 2 of 4</span><h2>What are you testing?</h2><p class="mute">Tell us the product and what it promises. The more it claims in writing, the more the agent can check.</p>
+ <div class="card"><label class="f" for="pn">Product name</label><input type="text" id="pn" placeholder="e.g. Niacinamide 10% serum" autocomplete="off">
+ <label class="f" for="pd">Start date</label><input type="date" id="pd" value="${new Date().toISOString().slice(0,10)}">
+ <label class="f" id="chl">Claims it helps with</label><div class="chips" role="group" aria-labelledby="chl">${c.map(([k,v])=>`<button type="button" class="chip" aria-pressed="false" data-k="${k}">${esc(v)}</button>`).join('')}</div></div>
+ <div class="card"><h3>Optional: give the agent the exact claims</h3><p class="small mute">Any one of these is enough. It reads them and tests each promise against your skin.</p>
+ <label class="f" for="ct">Paste the claim text</label><textarea id="ct" placeholder="e.g. Visibly reduces pores and redness in 4 weeks"></textarea>
+ <label class="f" for="cu">Or a product page link</label><input type="url" id="cu" placeholder="https://" inputmode="url">
+ <label class="f">Or a photo of the label</label><button type="button" class="drop" id="lbl">Tap to add a label photo</button></div>
+ <div id="msg"></div><button class="btn" id="sv">Save and take first check-in</button>`);
+ document.querySelectorAll('.chip').forEach(e=>e.onclick=()=>{const k=e.dataset.k;st.picked.has(k)?st.picked.delete(k):st.picked.add(k);e.setAttribute('aria-pressed',st.picked.has(k))});
+ $('#lbl').onclick=async()=>{const f=(await pick(false))[0];if(f){st.label=f;$('#lbl').textContent=f.name;$('#lbl').classList.add('has')}};
+ $('#sv').onclick=async()=>{const name=$('#pn').value.trim();if(!name||!st.picked.size){$('#msg').innerHTML='<div class="err">Add a product name and pick at least one concern.</div>';return}
+  const body={name,start_date:$('#pd').value,concerns:[...st.picked]};const ct=$('#ct').value.trim(),cu=$('#cu').value.trim();if(ct)body.claim_text=ct;if(cu)body.claim_url=cu;
+  if(st.label){body.label_image=await new Promise(r=>{const fr=new FileReader();fr.onload=()=>r(fr.result);fr.readAsDataURL(st.label)})}
+  $('#sv').disabled=true;try{await api('/profiles/'+st.pid+'/products',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body)});checkin()}
+  catch(e){$('#msg').innerHTML='<div class="err">'+esc(e.message)+'</div>';$('#sv').disabled=false}}
 }
 async function checkin(){
  const p=(await api('/profiles/'+st.pid)).body;const n=p.checkins.filter(c=>!c.error).length;
- main.innerHTML=steps(3)+`<h2>3. Check-in #${p.checkins.length+1}</h2><p>Same spot, same kind of light as your other check-ins if you can. You have ${n} counted check-in(s); two are needed to compare.</p>
- <div class="card">${tipsHtml()}<div class="drop" id="drop">Tap to take or choose a photo</div><label class="small mute">Date</label><input type="date" id="cd" value="${new Date().toISOString().slice(0,10)}"><div id="msg"></div><br>
- <div class="row"><button class="btn" id="go" disabled>Analyse</button>${n>=2?'<button class="btn ghost" onclick="results()">See results</button>':''}</div></div>
- <div class="hist">${p.checkins.map(c=>`<span class="${c.error?'x':''}">${esc(c.date)}${c.error?' (not counted)':''}</span>`).join('')}</div>`;
- let f=null;$('#drop').onclick=async()=>{const a=await pick(false);f=a[0];if(f){$('#drop').textContent=f.name;$('#drop').classList.add('has');$('#go').disabled=false}};
+ show(stepper(3)+`<span class="eyebrow">Step 3 of 4</span><h2>Check-in no. ${p.checkins.length+1}</h2><p class="mute">Same spot and same kind of light as your other check-ins, if you can. You have <span class="num">${n}</span> counted check-in${n===1?'':'s'}; two are needed to compare.</p>
+ <div class="card">${tipsHtml('Same distance and light as last time')}<button class="drop" id="drop">Tap to take or choose a photo</button>
+ <label class="f" for="cd">Date</label><input type="date" id="cd" value="${new Date().toISOString().slice(0,10)}"><div id="msg"></div>
+ <div class="row" style="margin-top:16px"><button class="btn" id="go" disabled>Analyse</button>${n>=2?'<button class="btn ghost" data-go="results">See measurements</button>':''}</div></div>
+ ${n>=2?`<div class="card" style="border-color:var(--accent)"><span class="eyebrow">Ready</span><h3>Should you keep buying it?</h3><p class="small mute">The agent reads the claims, checks them against your skin and tells you what it did at every step.</p><button class="btn" data-go="agent">Ask the agent</button></div>`:''}
+ <div class="hist">${p.checkins.map(c=>`<span class="${c.error?'x':''}">${esc(c.date)}${c.error?' (not counted)':''}</span>`).join('')}</div>`);
+ let f=null;$('#drop').onclick=async()=>{const a=await pick(false);f=a[0];if(f){$('#drop').textContent=f.name;$('#drop').classList.add('has');$('#go').disabled=false;
+  $('#gb').innerHTML=guideSvg+`<img alt="Your photo" src="${URL.createObjectURL(f)}" style="opacity:.0">`;const im=$('#gb img');im.style.opacity=1;$('#gb').insertBefore(im,$('#gb').firstChild)}};
  $('#go').onclick=async()=>{const b=$('#go');b.disabled=true;b.innerHTML='<span class="spin"></span>Analysing';const fd=new FormData();fd.append('file',f);fd.append('when',$('#cd').value);
   try{const r=await api('/profiles/'+st.pid+'/checkins',{method:'POST',body:fd});setUnits(r.body.units);
    if(!r.body.counted){$('#msg').innerHTML='<div class="err"><b>This photo was not counted.</b> '+esc(r.body.checkin.error.message)+' Retake and try again.</div>';b.disabled=false;b.textContent='Analyse';return}
-   const p2=(await api('/profiles/'+st.pid)).body;if(p2.checkins.filter(c=>!c.error).length>=2)results();else checkin()}
+   checkin()}
   catch(e){$('#msg').innerHTML='<div class="err">'+esc(e.message)+'</div>';b.disabled=false;b.textContent='Analyse'}}
 }
-async function showDemo(){
- st.demo=true;try{const s=await api('/status');st.concerns=s.body.concerns;setUnits(null)}catch(e){}
- const d=(await api('/demo')).body;renderResults(d,true)
+function sampleRibbon(t){return `<div class="sample" role="note"><b>Sample data</b><span>${esc(t||'Invented to show the flow. No real face, nothing sent to YouCam.')}</span></div>`}
+
+/* ================= AGENT ================= */
+const TOOLMAP=[
+ [/consisten|attribute|ratio|pose|framing|match/i,'Checking your photo matches last time','YouCam · Face Attributes'],
+ [/simulat/i,'Showing what the claim would look like (simulation)','YouCam · Skin Simulation'],
+ [/fitz/i,'Placing your skin type for context','YouCam · Fitzpatrick'],
+ [/tone|color/i,'Reading your skin tone for context','YouCam · Skin Tone'],
+ [/light/i,'Evening out the lighting first','YouCam · Photo Lighting'],
+ [/(compar|check|test).*claim|claim.*(compar|check|against|measur)/i,'Checking claims against your skin',null],
+ [/claim|extract|read|label|product|url/i,"Reading the product's claims",'LLM · OpenRouter','llm'],
+ [/noise|verdict|threshold|compar/i,'Comparing with your noise',null],
+ [/analy|measure|skin|score/i,'Measuring your skin with YouCam Skin Analysis','YouCam · Skin Analysis']];
+function toolInfo(tool){tool=tool||'';for(const [re,l,c,k] of TOOLMAP)if(re.test(tool))return {label:l,chip:c,kind:k};
+ return {label:tool?tool.replace(/_/g,' ').replace(/^./,m=>m.toUpperCase()):'Working',chip:null}}
+const VL={IMPROVED:'Improved',WORSE:'Worse',NO_PROVEN_CHANGE:'No proven change'};
+const CS={SUPPORTED:['Supported','b-good'],NOT_YET_SHOWN:['Not yet shown',''],CONTRADICTED:['Contradicted','b-bad'],TOO_EARLY:['Too early','b-wait'],NOT_MEASURABLE:['Not measurable','']};
+
+const SAMPLE_TRACE=(()=>{const B=40;const e=(type,step,tool,summary,spent,extra)=>Object.assign({type,step,tool,summary,units_spent:spent,units_left_in_budget:B-spent},extra||{});
+ return [e('start',0,null,'Starting a check on "Niacinamide 10% serum (sample)" with a budget of 40 units.',0),
+ e('thought',1,null,'Two valid check-ins exist, six weeks apart. I will confirm the photos are comparable before trusting any difference.',0),
+ e('tool_call',1,'check_photo_consistency',"Comparing head pose and framing of the two photos.",0),
+ e('tool_result',1,'check_photo_consistency','Pose differs by 3 degrees and framing by 4%. Comparable.',2),
+ e('tool_call',2,'analyze_skin','Running skin analysis on the newest check-in.',2),
+ e('tool_result',2,'analyze_skin','8 concerns measured. Raw scores only; the vendor display score is ignored.',14),
+ e('tool_call',3,'compare_with_noise','Comparing each change with the noise measured on your face.',14),
+ e('tool_result',3,'compare_with_noise','Pores and texture moved more than their noise. Redness did not.',14),
+ e('tool_call',4,'extract_claims','Reading the product claims.',14),
+ e('tool_result',4,'extract_claims','3 claims found: pores, redness, texture, all within 4 weeks.',14),
+ e('tool_call',5,'compare_claims','Checking each claim against what was measured.',14),
+ e('tool_result',5,'compare_claims','Pores and texture supported. Redness not yet shown.',14),
+ e('thought',6,null,'A simulation would only show what the claim looks like, not what happened. Worth one call to make the gap concrete.',14),
+ e('tool_call',6,'skin_simulation','Generating a simulation of the claimed redness improvement.',14),
+ e('tool_result',6,'skin_simulation','Simulation ready. It is labelled and never counted as a result.',26),
+ e('final',7,null,'Decision: KEEP, and re-check redness in 4 weeks.',26,{data:{decision:'KEEP',headline:'Two of the three claims are visibly proven on your face. Keep using it.',
+  reasons:['Pores improved by 5 points, past the 3-point noise band.','Texture improved by 4 points, past its 3-point noise band.','Redness moved 2 points, inside its noise. Not proven yet, not disproven.'],
+  verdicts:[{concern:'pore',label:'Pores',verdict:'IMPROVED',delta:5,threshold:3,targeted:true,sentence:'Pores improved by 5 points; your noise is 3.'},
+   {concern:'texture',label:'Texture',verdict:'IMPROVED',delta:4,threshold:3,targeted:true,sentence:'Texture improved by 4 points; your noise is 3.'},
+   {concern:'redness',label:'Redness',verdict:'NO_PROVEN_CHANGE',delta:2,threshold:4,targeted:true,sentence:'Redness moved 2 points; your noise is 4.',next:'Re-check in 4 weeks under the same light.'},
+   {concern:'wrinkle',label:'Wrinkles',verdict:'NO_PROVEN_CHANGE',delta:0,threshold:3,targeted:false,sentence:'No change beyond noise.'}],
+  claims:[{concern:'pore',quote:'Visibly reduces the look of pores',timeframe_weeks:4,weeks_elapsed:6,status:'SUPPORTED'},
+   {concern:'texture',quote:'Smoother texture in 4 weeks',timeframe_weeks:4,weeks_elapsed:6,status:'SUPPORTED'},
+   {concern:'redness',quote:'Calms redness',timeframe_weeks:4,weeks_elapsed:6,status:'NOT_YET_SHOWN'}],
+  simulation_image:null}})]})();
+
+function agentShell(sample,note){
+ show(`${sample?sampleRibbon(note):''}<div class="agenthead"><div><span class="eyebrow">The investigation</span><h2 style="margin:0">Should you keep buying it?</h2></div><div class="row"><button class="btn ghost sm" id="rp" hidden>Replay</button></div></div>
+ <div class="meter" role="group" aria-label="Unit budget"><div class="mh"><span>YouCam units</span><span><b class="num" id="ms">0</b> / <span class="num" id="mb">40</span> spent</span></div><div class="ticks" id="tk">${'<i></i>'.repeat(40)}</div></div>
+ <ol class="tl" id="tl" aria-live="polite"></ol><div id="think" class="thinking"><span class="spinner" aria-hidden="true"></span>Agent is working</div><div id="out"></div>`);
 }
+function setMeter(spent,left){const b=Math.round((spent||0)+(left??(40-(spent||0))));const budget=b>0?b:40;$('#ms').textContent=Math.round(spent);$('#mb').textContent=budget;
+ const n=Math.round(spent/budget*40);document.querySelectorAll('#tk i').forEach((t,i)=>{t.className=i<n?'on'+(spent/budget>.8?' hot':''):''})}
+function stepEl(step){return document.querySelector('#tl .st[data-step="'+step+'"]')}
+function applyEvent(ev,ctx){
+ if(!$('#tl'))return;
+ if(ev.units_spent!=null)setMeter(ev.units_spent,ev.units_left_in_budget);
+ const tl=$('#tl');
+ if(ev.type==='start'){return}
+ if(ev.type==='thought'){const n=document.createElement('p');n.className='note';n.textContent=ev.summary||'';tl.appendChild(n);return}
+ if(ev.type==='tool_call'){const t=toolInfo(ev.tool);const li=document.createElement('li');li.className='st run';li.dataset.step=ev.step;li.dataset.base=ev.units_spent||0;
+  li.innerHTML=`<span class="dot" aria-hidden="true"><span class="spinner"></span></span><div class="body"><p class="t">${esc(t.label)}</p><p class="s">${esc(ev.summary||'')}</p><div class="meta">${chipApi(t.chip,t.kind)}<span class="u"></span></div></div>`;tl.appendChild(li);li.scrollIntoView({block:'nearest',behavior:reduce?'auto':'smooth'});return}
+ if(ev.type==='tool_result'){let li=stepEl(ev.step);if(!li){applyEvent(Object.assign({},ev,{type:'tool_call'}),ctx);li=stepEl(ev.step)}
+  const d=(ev.units_spent||0)-parseFloat(li.dataset.base||0);const bad=ev.data&&ev.data.error;li.className='st '+(bad?'fail':'done');
+  li.querySelector('.dot').innerHTML=bad?IC.x:IC.check;li.querySelector('.s').textContent=ev.summary||'';li.querySelector('.u').textContent=d>0?'+'+Math.round(d*10)/10+' units':'no units';return}
+ if(ev.type==='error'){const li=document.createElement('li');li.className='st fail';li.innerHTML=`<span class="dot">${IC.x}</span><div class="body"><p class="t">The agent stopped</p><p class="s">${esc(ev.summary||'Something went wrong.')}</p></div>`;tl.appendChild(li);endThinking();return}
+ if(ev.type==='final'){endThinking();renderFinal(ev.data||{},ev,ctx)}
+}
+function endThinking(){const t=$('#think');if(t)t.remove()}
+function claimStatus(s){return CS[s]||[String(s||'').replace(/_/g,' ').toLowerCase(),'']}
+function renderFinal(d,ev,ctx){
+ const dec=(d.decision||'WAIT').toUpperCase();const word=dec==='WAIT'?'WAIT'+(d.wait_weeks?' '+d.wait_weeks+' WEEKS':''):dec;
+ const verdicts=d.verdicts||[],claims=d.claims||[];
+ const names={KEEP:'Keep buying',STOP:'Stop buying',WAIT:'Not enough evidence yet'};
+ let h=`<section class="decision ${dec}" aria-label="Decision"><span class="eyebrow">Decision</span><div class="big">${esc(word)}</div><p class="hl">${esc(d.headline||ev.summary||'')}</p>
+  ${(d.reasons||[]).length?`<ul>${d.reasons.map(r=>`<li>${esc(r)}</li>`).join('')}</ul>`:''}</section>`;
+ if(verdicts.length){h+=`<div class="sect">What changed on your face</div>`+verdicts.map(c=>bandCard(c)).join('')+`<p class="small mute">Shaded band is the noise measured on your own face. The marker is the change. Only a marker outside the band counts.</p>`}
+ if(claims.length){h+=`<div class="sect">What the product claims</div>`+claims.map(c=>{const [t,k]=claimStatus(c.status);const lab=(st.concerns&&st.concerns[c.concern])||c.concern||'';
+  return `<div class="card claim"><q>${esc(c.quote)}</q><span class="badge ${k}">${esc(t)}</span><span class="sub">${esc(lab)}${c.timeframe_weeks?` &middot; promised in <span class="num">${c.timeframe_weeks}</span> weeks`:''}${c.weeks_elapsed!=null?` &middot; <span class="num">${Math.round(c.weeks_elapsed)}</span> weeks on the product`:''}${c.measured&&c.measured.sentence?` &middot; ${esc(c.measured.sentence)}`:''}</span></div>`}).join('')}
+ const sim=d.simulation_image;
+ h+=`<div class="sect">What the claim would look like</div><div class="simbox">${sim?`<img src="${esc(sim)}" alt="Simulated skin improvement, not the user's result">`:`<div class="simph">Simulation preview appears here when the agent generates one with YouCam Skin Simulation.</div>`}<div class="tag">Simulation, not your result</div></div><div class="api" style="margin-top:8px">${chipApi('YouCam · Skin Simulation')}</div>`;
+ h+=`<div class="cta row"><button class="btn" id="rp2">Replay the investigation</button>${ctx.sample?'<button class="btn ghost" id="nz">See the noise measurement</button>':'<button class="btn ghost" data-go="checkin">Add a check-in</button>'}</div>`;
+ const out=$('#out');out.innerHTML=h;
+ requestAnimationFrame(()=>document.querySelectorAll('.axis .mk').forEach(m=>m.style.left=m.dataset.l+'%'));
+ const rp=$('#rp');if(rp)rp.hidden=false;
+ if(ctx.replay){[rp,$('#rp2')].forEach(b=>b&&(b.onclick=ctx.replay));}
+ const nz=$('#nz');if(nz)nz.onclick=()=>sampleNoise(()=>trySample());
+ out.querySelector('.decision').scrollIntoView({block:'start',behavior:reduce?'auto':'smooth'});
+}
+function bandCard(c){
+ const R=Math.max(Math.abs(c.delta),c.threshold)*1.35,pct=v=>50+v/R*50,w=c.threshold/R*50;
+ const m=Math.min(97,Math.max(3,pct(c.delta)));const label=c.label||(st.concerns&&st.concerns[c.concern])||c.concern;
+ return `<div class="card vc ${esc(c.verdict)}"><div class="vh"><strong>${esc(label)}${c.targeted?' <span class="small mute" style="font:400 12px var(--sans)">claimed</span>':''}</strong><span class="badge">${esc(VL[c.verdict]||c.verdict)}</span></div>
+ <p style="margin:0 0 4px;font-size:14px">${esc(c.sentence||'')}</p>
+ <div class="axis" role="img" aria-label="${esc(label)}: change ${c.delta}, noise plus or minus ${c.threshold}"><div class="line"></div><div class="band" style="left:${50-w}%;width:${2*w}%"></div><div class="zero" style="left:50%"></div><div class="mk" style="left:50%" data-l="${m}"></div></div>
+ <div class="axlab"><span>worse</span><span class="num">noise &plusmn;${Math.round(c.threshold*10)/10} &middot; change ${c.delta>0?'+':''}${Math.round(c.delta*10)/10}</span><span>better</span></div>
+ ${c.next?`<div class="next"><b>Next:</b> ${esc(c.next)}</div>`:''}</div>`;
+}
+async function playEvents(events,ctx){const my=st.run;const base=reduce?60:(ctx.fast?250:1100);
+ for(const ev of events){if(my!==st.run)return;applyEvent(ev,ctx);
+  let d=base;if(ev.type==='tool_call')d=base*1.5;if(ev.type==='thought')d=base*.8;if(ev.type==='final')d=0;await sleep(d)}}
+
+async function trySample(){
+ st.demo=true;try{const s=await api('/status');st.concerns=s.body.concerns||st.concerns}catch(e){}
+ let events=null,src='server';
+ try{const r=await fetch('/api/demo/agent');if(r.ok){const j=await r.json();events=Array.isArray(j)?j:(j.events||j.trace||null)}}catch(e){}
+ if(!events||!events.length){events=SAMPLE_TRACE;src='built-in'}
+ if(!Object.keys(st.concerns||{}).length)st.concerns={pore:'Pores',redness:'Redness',texture:'Texture',wrinkle:'Wrinkles',acne:'Acne',age_spot:'Dark spots',dark_circle_v2:'Dark circles',moisture:'Moisture'};
+ const play=()=>{agentShell(true,'A recorded run on invented scores. No real face, nothing sent to YouCam.');playEvents(events,{sample:true,replay:play})};
+ play();
+}
+async function sampleNoise(back){try{const d=(await api('/demo')).body;noiseView(d.calibration,[],back,true)}catch(e){back()}}
+
+async function runAgent(){
+ let pid=st.pid;if(!pid)return start();
+ agentShell(false);const my=st.run;
+ const ctx={sample:false,replay:null,fast:true};
+ ctx.replay=()=>runAgent();
+ let res;
+ try{res=await fetch('/api/profiles/'+pid+'/agent',{method:'POST',headers:{'content-type':'application/json',accept:'text/event-stream'},body:JSON.stringify({})})}catch(e){res=null}
+ if(!res||!res.ok||!res.body){
+  const msg=res&&res.status===409?'Calibrate and add two check-ins first.':null;
+  endThinking();$('#out').innerHTML=`<div class="err">${esc(msg||'The live agent is not available on this server yet.')}</div><div class="row"><button class="btn" data-go="sample">Watch the sample run</button><button class="btn ghost" data-go="checkin">Back</button></div>`;return}
+ const rd=res.body.getReader(),dec=new TextDecoder();let buf='';
+ try{while(true){const {done,value}=await rd.read();if(done)break;buf+=dec.decode(value,{stream:true});
+  let i;while((i=buf.indexOf('\n\n'))>=0){const chunk=buf.slice(0,i);buf=buf.slice(i+2);
+   const line=chunk.split('\n').filter(l=>l.startsWith('data:')).map(l=>l.slice(5).trim()).join('');if(!line)continue;
+   let ev;try{ev=JSON.parse(line)}catch(e){continue}
+   if(my!==st.run)return;applyEvent(ev,ctx)}}}
+ catch(e){if(my===st.run){endThinking();applyEvent({type:'error',summary:'The connection dropped before the agent finished.'},ctx)}}
+ finally{endThinking();const rp=$('#rp');if(rp){rp.hidden=false;rp.onclick=ctx.replay}}
+}
+
+/* ================= RESULTS (numbers behind it) ================= */
 async function results(){
- try{const r=await api('/profiles/'+st.pid+'/results');renderResults(r.body,false)}catch(e){main.innerHTML='<div class="err">'+esc(e.message)+'</div>'}
+ try{const r=await api('/profiles/'+st.pid+'/results');renderResults(r.body,false)}catch(e){show('<div class="err">'+esc(e.message)+'</div>')}
 }
-function bandHtml(c){
- const R=Math.max(Math.abs(c.delta),c.threshold)*1.35, pct=v=>50+v/R*50;
- const w=c.threshold/R*50;
- return `<div class="axis"><div class="line"></div><div class="band" style="left:${50-w}%;width:${2*w}%"></div><div class="zero" style="left:50%"></div><div class="mk" style="left:${Math.min(98,Math.max(2,pct(c.delta)))}%"></div></div>
- <div class="axlab"><span>worse</span><span>shaded = noise (&plusmn;${Math.round(c.threshold)}) &middot; marker = your change (${c.delta>0?'+':''}${Math.round(c.delta)})</span><span>better</span></div>`;
-}
-function photoPair(d,c,sample){
- if(sample)return `<div class="ba"><figure><div class="ph">Sample data: no photo</div>Before</figure><figure><div class="ph">Sample data: no photo</div>After</figure></div>`;
+function photoPair(d,c){
  const ok=(d.checkins||[]).filter(x=>!x.error&&x.masks&&x.masks[c.concern]);if(ok.length<2)return '';
  const a=ok[0],b=ok[ok.length-1];
- return `<div class="ba"><figure><img src="/api/files/${a.masks[c.concern]}" alt="before overlay">Before ${esc(a.date)}</figure><figure><img src="/api/files/${b.masks[c.concern]}" alt="after overlay">After ${esc(b.date)}</figure></div>`;
+ return `<div class="ba"><figure><img src="/api/files/${a.masks[c.concern]}" alt="Before overlay">Before ${esc(a.date)}</figure><figure><img src="/api/files/${b.masks[c.concern]}" alt="After overlay">After ${esc(b.date)}</figure></div>`;
 }
-function renderResults(d,sample){
- let h=(sample?'<div class="sample"><b>Sample data.</b> These scores are invented to show the flow. There is no real face or photo here. Nothing was sent to YouCam.</div>':steps(4));
- if(!d.ready){main.innerHTML=h+`<div class="card"><h2>Not enough yet</h2><p>${esc(d.message)}</p><button class="btn" onclick="checkin()">Add a check-in</button></div>`;return}
+function renderResults(d){
+ let h=stepper(4);
+ if(!d.ready){show(h+`<div class="card"><h2>Not enough yet</h2><p>${esc(d.message)}</p><button class="btn" data-go="checkin">Add a check-in</button></div>`);return}
  const pr=d.product;
- h+=`<h2>${esc(pr?pr.name:'Results')}</h2><p class="mute small">${d.valid_checkins} counted check-ins${d.skipped_checkins?`, ${d.skipped_checkins} skipped for photo quality`:''}${d.weeks_on_product!=null?`, ${d.weeks_on_product.toFixed(0)} weeks in`:''}. Compared as ${esc(d.method)}.</p>`;
+ h+=`<span class="eyebrow">Measurements</span><h2>${esc(pr?pr.name:'Results')}</h2><p class="mute small">${d.valid_checkins} counted check-ins${d.skipped_checkins?`, ${d.skipped_checkins} skipped for photo quality`:''}${d.weeks_on_product!=null?`, ${d.weeks_on_product.toFixed(0)} weeks in`:''}. Compared as ${esc(d.method)}.</p>`;
  const prov=d.concerns.filter(c=>c.verdict!=='NO_PROVEN_CHANGE').length;
  h+=`<div class="notebar">${prov} of ${d.concerns.length} concerns show a change bigger than your photo noise. The rest are <b>not proven</b>, which is not the same as "no effect".</div>`;
- h+=d.concerns.map(c=>`<div class="card vc ${c.verdict}"><div class="vh"><strong>${esc(c.label)}${c.targeted?' <span class="small mute">(claimed)</span>':''}</strong><span class="badge">${c.verdict==='NO_PROVEN_CHANGE'?'NO PROVEN CHANGE':c.verdict}</span></div>
-  <p style="margin:0">${esc(c.sentence)}</p>${bandHtml(c)}${photoPair(d,c,sample)}<div class="next"><b>What to do next:</b> ${esc(c.next)}</div></div>`).join('');
- h+=`<div class="row"><button class="btn" onclick="${sample?'home()':'checkin()'}">${sample?'Back':'Add a check-in'}</button>${sample?`<button class="btn ghost" id="nz">See the noise measurement</button>`:''}</div>`;
- main.innerHTML=h;
- if(sample)$('#nz').onclick=()=>noiseView(d.calibration,[],()=>renderResults(d,true),true);
+ h+=d.concerns.map(c=>bandCard(c).replace(/<\/div>$/,photoPair(d,c)+'</div>')).join('');
+ h+=`<div class="row"><button class="btn" data-go="agent">Ask the agent</button><button class="btn ghost" data-go="checkin">Add a check-in</button></div>`;
+ show(h);requestAnimationFrame(()=>document.querySelectorAll('.axis .mk').forEach(m=>m.style.left=m.dataset.l+'%'));
 }
 home();
 fetch('/api/status').then(r=>r.json()).then(s=>{st.status=s;st.concerns=s.concerns;if(s.has_key)setUnits(s.units)}).catch(()=>{});
