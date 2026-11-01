@@ -70,7 +70,7 @@ header.top{display:flex;justify-content:space-between;align-items:center;padding
 h1,h2,h3{font-family:var(--serif);font-weight:400;margin:0;letter-spacing:0;word-spacing:.1em}
 h1{font-size:clamp(50px,13.5vw,100px);line-height:.96;letter-spacing:-.025em;word-spacing:.04em}
 h2{font-size:clamp(34px,7vw,48px);line-height:1.04;margin-bottom:12px}
-h3{font-size:26px;line-height:1.15;margin-bottom:8px}
+h3{font:600 20px/1.25 var(--sans);letter-spacing:-.01em;word-spacing:0;margin-bottom:8px}
 em,.it{font-style:italic}
 p{margin:0 0 12px}.mute{color:var(--ink2)}.small{font-size:13.5px;line-height:1.5}
 .eyebrow{font:500 11.5px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--ink2);margin:0 0 14px;display:flex;align-items:center;gap:10px}
@@ -109,7 +109,7 @@ textarea{min-height:96px;resize:vertical}
 .hero{display:grid;gap:40px;padding:8px 0 24px}
 .hero h1 em{color:var(--good)}
 .hero-cta{display:flex;gap:10px;flex-wrap:wrap;margin:0 0 20px}
-.tag{font:italic 400 24px/1.2 var(--serif);color:var(--ink);margin:0}
+.tag{font:italic 400 28px/1.2 var(--serif);word-spacing:.08em;color:var(--ink);margin:0}
 .story{background:var(--surface);border:1px solid var(--rule);border-radius:var(--r);padding:20px;align-self:start}
 .story .imgs{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:2px 0 16px}
 .story figure{margin:0;position:relative}
@@ -119,7 +119,7 @@ textarea{min-height:96px;resize:vertical}
 .stat .big{font:500 clamp(30px,8vw,40px)/1 var(--mono);letter-spacing:-.03em;font-variant-numeric:tabular-nums}
 .stat .big i{font-style:normal;color:var(--ink2);margin:0 .12em}
 .stat .delta{font:500 14px var(--mono);color:var(--likely);background:var(--likely-bg);padding:5px 9px;border-radius:6px;border:1px dashed var(--likely)}
-.story h3{font-size:26px;margin:0 0 6px}
+.story h3{font:400 28px/1.15 var(--serif);word-spacing:.1em;letter-spacing:0;margin:0 0 6px}
 .story .row{margin-top:18px;gap:8px}.story .btn{padding:13px 20px;min-height:46px;font-size:15px}
 @media(min-width:900px){.hero{grid-template-columns:minmax(0,1.2fr) minmax(0,.8fr);gap:72px;align-items:center;padding:24px 0 56px}.story{padding:24px}}
 .sec{border-top:1px solid var(--rule);padding:48px 0 8px;display:grid;gap:28px}
@@ -129,7 +129,7 @@ textarea{min-height:96px;resize:vertical}
 .how li{display:grid;grid-template-columns:44px 1fr;gap:4px 12px;padding:18px 0;border-top:1px solid var(--rule)}
 .how li:first-child{border-top:0;padding-top:0}
 .how .n{font:500 12px/2 var(--mono);color:var(--ink2)}
-.how h3{font-size:25px;margin:0 0 4px}.how p{margin:0;color:var(--ink2);font-size:15px}
+.how h3{font-size:19px;margin:0 0 4px}.how p{margin:0;color:var(--ink2);font-size:15px}
 .spec{background:var(--surface);border:1px solid var(--rule);border-radius:var(--r);padding:8px 20px 18px}
 .spec .rowv{display:grid;grid-template-columns:78px 1fr;gap:6px 14px;align-items:center;padding:14px 0;border-top:1px solid var(--rule)}
 .spec .rowv:first-of-type{border-top:0}
@@ -168,7 +168,9 @@ textarea{min-height:96px;resize:vertical}
 @media(min-width:960px){.agentgrid{grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:64px;align-items:start}.agentgrid .colr{border-left:1px solid var(--rule);padding-left:64px;margin-left:-32px}}
 .await{display:none}
 @media(min-width:960px){.await{display:block;color:var(--ink2);border:1px dashed var(--rule2);border-radius:var(--r);padding:56px 32px;text-align:center}.await .it{font:italic 400 28px/1.15 var(--serif);color:var(--ink);display:block;margin-bottom:8px}}
-.meter{background:var(--surface);border:1px solid var(--rule);border-radius:var(--r);padding:12px 14px;margin:0 0 24px;position:sticky;top:8px;z-index:5}
+.meter{background:var(--surface);border:1px solid var(--rule);border-radius:var(--r);padding:12px 14px;margin:0 0 24px;position:sticky;top:12px;z-index:30;box-shadow:0 10px 14px -6px var(--canvas),0 1px 0 var(--rule)}
+.meter:before{content:"";position:absolute;left:-1px;right:-1px;top:-13px;height:13px;background:var(--canvas)}
+.meter:after{content:"";position:absolute;left:0;right:0;bottom:-18px;height:18px;background:linear-gradient(var(--canvas),transparent);pointer-events:none}
 .meter .mh{display:flex;justify-content:space-between;font:500 11.5px var(--mono);color:var(--ink2);margin-bottom:10px;letter-spacing:.06em;text-transform:uppercase}
 .meter .mh b{color:var(--ink);font-weight:500}
 .ticks{display:grid;grid-template-columns:repeat(40,1fr);gap:2px;height:14px}
@@ -190,7 +192,7 @@ textarea{min-height:96px;resize:vertical}
 .st .meta{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:10px}
 .st .meta:empty{display:none}
 .st .u{font:500 11.5px var(--mono);color:var(--ink2)}
-.note{word-spacing:.08em;margin:0 0 16px 42px;font:italic 400 18px/1.35 var(--serif);color:var(--ink2);animation:rise .5s var(--ease)}
+.note{margin:0 0 16px 42px;font:italic 400 15.5px/1.45 var(--sans);color:var(--ink2);animation:rise .5s var(--ease)}
 .thinking{display:flex;gap:10px;align-items:center;color:var(--ink2);font-size:14px;margin:0 0 18px 6px}
 @keyframes spin{to{transform:rotate(360deg)}}
 @keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
@@ -201,7 +203,8 @@ textarea{min-height:96px;resize:vertical}
 .decision.KEEP{background:var(--good-bg);border-color:var(--good)}
 .decision.STOP{background:var(--bad-bg);border-color:var(--bad)}
 .decision.WAIT{background:var(--likely-bg);border-color:var(--likely);border-style:dashed}
-.decision .big{font:400 clamp(64px,17vw,128px)/.9 var(--serif);letter-spacing:-.03em;margin:2px 0 14px;text-transform:uppercase}
+.decision .big{font:400 clamp(56px,16vw,96px)/.92 var(--serif);letter-spacing:-.02em;word-spacing:.04em;font-variant-numeric:lining-nums tabular-nums;margin:2px 0 14px;text-transform:uppercase;text-wrap:balance}
+@media(min-width:700px){.decision .big{white-space:nowrap;font-size:clamp(64px,7vw,104px)}}
 .decision.KEEP .big{color:var(--good)}.decision.STOP .big{color:var(--bad)}.decision.WAIT .big{color:var(--likely)}
 .decision .eyebrow{color:var(--ink)}
 .decision .hl{word-spacing:.1em;font:400 clamp(24px,5vw,30px)/1.15 var(--serif);margin:0 0 18px;max-width:22em}
@@ -216,7 +219,7 @@ textarea{min-height:96px;resize:vertical}
 .vc{border-left:4px solid var(--neutral);border-radius:4px var(--r) var(--r) 4px}
 .vc.IMPROVED{border-left-color:var(--good)}.vc.WORSE{border-left-color:var(--bad)}
 .vc.LIKELY_IMPROVED,.vc.LIKELY_WORSE{border-left-color:var(--likely);border-left-style:dashed}
-.vh{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:6px}.vh strong{font:400 26px/1.1 var(--serif)}
+.vh{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:6px}.vh strong{font:600 19px/1.2 var(--sans);letter-spacing:-.01em}
 .badge{display:inline-block;font:500 10.5px/1 var(--mono);letter-spacing:.07em;text-transform:uppercase;padding:6px 9px;border-radius:6px;background:var(--neutral-bg);color:var(--neutral);white-space:nowrap}
 .IMPROVED .badge,.b-good{background:var(--good-bg);color:var(--good)}
 .WORSE .badge,.b-bad{background:var(--bad-bg);color:var(--bad)}
@@ -238,7 +241,7 @@ textarea{min-height:96px;resize:vertical}
 .axlab span:nth-child(2){text-align:center}
 .next{font-size:14px;border-top:1px solid var(--rule);padding-top:10px;margin-top:12px}.next b{font-weight:600}
 .claim{display:grid;grid-template-columns:1fr auto;gap:8px 14px;align-items:start}
-.claim q{word-spacing:.08em;font:italic 400 21px/1.25 var(--serif);quotes:"\201C" "\201D"}
+.claim q{font:500 16.5px/1.35 var(--sans);quotes:"\201C" "\201D"}
 .claim .sub{grid-column:1/-1;font-size:13px;color:var(--ink2)}
 .simbox{position:relative;border-radius:var(--r);overflow:hidden;border:1px solid var(--rule);background:var(--sunk);max-width:360px}
 .simbox img{display:block;width:100%}
@@ -251,7 +254,7 @@ textarea{min-height:96px;resize:vertical}
 .cta{padding:8px 0;margin-top:28px}
 /* real-run (ten second) + lesson */
 .tenpair{padding:20px}
-.tenpair h3{margin:0 0 14px;font-size:28px}
+.tenpair h3{margin:0 0 14px;font:400 28px/1.15 var(--serif);word-spacing:.1em;letter-spacing:0}
 .tenpair .imgs{display:grid;grid-template-columns:1fr 1fr;gap:10px;max-width:440px}
 .tenpair figure{margin:0}.tenpair img{display:block;width:100%;aspect-ratio:4/5;object-fit:cover;border-radius:var(--r-s);border:1px solid var(--rule)}
 .tenpair figcaption{font:500 11.5px var(--mono);color:var(--ink2);margin-top:6px}
@@ -263,13 +266,17 @@ textarea{min-height:96px;resize:vertical}
 .tentable .big{font-weight:500;color:var(--likely);background:var(--likely-bg)}
 .tp-r .small:last-child{margin:0}
 @media(min-width:900px){.tenpair{display:grid;grid-template-columns:minmax(0,420px) minmax(0,1fr);gap:0 48px;padding:28px 32px}.tenpair>.eyebrow,.tenpair>h3{grid-column:1/-1}.tenpair .imgs{max-width:none}}
-@media(max-width:520px){.tentable th{font-size:9px;letter-spacing:0}.tentable th,.tentable td{padding:8px 3px}.tentable .num{font-size:11.5px}}
+@media(max-width:480px){.tentable,.tentable tbody{display:block}.tentable caption{display:block;width:100%}.tentable thead{display:none}.tentable tr{display:grid;grid-template-columns:repeat(3,1fr);gap:6px 8px;padding:12px 0;border-bottom:1px solid var(--rule)}
+.tentable td{display:block;text-align:left!important;border:0;padding:0!important;font-size:14px}.tentable td:first-child{grid-column:1/-1;font:600 15px var(--sans)}
+.tentable td[data-l]:before{content:attr(data-l);display:block;font:500 9.5px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--ink2);margin-bottom:2px}.tentable .num{font-size:14px}.tentable .big{background:none;color:var(--likely);font-weight:600}}
 .lesson{border:1px dashed var(--likely);background:var(--likely-bg);color:var(--ink);border-radius:var(--r);padding:16px 18px;margin:0 0 20px;font-size:14.5px}
 .lesson b{font:500 11px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--likely);display:block;margin-bottom:6px}
 .lesson .now{margin-top:10px;padding-top:10px;border-top:1px solid var(--hair)}
+.resgrid{display:grid;gap:8px}.resl{margin-bottom:12px}
+@media(min-width:960px){.resgrid{grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:64px;align-items:start}.resl{position:sticky;top:24px}.resr{border-left:1px solid var(--rule);padding-left:64px;margin-left:-32px}}
 .replaynote{margin:0 0 24px;color:var(--ink2)}
 footer{font-size:12.5px;color:var(--ink2);text-align:center;margin-top:72px;line-height:1.6;border-top:1px solid var(--rule);padding-top:24px}
-footer .logo2{display:block;font:italic 400 20px var(--serif);color:var(--ink);margin-bottom:6px}
+footer .logo2{display:block;font:italic 400 28px var(--serif);word-spacing:.1em;color:var(--ink);margin-bottom:6px}
 .spin{display:inline-block;width:14px;height:14px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;animation:spin 1s linear infinite;vertical-align:-2px;margin-right:8px}
 @media(max-width:380px){.nbar{grid-template-columns:84px 1fr 52px}.tips{grid-template-columns:1fr}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}.spinner,.spin{animation:none;border-right-color:currentColor}}
@@ -286,6 +293,17 @@ footer .logo2{display:block;font:italic 400 20px var(--serif);color:var(--ink);m
 const $=s=>document.querySelector(s), main=$('#main');
 const st={pid:null,concerns:{},status:{},cal:null,files:[],picked:new Set(),demo:false,run:0};
 try{st.pid=localStorage.getItem('sp_pid')}catch(e){}
+const TOK={LIKELY_IMPROVED:'likely improved, needs confirmation',LIKELY_WORSE:'likely worse, needs confirmation',NOT_YET_SHOWN:'not yet shown',TOO_EARLY:'too early',NEEDS_CONFIRMATION:'needs confirmation',NOT_MEASURABLE:'not measurable',NO_PROVEN_CHANGE:'no proven change',SUPPORTED:'supported',CONTRADICTED:'contradicted',IMPROVED:'improved',WORSE:'worse'};
+const plural=(n,w)=>n+' '+w+(n===1?'':'s');
+function human(t){if(t==null)return '';t=String(t);
+ t=t.replace(/^((?:\d+ [A-Z_]+)(?:, \d+ [A-Z_]+)*)$/,m=>{const ps=m.split(', ').map(x=>x.split(' '));if(!ps.every(p=>TOK[p[1]]))return m;const tot=ps.reduce((a,p)=>a+ +p[0],0);return plural(tot,'claim')+': '+ps.map(p=>p[0]+' '+TOK[p[1]]).join(' \u00b7 ')});
+ t=t.replace(/\b[A-Z]+(?:_[A-Z]+)+\b|\b(?:IMPROVED|WORSE|SUPPORTED|CONTRADICTED)\b/g,m=>TOK[m]||m);
+ t=t.replace(/\b(\d+) claims from (url|text|image|declared)\b/g,(m,n,k)=>plural(+n,'claim')+' from '+({url:'the product page',text:'the text you gave',image:'the label photo',declared:'the claims you entered'}[k]))
+  .replace(/\b(\d+) (check-in|claim|concern)s\b/g,(m,n,w)=>plural(+n,w))
+  .replace(/\b0(?:\.0)? weeks on (?:the )?product\b/g,'product started today')
+  .replace(/\b1(?:\.0)? weeks\b/g,'1 week');
+ return t}
+const wk=n=>n==null?'':(Math.round(n)<1?'started today':plural(Math.round(n),'week')+' on the product');
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -472,13 +490,13 @@ const SAMPLE_TRACE=(()=>{const B=40;const e=(type,step,tool,summary,spent,extra)
   simulation_image:null}})]})();
 
 function lessonBanner(j){const d=j&&j.decision_under_current_rules;if(!d)return '';
- return `<div class="lesson" role="note"><b>We caught our own false alarm</b>${esc(j.lesson||'')}<div class="now"><b style="display:inline">Under today's rules</b> this same data gives <strong>${esc(d.decision)}${d.wait_weeks?' '+d.wait_weeks+' WEEKS':''}</strong>: ${esc(d.headline)}</div></div>`}
+ return `<div class="lesson" role="note"><b>We caught our own false alarm</b>${esc(human(j.lesson))}<div class="now"><b style="display:inline">Under today's rules</b> this same data gives <strong>${esc(d.decision)}${d.wait_weeks?' '+plural(d.wait_weeks,'WEEK'):''}</strong>: ${esc(human(d.headline))}</div></div>`}
 function tenSecondHtml(j){const t=j.ten_second,ph=j.photos||[];const f=n=>(n>0?'+':'')+n.toFixed(1);
  return `<div class="tenpair card"><span class="eyebrow">Real face, with consent</span><h3>${esc(t.caption)}</h3>
  <div class="tp-l"><div class="imgs">${ph.map((p,i)=>`<figure><img src="${esc(p.src)}" alt="Volunteer selfie ${i?'after':'before'}, taken at ${esc(p.label)}"><figcaption>${i?'After':'Before'} &middot; <span class="num">${esc(p.label)}</span></figcaption></figure>`).join('')}</div>
  <p class="small mute" style="margin:12px 0 0">${esc(j.note||'')}</p></div>
  <div class="tp-r"><table class="tentable"><caption class="small mute" style="text-align:left;caption-side:top;padding:12px 0 4px">Raw scores, 10 seconds apart. Noise = this face's own threshold.</caption><thead><tr><th>Concern</th><th>Before</th><th>After</th><th>Change</th><th>Uncropped</th><th>Noise</th></tr></thead><tbody>
- ${t.rows.map(r=>{const o=Math.abs(r.delta)>r.threshold;return `<tr><td>${esc(r.label)}</td><td class="num">${r.before.toFixed(1)}</td><td class="num">${r.after.toFixed(1)}</td><td class="num ${o?'big':''}">${f(r.delta)}</td><td class="num">${f(r.uncropped_delta)}</td><td class="num">${r.threshold.toFixed(1)}</td></tr>`}).join('')}</tbody></table>
+ ${t.rows.map(r=>{const o=Math.abs(r.delta)>r.threshold;return `<tr><td>${esc(r.label)}</td><td class="num" data-l="Before">${r.before.toFixed(1)}</td><td class="num" data-l="After">${r.after.toFixed(1)}</td><td class="num ${o?'big':''}" data-l="Change">${f(r.delta)}</td><td class="num" data-l="Uncropped">${f(r.uncropped_delta)}</td><td class="num" data-l="Noise">${r.threshold.toFixed(1)}</td></tr>`}).join('')}</tbody></table>
  <p class="small mute">Nothing changed in the skin, yet acne moved by about 10 points, and its direction flipped between the cropped and uncropped version of the same two photos. That is why a single reading never decides.</p></div></div>`}
 function agentShell(sample,note){
  show(`${sample?sampleRibbon(note):''}<div class="agenthead"><div><span class="eyebrow">The investigation</span><h2 style="margin:0">Should you keep buying it?</h2></div><div class="row"><button class="btn ghost sm" id="rp" hidden>Replay</button></div></div>
@@ -492,28 +510,28 @@ function applyEvent(ev,ctx){
  if(ev.units_spent!=null)setMeter(ev.units_spent,ev.units_left_in_budget);
  const tl=$('#tl');
  if(ev.type==='start'){return}
- if(ev.type==='thought'){const n=document.createElement('p');n.className='note';n.textContent=ev.summary||'';tl.appendChild(n);return}
+ if(ev.type==='thought'){const n=document.createElement('p');n.className='note';n.textContent=human(ev.summary);tl.appendChild(n);return}
  if(ev.type==='tool_call'){const t=toolInfo(ev.tool);const li=document.createElement('li');li.className='st run';li.dataset.step=ev.step;li.dataset.base=ev.units_spent||0;
-  li.innerHTML=`<span class="dot" aria-hidden="true"><span class="spinner"></span></span><div class="body"><p class="t">${esc(t.label)}</p><p class="s">${esc(ev.summary||'')}</p><div class="meta">${chipApi(t.chip,t.kind)}<span class="u"></span></div></div>`;tl.appendChild(li);li.scrollIntoView({block:'nearest',behavior:reduce?'auto':'smooth'});return}
+  li.innerHTML=`<span class="dot" aria-hidden="true"><span class="spinner"></span></span><div class="body"><p class="t">${esc(t.label)}</p><p class="s">${esc(human(ev.summary))}</p><div class="meta">${chipApi(t.chip,t.kind)}<span class="u"></span></div></div>`;tl.appendChild(li);li.scrollIntoView({block:'nearest',behavior:reduce?'auto':'smooth'});return}
  if(ev.type==='tool_result'){let li=stepEl(ev.step);if(!li){applyEvent(Object.assign({},ev,{type:'tool_call'}),ctx);li=stepEl(ev.step)}
   const d=(ev.units_spent||0)-parseFloat(li.dataset.base||0);const bad=ev.data&&ev.data.error;li.className='st '+(bad?'fail':'done');
-  li.querySelector('.dot').innerHTML=bad?IC.x:IC.check;li.querySelector('.s').textContent=ev.summary||'';li.querySelector('.u').textContent=d>0?'+'+Math.round(d*10)/10+' units':'no units';return}
- if(ev.type==='error'){const li=document.createElement('li');li.className='st fail';li.innerHTML=`<span class="dot">${IC.x}</span><div class="body"><p class="t">The agent stopped</p><p class="s">${esc(ev.summary||'Something went wrong.')}</p></div>`;tl.appendChild(li);endThinking();return}
+  li.querySelector('.dot').innerHTML=bad?IC.x:IC.check;li.querySelector('.s').textContent=human(ev.summary);li.querySelector('.u').textContent=d>0?'+'+Math.round(d*10)/10+' units':/cached|stored/i.test(ev.summary||'')?'cached \u00b7 0 units':'free';return}
+ if(ev.type==='error'){const li=document.createElement('li');li.className='st fail';li.innerHTML=`<span class="dot">${IC.x}</span><div class="body"><p class="t">The agent stopped</p><p class="s">${esc(human(ev.summary)||'Something went wrong.')}</p></div>`;tl.appendChild(li);endThinking();return}
  if(ev.type==='final'){endThinking();renderFinal(ev.data||{},ev,ctx)}
 }
 function endThinking(){const t=$('#think');if(t)t.remove()}
 function claimStatus(s){return CS[s]||[String(s||'').replace(/_/g,' ').toLowerCase(),'']}
 function renderFinal(d,ev,ctx){
- const dec=(d.decision||'WAIT').toUpperCase();const word=dec==='WAIT'?'WAIT'+(d.wait_weeks?' '+d.wait_weeks+(d.wait_weeks===1?' WEEK':' WEEKS'):''):dec;
+ const dec=(d.decision||'WAIT').toUpperCase();const word=dec==='WAIT'?'WAIT'+(d.wait_weeks?' '+d.wait_weeks+'\u00a0'+(d.wait_weeks===1?'WEEK':'WEEKS'):''):dec;
  const verdicts=d.verdicts||[],claims=d.claims||[];
  const names={KEEP:'Keep buying',STOP:'Stop buying',WAIT:'Not enough evidence yet'};
- let h=`<section class="decision ${dec}" aria-label="Decision"><span class="eyebrow">Decision</span><div class="big">${esc(word)}</div><p class="hl">${esc(d.headline||ev.summary||'')}</p>
-  ${(d.reasons||[]).length?`<ul>${d.reasons.map(r=>`<li>${esc(r)}</li>`).join('')}</ul>`:''}</section>`;
- if(d.disagreement)h+=`<div class="card note-dis" role="note"><b>The model and the evidence rule disagree.</b> ${esc(d.disagreement.note||'')}</div>`;
+ let h=`<section class="decision ${dec}" aria-label="Decision"><span class="eyebrow">Decision</span><div class="big">${esc(word)}</div><p class="hl">${esc(human(d.headline||ev.summary))}</p>
+  ${(d.reasons||[]).length?`<ul>${d.reasons.map(r=>`<li>${esc(human(r))}</li>`).join('')}</ul>`:''}</section>`;
+ if(d.disagreement)h+=`<div class="card note-dis" role="note"><b>The model and the evidence rule disagree.</b> ${esc(human(d.disagreement.note))}</div>`;
  if(d.fallback)h+=`<div class="card note-fb" role="note"><b>Fallback decision.</b> The model did not finish on its own${d.fallback_reason?` (${esc(d.fallback_reason)})`:''}, so the fixed evidence rule decided${d.rule_decision&&d.rule_decision.rule?` (${esc(d.rule_decision.rule)})`:''}.</div>`;
  if(verdicts.length){h+=`<div class="sect">What changed on your face</div>`+verdicts.map(c=>bandCard(c)).join('')+`<p class="small mute">Shaded band is the noise measured on your own face. The marker is the change. Only a marker outside the band counts, and it is proven only after two check-ins in a row.${d.concerns_tested?` ${d.concerns_tested} concerns were tested at once, so a lone reading can cross the line by chance.`:''}</p>`}
  if(claims.length){h+=`<div class="sect">What the product claims</div>`+claims.map(c=>{const [t,k]=claimStatus(c.status);const lab=(st.concerns&&st.concerns[c.concern])||c.concern||'';
-  return `<div class="card claim"><q>${esc(c.quote)}</q><span class="badge ${k}">${esc(t)}</span><span class="sub">${esc(lab)}${c.timeframe_weeks?` &middot; promised in <span class="num">${c.timeframe_weeks}</span> weeks`:''}${c.weeks_elapsed!=null?` &middot; <span class="num">${Math.round(c.weeks_elapsed)}</span> weeks on the product`:''}${c.sentence?` &middot; ${esc(c.sentence)}`:''}</span></div>`}).join('')}
+  return `<div class="card claim"><q>${esc(c.quote)}</q><span class="badge ${k}">${esc(t)}</span><span class="sub">${esc(lab)}${c.timeframe_weeks?` &middot; promised in <span class="num">${plural(c.timeframe_weeks,'week')}</span>`:''}${c.weeks_elapsed!=null?` &middot; ${esc(wk(c.weeks_elapsed))}`:''}${c.sentence?` &middot; ${esc(human(c.sentence))}`:''}</span></div>`}).join('')}
  const sim=d.simulation_image;
  h+=`<div class="sect">What the claim would look like</div><div class="simbox">${sim?`<img src="${esc(sim)}" alt="Simulated skin improvement, not the user's result">`:`<div class="simph">No simulation was generated in this run. This is a placeholder, not a picture of your skin.</div>`}<div class="tag">Simulation, not your result</div></div><div class="api" style="margin-top:8px">${chipApi('YouCam · Skin Simulation')}</div>`;
  h+=`<div class="cta row"><button class="btn" id="rp2">Replay the investigation</button>${ctx.sample?'<button class="btn ghost" id="nz">See the noise measurement</button><button class="btn ghost" id="fa">The false alarm we caught</button>':'<button class="btn ghost" data-go="checkin">Add a check-in</button>'}</div>`;
@@ -528,11 +546,11 @@ function renderFinal(d,ev,ctx){
 function bandCard(c){
  const R=Math.max(Math.abs(c.delta),c.threshold)*1.35,pct=v=>50+v/R*50,w=c.threshold/R*50;
  const m=Math.min(97,Math.max(3,pct(c.delta)));const label=c.label||(st.concerns&&st.concerns[c.concern])||c.concern;
- return `<div class="card vc ${esc(c.verdict)}"><div class="vh"><strong>${esc(label)}${c.targeted?' <span class="small mute" style="font:400 12px var(--sans)">claimed</span>':''}</strong><span class="badge">${esc(VL[c.verdict]||c.verdict)}</span></div>
- <p style="margin:0 0 4px;font-size:14px">${esc(c.sentence||'')}</p>
+ return `<div class="card vc ${esc(c.verdict)}"><div class="vh"><strong>${esc(label)}${c.targeted?' <span class="small mute" style="font:400 12px var(--sans)">claimed</span>':''}</strong><span class="badge">${esc(VL[c.verdict]||human(c.verdict))}</span></div>
+ <p style="margin:0 0 4px;font-size:14px">${esc(human(c.sentence))}</p>
  <div class="axis" role="img" aria-label="${esc(label)}: change ${c.delta}, noise plus or minus ${c.threshold}"><div class="line"></div><div class="band" style="left:${50-w}%;width:${2*w}%"></div><div class="zero" style="left:50%"></div><div class="mk" style="left:50%" data-l="${m}"></div></div>
  <div class="axlab"><span>worse</span><span class="num">noise &plusmn;${Math.round(c.threshold*10)/10} &middot; change ${c.delta>0?'+':''}${Math.round(c.delta*10)/10}</span><span>better</span></div>
- ${c.next?`<div class="next"><b>Next:</b> ${esc(c.next)}</div>`:''}</div>`;
+ ${c.next?`<div class="next"><b>Next:</b> ${esc(human(c.next))}</div>`:''}</div>`;
 }
 async function playEvents(events,ctx){const my=st.run;const base=reduce?60:(ctx.fast?250:1100);
  for(const ev of events){if(my!==st.run)return;applyEvent(ev,ctx);
@@ -599,12 +617,13 @@ function renderResults(d){
  let h=stepper(4);
  if(!d.ready){show(h+`<div class="card"><h2>Not enough yet</h2><p>${esc(d.message)}</p><button class="btn" data-go="checkin">Add a check-in</button></div>`);return}
  const pr=d.product;
- h+=`<span class="eyebrow">Measurements</span><h2>${esc(pr?pr.name:'Results')}</h2><p class="mute small">${d.valid_checkins} counted check-ins${d.skipped_checkins?`, ${d.skipped_checkins} skipped for photo quality`:''}${d.weeks_on_product!=null?`, ${d.weeks_on_product.toFixed(0)} weeks in`:''}. Compared as ${esc(d.method)}.</p>`;
+ const vc=d.valid_checkins,wo=d.weeks_on_product;
+ h+=`<div class="resgrid"><aside class="resl"><span class="eyebrow">Measurements</span><h2>${esc(pr?pr.name:'Results')}</h2><p class="mute small">${plural(vc,'counted check-in')}${d.skipped_checkins?`, ${d.skipped_checkins} skipped for photo quality`:''}${wo!=null?(Math.round(wo)<1?', started today':`, ${plural(Math.round(wo),'week')} in`):''}. Compared as ${esc(d.method)}.</p>`;
  const prov=d.concerns.filter(c=>c.verdict==='IMPROVED'||c.verdict==='WORSE').length,lik=d.concerns.filter(c=>/^LIKELY/.test(c.verdict)).length;
- h+=`<div class="notebar">${d.concerns.length} concerns tested. ${prov} proven (beyond noise on two check-ins in a row), ${lik} likely (beyond noise once, needs confirmation). The rest are <b>not proven</b>, which is not the same as "no effect".${d.multiple_comparison_note?' '+esc(d.multiple_comparison_note):''}</div>`;
- h+=d.concerns.map(c=>bandCard(c).replace(/<\/div>$/,photoPair(d,c)+'</div>')).join('');
- h+=`<div class="row"><button class="btn" data-go="agent">Ask the agent</button><button class="btn ghost" data-go="checkin">Add a check-in</button></div>`;
- show(h);requestAnimationFrame(()=>document.querySelectorAll('.axis .mk').forEach(m=>m.style.left=m.dataset.l+'%'));
+ h+=`<div class="notebar">${d.concerns.length} concerns tested. ${prov} proven (beyond noise on two check-ins in a row), ${lik} likely (beyond noise once, needs confirmation). The rest are <b>not proven</b>, which is not the same as "no effect".${d.multiple_comparison_note?' '+esc(d.multiple_comparison_note):''}</div>
+ <div class="row"><button class="btn" data-go="agent">Ask the agent</button><button class="btn ghost" data-go="checkin">Add a check-in</button></div></aside><div class="resr">`;
+ h+=d.concerns.map(c=>bandCard(c).replace(/<\/div>$/,photoPair(d,c)+'</div>')).join('')+'</div></div>';
+ show(h,true);requestAnimationFrame(()=>document.querySelectorAll('.axis .mk').forEach(m=>m.style.left=m.dataset.l+'%'));
 }
 home();
 if(/^#run=[a-z0-9_-]+$/.test(location.hash))replayRun(location.hash.slice(5));
