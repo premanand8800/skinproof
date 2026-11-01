@@ -1,0 +1,44 @@
+{
+  "product": "GlowRx 10% Niacinamide + 1% Zinc Serum",
+  "claims": [
+    {
+      "concern": "pore",
+      "direction": "improve",
+      "timeframe_weeks": 4,
+      "quote": "visibly minimize pores in just 4 weeks"
+    },
+    {
+      "concern": "oiliness",
+      "direction": "improve",
+      "timeframe_weeks": null,
+      "quote": "Reduces excess oil and shine for up to 8 hours"
+    },
+    {
+      "concern": "age_spot",
+      "direction": "improve",
+      "timeframe_weeks": 8,
+      "quote": "Evens skin tone and fades dark spots in 8 weeks"
+    },
+    {
+      "concern": "texture",
+      "direction": "improve",
+      "timeframe_weeks": 2,
+      "quote": "Smoother, softer texture after 2 weeks"
+    },
+    {
+      "concern": null,
+      "direction": "improve",
+      "timeframe_weeks": null,
+      "quote": "Fragrance-free, vegan, dermatologist tested, clean ingredients"
+    },
+    {
+      "concern": null,
+      "direction": "improve",
+      "timeframe_weeks": null,
+      "quote": "Your skin will feel amazing"
+    }
+  ],
+  "source": "text",
+  "cost": 0.00393525,
+  "model": "google/gemini-3.8-flash"
+}

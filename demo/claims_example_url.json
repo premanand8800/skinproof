@@ -1,0 +1,57 @@
+{
+  "product": "Niacinamide 10% + Zinc 1% Oil Control Serum",
+  "claims": [
+    {
+      "concern": "texture",
+      "direction": "improve",
+      "timeframe_weeks": 1,
+      "quote": "Get smoother, more radiant skin in 7 days."
+    },
+    {
+      "concern": "radiance",
+      "direction": "improve",
+      "timeframe_weeks": 1,
+      "quote": "Get smoother, more radiant skin in 7 days."
+    },
+    {
+      "concern": "oiliness",
+      "direction": "improve",
+      "timeframe_weeks": null,
+      "quote": "targets excess oil"
+    },
+    {
+      "concern": "pore",
+      "direction": "improve",
+      "timeframe_weeks": null,
+      "quote": "reduces pore visibility"
+    },
+    {
+      "concern": "moisture",
+      "direction": "improve",
+      "timeframe_weeks": null,
+      "quote": "strengthens the moisture barrier"
+    },
+    {
+      "concern": "acne",
+      "direction": "improve",
+      "timeframe_weeks": null,
+      "quote": "universal serum for blemish-prone skin"
+    },
+    {
+      "concern": "texture",
+      "direction": "improve",
+      "timeframe_weeks": null,
+      "quote": "smooths"
+    },
+    {
+      "concern": "radiance",
+      "direction": "improve",
+      "timeframe_weeks": null,
+      "quote": "brightens"
+    }
+  ],
+  "source": "url",
+  "cost": 0.0081405,
+  "model": "google/gemini-3.8-flash",
+  "url": "https://www.theordinary.com/en-us/niacinamide-10-zinc-1-serum-100436.html"
+}
