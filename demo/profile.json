@@ -1,0 +1,139 @@
+{
+ "sample_data": true,
+ "note": "Sample data: invented scores for demonstration. No real face, no photos.",
+ "name": "Sample user (demo)",
+ "retakes": [
+  {
+   "pore": 61,
+   "redness": 55,
+   "texture": 64,
+   "wrinkle": 72,
+   "acne": 70,
+   "age_spot": 66,
+   "dark_circle_v2": 58,
+   "moisture": 60
+  },
+  {
+   "pore": 64,
+   "redness": 59,
+   "texture": 62,
+   "wrinkle": 73,
+   "acne": 68,
+   "age_spot": 67,
+   "dark_circle_v2": 61,
+   "moisture": 57
+  },
+  {
+   "pore": 59,
+   "redness": 53,
+   "texture": 66,
+   "wrinkle": 71,
+   "acne": 71,
+   "age_spot": 65,
+   "dark_circle_v2": 57,
+   "moisture": 63
+  },
+  {
+   "pore": 62,
+   "redness": 58,
+   "texture": 63,
+   "wrinkle": 74,
+   "acne": 69,
+   "age_spot": 66,
+   "dark_circle_v2": 60,
+   "moisture": 59
+  },
+  {
+   "pore": 60,
+   "redness": 56,
+   "texture": 65,
+   "wrinkle": 72,
+   "acne": 70,
+   "age_spot": 68,
+   "dark_circle_v2": 59,
+   "moisture": 61
+  }
+ ],
+ "product": {
+  "id": "demo",
+  "name": "Niacinamide 10% serum (sample)",
+  "start_date": "2026-09-01",
+  "concerns": [
+   "pore",
+   "redness",
+   "texture"
+  ]
+ },
+ "checkins": [
+  {
+   "id": "2026-09-01",
+   "date": "2026-09-01",
+   "scores": {
+    "pore": 61,
+    "redness": 56,
+    "texture": 64,
+    "wrinkle": 72,
+    "acne": 70,
+    "age_spot": 66,
+    "dark_circle_v2": 59,
+    "moisture": 60
+   }
+  },
+  {
+   "id": "2026-09-15",
+   "date": "2026-09-15",
+   "scores": {
+    "pore": 63,
+    "redness": 58,
+    "texture": 67,
+    "wrinkle": 72,
+    "acne": 70,
+    "age_spot": 66,
+    "dark_circle_v2": 59,
+    "moisture": 57
+   }
+  },
+  {
+   "id": "2026-09-29",
+   "date": "2026-09-29",
+   "scores": {
+    "pore": 67,
+    "redness": 55,
+    "texture": 70,
+    "wrinkle": 72,
+    "acne": 70,
+    "age_spot": 66,
+    "dark_circle_v2": 59,
+    "moisture": 56
+   }
+  },
+  {
+   "id": "2026-10-13",
+   "date": "2026-10-13",
+   "scores": {
+    "pore": 70,
+    "redness": 57,
+    "texture": 72,
+    "wrinkle": 72,
+    "acne": 69,
+    "age_spot": 66,
+    "dark_circle_v2": 59,
+    "moisture": 55
+   }
+  },
+  {
+   "id": "2026-10-27",
+   "date": "2026-10-27",
+   "scores": {
+    "pore": 71,
+    "redness": 58,
+    "texture": 73,
+    "wrinkle": 72,
+    "acne": 70,
+    "age_spot": 66,
+    "dark_circle_v2": 59,
+    "moisture": 53
+   }
+  }
+ ]
+}
