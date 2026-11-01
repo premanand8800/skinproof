@@ -71,7 +71,7 @@ Face photos are stored locally under `private/`, which is gitignored, and are ne
 
 ```
 uv sync
-# create .env with your YouCam and OpenRouter keys (never committed)
+cp .env.example .env   # then add your YouCam and OpenRouter keys (never committed)
 uv run skinproof serve --port 8100
 uv run pytest
 ```
