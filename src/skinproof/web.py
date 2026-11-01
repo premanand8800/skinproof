@@ -246,6 +246,18 @@ def create_app(client: YouCamClient | None = None, store: Store | None = None,
         """The recorded live run on the AI-generated face, with its lesson (events unmodified)."""
         return json.loads((ROOT / "demo" / "agent_trace_live_synthetic.json").read_text())
 
+    @app.get("/api/demo/agent/volunteer")
+    def demo_agent_volunteer():
+        """Real run on a consenting volunteer: two selfies 10 seconds apart."""
+        return json.loads((ROOT / "demo" / "agent_trace_live_volunteer.json").read_text())
+
+    @app.get("/demo/volunteer/{name}")
+    def demo_volunteer_file(name: str):
+        full = (ROOT / "demo" / "volunteer" / name).resolve()
+        if full.parent != (ROOT / "demo" / "volunteer").resolve() or not full.is_file():
+            raise HTTPException(404)
+        return FileResponse(full)
+
     @app.get("/api/files/{path:path}")
     def files(path: str):
         full = (store.root / path).resolve()

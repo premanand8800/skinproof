@@ -65,3 +65,14 @@ def test_calibrate_needs_four(tmp_path):
 def test_file_traversal_blocked(tmp_path):
     tc, _ = make([task_json()], tmp_path)
     assert tc.get("/api/files/..%2f..%2fpyproject.toml").status_code == 404
+
+
+def test_volunteer_demo_routes():
+    from fastapi.testclient import TestClient
+    from skinproof.web import create_app
+    tc = TestClient(create_app())
+    d = tc.get("/api/demo/agent/volunteer").json()
+    assert d["real_face"] is True and d["sample"] is False and d["events"]
+    for p in d["photos"]:
+        assert tc.get(p["src"]).status_code == 200
+    assert tc.get("/demo/volunteer/nope.jpg").status_code == 404

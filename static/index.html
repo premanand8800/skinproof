@@ -142,6 +142,13 @@ textarea{min-height:92px;resize:vertical}
 .vh{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:6px}.vh strong{font:600 17px var(--serif)}
 .badge{display:inline-block;font:500 11px/1 var(--mono);letter-spacing:.06em;text-transform:uppercase;padding:6px 9px;border-radius:6px;background:var(--neutralbg);color:var(--neutral);white-space:nowrap}
 .IMPROVED .badge,.b-good{background:var(--goodbg);color:var(--good)}.WORSE .badge,.b-bad{background:var(--badbg);color:var(--bad)}.b-wait,.LIKELY_IMPROVED .badge,.LIKELY_WORSE .badge{background:var(--waitbg);color:var(--wait)}
+.real{border:1px solid var(--accent);background:var(--card);border-radius:16px;padding:18px;margin:22px 0 14px;box-shadow:var(--shadow)}
+.real h3{margin:4px 0 6px}.real .row{margin-top:12px}
+.tenpair{margin:0 0 14px}.tenpair .imgs{display:grid;grid-template-columns:1fr 1fr;gap:10px;max-width:520px}
+.tenpair figure{margin:0}.tenpair img{display:block;width:100%;aspect-ratio:3/4;object-fit:cover;border-radius:12px;border:1px solid var(--line)}
+.tenpair figcaption{font:500 12px var(--mono);color:var(--mute);margin-top:4px}
+.tentable{width:100%;border-collapse:collapse;font-size:13px;margin:8px 0}.tentable th,.tentable td{text-align:right;padding:5px 6px;border-bottom:1px solid var(--line)}.tentable th:first-child,.tentable td:first-child{text-align:left}.tentable th{font:500 11px var(--mono);color:var(--mute);letter-spacing:.04em}.tentable .big{font-weight:700}
+@media(max-width:520px){.tentable{font-size:11px}.tentable th,.tentable td{padding:5px 3px}.tentable th{font-size:9px;letter-spacing:0}.tenpair.card{padding:14px}}
 .lesson{border:1px solid var(--wait);background:var(--waitbg);color:var(--ink);border-radius:12px;padding:12px 14px;margin:0 0 14px;font-size:14px}.lesson b{font:600 11px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--wait);display:block;margin-bottom:6px}.lesson .now{margin-top:8px;padding-top:8px;border-top:1px solid rgba(0,0,0,.12)}
 .axis{position:relative;height:40px;margin:12px 4px 2px;background:repeating-linear-gradient(90deg,var(--line2) 0 1px,transparent 1px calc(100%/20));-webkit-mask:none}
 .axis .line{position:absolute;left:0;right:0;top:19px;height:2px;background:var(--line2)}
@@ -200,7 +207,7 @@ function pick(multi){return new Promise(res=>{const i=document.createElement('in
 function chipApi(label,cls){return label?`<span class="chipapi ${cls||''}">${esc(label)}</span>`:''}
 
 document.addEventListener('click',e=>{const t=e.target.closest('[data-go]');if(t){e.preventDefault();go(t.dataset.go)}});
-async function go(s){({home,start,calibrate,product,checkin:()=>checkin(),results,sample:trySample,agent:()=>askAgent()}[s]||home)()}
+async function go(s){({home,start,calibrate,product,checkin:()=>checkin(),results,sample:trySample,volunteer:()=>replayRun('live-volunteer'),agent:()=>askAgent()}[s]||home)()}
 
 /* ================= HOME ================= */
 function home(){
@@ -211,6 +218,9 @@ function home(){
  <p class="lede">Skin scores wobble with light, angle and distance, even when your skin has not changed. SkinProof measures that wobble on <em>your</em> face, checks the product's claims against what changed, and gives you one answer: keep, stop, or wait.</p>
  <div class="row"><button class="btn" data-go="start">Start</button><button class="btn ghost" data-go="sample">Try the sample</button></div>
  <p class="small mute" style="margin-top:12px">The sample needs no photo and no account. <b>No fake progress. Just proof.</b></p></section>
+ <section class="real" aria-label="Real run"><span class="eyebrow">Real run</span><h3>Real run: same face, 10 seconds apart</h3>
+  <p class="small mute" style="margin:0">A volunteer, with consent, took two mirror selfies 10 seconds apart in the same light and "started" a serum between them. Skin scores still moved by up to 10 points. The agent answered WAIT, because nothing beat the noise measured on his own face twice.</p>
+  <div class="row"><button class="btn" data-go="volunteer">Watch the real run</button><button class="btn ghost" data-go="sample">Try the sample</button><button class="btn ghost" id="fa0">The false alarm we caught</button></div></section>
  <div class="specimen card" aria-label="Example of a report">
   <span class="eyebrow">Specimen report</span>
   ${sp.map(r=>`<div class="rowv"><span>${r[0]}</span><div class="axis" style="height:22px;margin:0"><div class="line" style="top:10px"></div><div class="band" style="left:42%;width:16%;top:3px;height:16px"></div><div class="zero"></div><div class="mk" style="left:${r[2]+ (r[0]==='Redness'?32:0)}%;top:0;height:22px;background:${r[3]?'var(--good)':'var(--neutral)'}"></div></div><span class="v ${r[3]}" style="padding:3px 0">${r[1]==='No proven change'?'NOT PROVEN':r[1].toUpperCase()}</span></div>`).join('')}
@@ -219,6 +229,7 @@ function home(){
  <div class="card"><span class="n">02</span><h3>Name the product</h3><p class="small mute">Paste its claims, a link, or photograph the label. We read what it promises.</p></div>
  <div class="card"><span class="n">03</span><h3>Let the agent check</h3><p class="small mute">It decides which tests to run, shows every step, and stays inside a hard budget of 40 units.</p></div></div>
  <div class="api"><span class="small mute" style="margin-right:4px">Built on</span>${['Skin Analysis','Skin Tone','Fitzpatrick','Face Attributes','Skin Simulation','Photo Lighting'].map(x=>chipApi('YouCam · '+x)).join('')}</div>`);
+ const f0=$('#fa0');if(f0)f0.onclick=()=>replayRun('live-synthetic');
 }
 
 /* ================= FLOW ================= */
@@ -353,6 +364,13 @@ const SAMPLE_TRACE=(()=>{const B=40;const e=(type,step,tool,summary,spent,extra)
 
 function lessonBanner(j){const d=j&&j.decision_under_current_rules;if(!d)return '';
  return `<div class="lesson" role="note"><b>We caught our own false alarm</b>${esc(j.lesson||'')}<div class="now"><b style="display:inline">Under today's rules</b> this same data gives <strong>${esc(d.decision)}${d.wait_weeks?' '+d.wait_weeks+' WEEKS':''}</strong>: ${esc(d.headline)}</div></div>`}
+function tenSecondHtml(j){const t=j.ten_second,ph=j.photos||[];const f=n=>(n>0?'+':'')+n.toFixed(1);
+ return `<div class="tenpair card"><span class="eyebrow">Real face, with consent</span><h3 style="margin:4px 0 8px">${esc(t.caption)}</h3>
+ <div class="imgs">${ph.map((p,i)=>`<figure><img src="${esc(p.src)}" alt="Volunteer selfie ${i?'after':'before'}, taken at ${esc(p.label)}"><figcaption>${i?'After':'Before'} &middot; ${esc(p.label)}</figcaption></figure>`).join('')}</div>
+ <p class="small mute" style="margin:10px 0 0">${esc(j.note||'')}</p>
+ <table class="tentable"><caption class="small mute" style="text-align:left;caption-side:top">Raw scores, 10 seconds apart. Noise = this face's own threshold.</caption><thead><tr><th>Concern</th><th>Before</th><th>After</th><th>Change</th><th>Uncropped</th><th>Noise</th></tr></thead><tbody>
+ ${t.rows.map(r=>{const o=Math.abs(r.delta)>r.threshold;return `<tr><td>${esc(r.label)}</td><td class="num">${r.before.toFixed(1)}</td><td class="num">${r.after.toFixed(1)}</td><td class="num ${o?'big':''}">${f(r.delta)}</td><td class="num">${f(r.uncropped_delta)}</td><td class="num">${r.threshold.toFixed(1)}</td></tr>`}).join('')}</tbody></table>
+ <p class="small mute" style="margin:0">Nothing changed in the skin, yet acne moved by about 10 points, and its direction flipped between the cropped and uncropped version of the same two photos. That is why a single reading never decides.</p></div>`}
 function agentShell(sample,note){
  show(`${sample?sampleRibbon(note):''}<div class="agenthead"><div><span class="eyebrow">The investigation</span><h2 style="margin:0">Should you keep buying it?</h2></div><div class="row"><button class="btn ghost sm" id="rp" hidden>Replay</button></div></div>
  <div class="meter" role="group" aria-label="Unit budget"><div class="mh"><span>YouCam units</span><span><b class="num" id="ms">0</b> / <span class="num" id="mb">40</span> spent</span></div><div class="ticks" id="tk">${'<i></i>'.repeat(40)}</div></div>
@@ -378,7 +396,7 @@ function applyEvent(ev,ctx){
 function endThinking(){const t=$('#think');if(t)t.remove()}
 function claimStatus(s){return CS[s]||[String(s||'').replace(/_/g,' ').toLowerCase(),'']}
 function renderFinal(d,ev,ctx){
- const dec=(d.decision||'WAIT').toUpperCase();const word=dec==='WAIT'?'WAIT'+(d.wait_weeks?' '+d.wait_weeks+' WEEKS':''):dec;
+ const dec=(d.decision||'WAIT').toUpperCase();const word=dec==='WAIT'?'WAIT'+(d.wait_weeks?' '+d.wait_weeks+(d.wait_weeks===1?' WEEK':' WEEKS'):''):dec;
  const verdicts=d.verdicts||[],claims=d.claims||[];
  const names={KEEP:'Keep buying',STOP:'Stop buying',WAIT:'Not enough evidence yet'};
  let h=`<section class="decision ${dec}" aria-label="Decision"><span class="eyebrow">Decision</span><div class="big">${esc(word)}</div><p class="hl">${esc(d.headline||ev.summary||'')}</p>
@@ -426,13 +444,14 @@ async function sampleNoise(back){try{const d=(await api('/demo')).body;noiseView
 async function refreshUnits(){try{const r=await fetch('/api/status');const j=await r.json();if(j.has_key)setUnits(j.units)}catch(e){}}
 async function replayRun(runId,back){
  agentShell(false,null);const my=st.run;
- let j=null;try{const r=await fetch(runId==='live-synthetic'?'/api/demo/agent/live':'/api/agent/runs/'+encodeURIComponent(runId));if(r.ok)j=await r.json()}catch(e){}
+ let j=null;try{const r=await fetch(runId==='live-synthetic'?'/api/demo/agent/live':runId==='live-volunteer'?'/api/demo/agent/volunteer':'/api/agent/runs/'+encodeURIComponent(runId));if(r.ok)j=await r.json()}catch(e){}
  if(!j||!j.events){endThinking();$('#out').innerHTML='<div class="err">That stored run could not be found.</div>';return}
  try{const s=await api('/status');st.concerns=s.body.concerns||st.concerns}catch(e){}
  const ctx={sample:false,stored:true,replay:null,fast:true};
  ctx.replay=()=>replayRun(runId);
  if(j.decision_under_current_rules){const b=document.createElement('div');b.innerHTML=lessonBanner(j);$('#tl').before(b.firstChild)}
- const note=document.createElement('p');note.className='small mute';note.textContent='Replay of stored run '+runId+(j.synthetic_face?' (AI-generated synthetic face)':'')+'. Nothing is re-run and no units are spent.';
+ if(j.ten_second){const b=document.createElement('div');b.innerHTML=tenSecondHtml(j);$('#tl').before(b)}
+ const note=document.createElement('p');note.className='small mute';note.textContent='Replay of stored run '+runId+(j.synthetic_face?' (AI-generated synthetic face)':j.real_face?' (a volunteer, with consent)':'')+'. Nothing is re-run and no units are spent.';
  $('#tl').before(note);
  await playEvents(j.events,ctx);if(my===st.run){endThinking();const rp=$('#rp');if(rp){rp.hidden=false;rp.onclick=ctx.replay}}
 }
