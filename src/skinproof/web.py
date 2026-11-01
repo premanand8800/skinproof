@@ -51,6 +51,17 @@ async def read_image(f: UploadFile) -> bytes:
     return data
 
 
+def parse_capture_meta(raw: str | None):
+    """On-device capture checks sent by the browser camera: small JSON, optional, never trusted for scoring."""
+    if not raw or len(raw) > 4000:
+        return None
+    try:
+        v = json.loads(raw)
+    except ValueError:
+        return None
+    return v if isinstance(v, (dict, list)) else None
+
+
 class ProfileIn(BaseModel):
     name: str = "Me"
 
@@ -142,7 +153,8 @@ def create_app(client: YouCamClient | None = None, store: Store | None = None,
         return {"deleted": True}
 
     @app.post("/api/profiles/{pid}/calibrate")
-    async def calibrate(pid: str, request: Request, files: list[UploadFile] = File(...)):
+    async def calibrate(pid: str, request: Request, files: list[UploadFile] = File(...),
+                        capture_meta: str | None = Form(None)):
         get_profile(pid)
         if len(files) < noise.MIN_RETAKES or len(files) > MAX_CALIB_FILES:
             raise HTTPException(400, f"Upload {noise.MIN_RETAKES} to 6 photos of the same face taken the same day "
@@ -150,13 +162,13 @@ def create_app(client: YouCamClient | None = None, store: Store | None = None,
         raws = [await read_image(f) for f in files]
         reserved = UNITS_PER_ANALYSIS * len(raws)
         guard.reserve_units(client_ip(request), reserved)
-        good, rejected = [], []
+        good, rejected, saved_paths = [], [], []
         for i, raw in enumerate(raws):
             data = crop_to_face(raw)
             try:
                 res = run_analysis(data)
                 good.append(_flat(res))
-                store.save_photo(pid, "calib", data)
+                saved_paths.append(store.save_photo(pid, "calib", data))
             except YouCamError as e:
                 rejected.append({"index": i, "code": e.code, "message": e.friendly})
             except Exception as e:
@@ -165,6 +177,10 @@ def create_app(client: YouCamClient | None = None, store: Store | None = None,
             return JSONResponse({"error": "Not enough usable photos to measure noise.",
                                  "rejected": rejected, "usable": len(good)}, status_code=422)
         cal = noise.build_calibration(real=good)
+        cal["photos"] = saved_paths
+        meta = parse_capture_meta(capture_meta)
+        if meta is not None:
+            cal["capture_meta"] = meta
         store.set_calibration(pid, cal)
         return {"calibration": cal, "rejected": rejected, "units": units()}
 
@@ -203,7 +219,8 @@ def create_app(client: YouCamClient | None = None, store: Store | None = None,
         return prod
 
     @app.post("/api/profiles/{pid}/checkins")
-    async def checkin(pid: str, request: Request, file: UploadFile = File(...), when: str | None = Form(None)):
+    async def checkin(pid: str, request: Request, file: UploadFile = File(...), when: str | None = Form(None),
+                      capture_meta: str | None = Form(None)):
         get_profile(pid)
         data = crop_to_face(await read_image(file))
         when = when or date.today().isoformat()
@@ -214,6 +231,9 @@ def create_app(client: YouCamClient | None = None, store: Store | None = None,
         ip = client_ip(request)
         guard.reserve_units(ip, UNITS_PER_ANALYSIS)
         rec = {"date": when}
+        meta = parse_capture_meta(capture_meta)
+        if meta is not None:
+            rec["capture_meta"] = meta
         try:
             res = run_analysis(data)
             rec["photo"] = store.save_photo(pid, "checkin", data)

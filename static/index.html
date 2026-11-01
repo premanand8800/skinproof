@@ -151,7 +151,7 @@ textarea{min-height:96px;resize:vertical}
 .drop{display:block;width:100%;border:1.5px dashed var(--rule2);border-radius:var(--r-s);padding:20px;text-align:center;cursor:pointer;color:var(--ink2);background:transparent;font:500 15px var(--sans);min-height:60px;transition:border-color .15s,background .15s}
 .drop:hover{border-color:var(--ink);background:var(--sunk)}
 .drop.has{border-color:var(--good);border-style:solid;color:var(--ink);background:var(--good-bg)}
-.thumbs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:0 0 14px}
+.thumbs{display:grid;grid-template-columns:repeat(auto-fill,minmax(72px,1fr));gap:8px;margin:0 0 14px}
 .thumbs img{width:100%;aspect-ratio:3/4;object-fit:cover;border-radius:8px;border:1px solid var(--rule)}
 .privacy{font-size:12.5px;color:var(--ink2);margin:20px 0 0;padding-top:14px;border-top:1px solid var(--rule);line-height:1.5}
 .privacy .btn{padding:4px 12px;min-height:30px;font-size:12.5px;margin-left:4px}
@@ -280,12 +280,58 @@ footer .logo2{display:block;font:italic 400 28px var(--serif);word-spacing:.1em;
 .spin{display:inline-block;width:14px;height:14px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;animation:spin 1s linear infinite;vertical-align:-2px;margin-right:8px}
 @media(max-width:380px){.nbar{grid-template-columns:84px 1fr 52px}.tips{grid-template-columns:1fr}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}.spinner,.spin{animation:none;border-right-color:currentColor}}
+/* ===== mirror mode (camera). Dark capture room: the one place the canvas gives way to ink. ===== */
+:root{--cam-bg:#12110F;--cam-ink:#F0EBE1;--cam-ink2:#B4ACA0;--cam-line:rgba(240,235,225,.28);--cam-ok:#8CCBA0;--cam-ok-bg:#1B2D21;--cam-warn:#E3B867;--cam-warn-bg:#33290F}
+a.btn,a.navlink{text-decoration:none}
+.cam{position:fixed;inset:0;z-index:100;background:var(--cam-bg);color:var(--cam-ink);display:flex;flex-direction:column;align-items:center;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom);overflow:hidden}
+.cam *{box-sizing:border-box}.cam:focus{outline:none}
+.cam-top{width:100%;max-width:560px;display:grid;grid-template-columns:44px 1fr 44px;align-items:center;gap:8px;padding:10px 16px 6px}
+.cam-x{width:44px;height:44px;border-radius:50%;border:1px solid var(--cam-line);background:transparent;color:var(--cam-ink);cursor:pointer;display:grid;place-items:center}
+.cam-x:hover{background:rgba(240,235,225,.1)}
+.cam-x svg{width:16px;height:16px}
+.cam-mid{text-align:center;min-width:0}
+.cam-step{font:500 11.5px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--cam-ink2);margin:0 0 6px}
+.cam-prompt{font:500 17px/1.25 var(--sans);margin:0;text-wrap:balance}
+.cam-stage{flex:1;min-height:0;width:100%;display:grid;place-items:center;padding:6px 16px}
+.cam-frame{position:relative;width:min(100%,calc((100dvh - 300px)*.75));aspect-ratio:3/4;border-radius:var(--r);overflow:hidden;background:#000;border:1px solid var(--cam-line)}
+.cam-frame video,.cam-frame .cam-ghost{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:scaleX(-1)}
+.cam-ghost{pointer-events:none;opacity:.35}
+.cam-oval{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.cam-oval .dim{fill:rgba(18,17,15,.5)}
+.cam-oval ellipse{fill:none;stroke:var(--cam-ink);stroke-width:.9;stroke-dasharray:3 3;opacity:.85;vector-effect:non-scaling-stroke;stroke-width:2}
+.cam.good .cam-oval ellipse{stroke:var(--cam-ok);stroke-dasharray:none;opacity:1}
+.cam-flash{position:absolute;inset:0;background:#F6F1E9;opacity:0;pointer-events:none}
+.cam-flash.on{animation:camflash .28s ease-out}
+@keyframes camflash{from{opacity:.75}to{opacity:0}}
+.cam-hint{min-height:22px;margin:6px 16px 0;font:400 14px/1.4 var(--sans);color:var(--cam-ink2);text-align:center}
+.cam-pills{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:8px 16px 0;min-height:28px}
+.cam-pill{font:500 11.5px/1 var(--mono);padding:7px 11px;border-radius:999px;border:1px solid var(--cam-line);color:var(--cam-ink2);white-space:nowrap;font-variant-numeric:tabular-nums}
+.cam-pill.ok{background:var(--cam-ok-bg);color:var(--cam-ok);border-color:transparent}
+.cam-pill.no{background:var(--cam-warn-bg);color:var(--cam-warn);border:1px dashed var(--cam-warn)}
+.cam-ghostrow{display:flex;align-items:center;gap:12px;margin:10px 16px 0;font:500 11.5px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--cam-ink2)}
+.cam-ghostrow[hidden]{display:none}
+.cam-ghostrow input{width:min(200px,45vw);accent-color:#8DBDB4}
+.cam-ghostrow .num{min-width:3ch;text-align:right;color:var(--cam-ink)}
+.cam-ctl{width:100%;max-width:460px;display:grid;grid-template-columns:1fr 78px 1fr;align-items:center;gap:8px;padding:10px 16px 0}
+.cam-shutter{width:72px;height:72px;border-radius:50%;border:3px solid var(--cam-ink);background:transparent;padding:0;cursor:pointer;position:relative;justify-self:center;transition:transform .15s}
+.cam-shutter:before{content:"";position:absolute;inset:5px;border-radius:50%;background:var(--cam-ink);transition:background .15s}
+.cam-shutter:active{transform:scale(.94)}
+.cam-shutter:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.cam-shutter:not(:disabled):before{background:var(--cam-ok)}
+.cam :focus-visible{outline:2px solid var(--cam-ink);outline-offset:3px}
+.cam-link{background:none;border:0;color:var(--cam-ink);font:500 14px var(--sans);text-decoration:underline;text-underline-offset:4px;padding:12px 6px;min-height:44px;cursor:pointer}
+.cam-link:first-child{justify-self:start}.cam-link:last-child{justify-self:end}
+.cam-link[hidden]{display:block;visibility:hidden}
+.cam-auto{display:flex;gap:10px;align-items:center;margin:2px 16px 14px;font-size:13.5px;color:var(--cam-ink2);min-height:44px;cursor:pointer}
+.cam-auto input{width:18px;height:18px;accent-color:#8DBDB4}
+.camnote{margin-top:12px}
+@media(prefers-reduced-motion:reduce){.cam-flash.on{animation:none}}
 </style>
 </head>
 <body>
 <div class="wrap">
 <header class="top"><button class="logo" data-go="home" aria-label="SkinProof home"><svg viewBox="0 0 32 32" fill="none" aria-hidden="true"><rect class="fillb" x="3" y="9" width="15" height="14"/><path d="M7 7H3v18h4M14 7h4v18h-4" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><circle class="dot" cx="25.5" cy="16" r="4.2"/></svg>SkinProof</button>
-<div class="nav"><button class="navlink" data-go="sample">Sample</button><button class="navlink" data-go="volunteer">Real run</button><button class="navlink" data-go="start">Start</button><span class="pill" id="units" hidden></span></div></header>
+<div class="nav"><button class="navlink" data-go="sample">Sample</button><button class="navlink" data-go="volunteer">Real run</button><a class="navlink" href="/buy">Before you buy</a><button class="navlink" data-go="start">Start</button><span class="pill" id="units" hidden></span></div></header>
 <main id="main" tabindex="-1" aria-live="polite"></main>
 <footer><span class="logo2">No fake progress. Just proof.</span>SkinProof is a measurement tool, not medical advice.<br>Photos stay on this machine. Simulations are never your result.</footer>
 </div>
@@ -293,6 +339,12 @@ footer .logo2{display:block;font:italic 400 28px var(--serif);word-spacing:.1em;
 const $=s=>document.querySelector(s), main=$('#main');
 const st={pid:null,concerns:{},status:{},cal:null,files:[],picked:new Set(),demo:false,run:0};
 try{st.pid=localStorage.getItem('sp_pid')}catch(e){}
+try{const q=new URLSearchParams(location.search),pr=(q.get('product')||'').slice(0,120);
+ if(pr){sessionStorage.setItem('sp_prefill',JSON.stringify({product:pr,claim_url:(q.get('claim_url')||'').slice(0,500),claim_text:(q.get('claim_text')||'').slice(0,2000),concerns:(q.get('concerns')||'').split(',').map(x=>x.trim()).filter(x=>/^[a-z_0-9]{2,30}$/.test(x))}));
+  history.replaceState(null,'',location.pathname+location.hash)}}catch(e){}
+function applyPrefill(){let pf=null;try{pf=JSON.parse(sessionStorage.getItem('sp_prefill')||'null');sessionStorage.removeItem('sp_prefill')}catch(e){}
+ if(!pf)return;$('#pn').value=pf.product||'';if(pf.claim_url)$('#cu').value=pf.claim_url;if(pf.claim_text)$('#ct').value=pf.claim_text;
+ (pf.concerns||[]).forEach(k=>{const c=document.querySelector('.chip[data-k="'+k+'"]');if(c)c.click()})}
 const TOK={LIKELY_IMPROVED:'likely improved, needs confirmation',LIKELY_WORSE:'likely worse, needs confirmation',NOT_YET_SHOWN:'not yet shown',TOO_EARLY:'too early',NEEDS_CONFIRMATION:'needs confirmation',NOT_MEASURABLE:'not measurable',NO_PROVEN_CHANGE:'no proven change',SUPPORTED:'supported',CONTRADICTED:'contradicted',IMPROVED:'improved',WORSE:'worse'};
 const plural=(n,w)=>n+' '+w+(n===1?'':'s');
 function human(t){if(t==null)return '';t=String(t);
@@ -308,7 +360,7 @@ const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&g
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
 async function api(path,opt){const r=await fetch('/api'+path,opt);let b={};try{b=await r.json()}catch(e){}
- if(!r.ok&&r.status!==422)throw new Error(b.detail||b.error||('Request failed ('+r.status+')'));return {ok:r.ok,status:r.status,body:b}}
+ if(!r.ok&&r.status!==422){const e=new Error(b.detail||b.error||('Request failed ('+r.status+')'));e.status=r.status;throw e}return {ok:r.ok,status:r.status,body:b}}
 function setUnits(u){const el=$('#units');if(u==null){el.hidden=true;return}el.hidden=false;el.textContent=Math.round(u)+' units left'}
 function setLive(n){if(n==null)return;st.live=n;const el=$('#units');if(el){el.hidden=false;el.title='Shared live-analysis allowance left today';el.textContent='Live today: '+Math.round(n)+' units left'}}
 function limitHtml(m){return '<div class="err">'+esc(m||'Daily live-analysis limit reached.')+' Try the free <a href="#" data-go="sample">sample</a> or watch the <a href="#" data-go="volunteer">real-run replay</a>.</div>'}
@@ -324,6 +376,121 @@ function chipApi(label,cls){return label?`<span class="chipapi ${cls||''}">${esc
 document.addEventListener('click',async e=>{if(e.target.id==='delme'){e.preventDefault();if(!st.pid||!confirm('Delete your profile and all your photos from this server?'))return;try{await api('/profiles/'+st.pid,{method:'DELETE'})}catch(x){}try{localStorage.removeItem('sp_pid')}catch(x){}st.pid=null;home();return}
  const t=e.target.closest('[data-go]');if(t){e.preventDefault();go(t.dataset.go)}});
 async function go(s){({home,start,calibrate,product,checkin:()=>checkin(),results,sample:trySample,volunteer:()=>replayRun('live-volunteer'),agent:()=>askAgent()}[s]||home)()}
+
+/* ================= MIRROR MODE (camera, ghost, on-device checks; nothing leaves the browser until you press Measure/Analyse) ================= */
+const Mirror=(()=>{
+ const W=120,H=160,RX=41/120,RY=53/160;
+ const T={lightLo:75,lightHi:195,even:.22,sharp:30,align:55,sizeLo:.42,sizeHi:.82};
+ const mask=(w,h)=>{const m=new Uint8Array(w*h);for(let y=0;y<h;y++)for(let x=0;x<w;x++){const dx=((x+.5)/w-.5)/RX,dy=((y+.5)/h-.5)/RY;m[y*w+x]=dx*dx+dy*dy<=1?1:0}return m};
+ const M1=mask(W,H),M2=mask(W/2,H/2);
+ const cv=document.createElement('canvas');cv.width=W;cv.height=H;const cx=cv.getContext('2d',{willReadFrequently:true});
+ const crop34=(w,h)=>{const cw=Math.min(w,h*.75);return [(w-cw)/2,(h-cw/.75)/2,cw,cw/.75]};
+ function gray(src,sw,sh){const [sx,sy,cw,ch]=crop34(sw,sh);cx.drawImage(src,sx,sy,cw,ch,0,0,W,H);const d=cx.getImageData(0,0,W,H).data,g=new Float32Array(W*H);for(let i=0,j=0;i<g.length;i++,j+=4)g[i]=.299*d[j]+.587*d[j+1]+.114*d[j+2];return g}
+ function half(g){const w=W/2,h=H/2,o=new Float32Array(w*h);for(let y=0;y<h;y++)for(let x=0;x<w;x++){const i=2*y*W+2*x;o[y*w+x]=(g[i]+g[i+1]+g[i+W]+g[i+W+1])/4}return o}
+ function measure(g){let n=0,s=0,nl=0,sl=0,nr=0,sr=0;
+  for(let y=0;y<H;y++)for(let x=0;x<W;x++){const i=y*W+x;if(!M1[i])continue;n++;s+=g[i];if(x<W/2){nl++;sl+=g[i]}else{nr++;sr+=g[i]}}
+  const mean=s/n,L=sl/nl,R=sr/nr;
+  let c=0,a=0,a2=0;for(let y=1;y<H-1;y++)for(let x=1;x<W-1;x++){const i=y*W+x;if(!M1[i])continue;const l=4*g[i]-g[i-1]-g[i+1]-g[i-W]-g[i+W];c++;a+=l;a2+=l*l}
+  const m=a/c;return {brightness:mean,evenness:Math.abs(L-R)/Math.max(mean,1),sharpness:a2/c-m*m}}
+ function ncc(a,b){let n=0,sa=0,sb=0;for(let i=0;i<a.length;i++)if(M2[i]){n++;sa+=a[i];sb+=b[i]}
+  const ma=sa/n,mb=sb/n;let ab=0,aa=0,bb=0;for(let i=0;i<a.length;i++)if(M2[i]){const x=a[i]-ma,y=b[i]-mb;ab+=x*y;aa+=x*x;bb+=y*y}
+  return aa>0&&bb>0?ab/Math.sqrt(aa*bb):0}
+ const X='<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8"/></svg>';
+ const avg=(arr)=>arr.reduce((a,b)=>a+b,0)/arr.length;
+
+ /* opts: {ghost:url|null, steps:[prompt,...]}  ->  {shots:[{file,meta}]} | {cancel:true} | {upload:true} | {error:'denied'|'nocamera'|'insecure'} */
+ async function open(opts){
+  opts=opts||{};const steps=opts.steps&&opts.steps.length?opts.steps:['Fit your face in the oval'];
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia)return {error:'insecure'};
+  let stream;
+  try{stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user',width:{ideal:1920},height:{ideal:1440}},audio:false})}
+  catch(e){return {error:/NotAllowed|Security|Permission/i.test(e.name)?'denied':'nocamera'}}
+  const prevFocus=document.activeElement;
+  const ov=document.createElement('div');ov.className='cam';ov.setAttribute('role','dialog');ov.setAttribute('aria-modal','true');ov.setAttribute('aria-labelledby','cam-t');
+  ov.innerHTML=`<div class="cam-top"><button type="button" class="cam-x" id="cam-close" aria-label="Close camera">${X}</button><div class="cam-mid"><p class="cam-step" id="cam-s"></p><p class="cam-prompt" id="cam-t"></p></div><span></span></div>
+  <div class="cam-stage"><div class="cam-frame"><video playsinline muted autoplay aria-label="Live camera preview, mirrored"></video><img class="cam-ghost" alt="" hidden>
+  <svg class="cam-oval" viewBox="0 0 120 160" preserveAspectRatio="none" aria-hidden="true"><path class="dim" fill-rule="evenodd" d="M0 0H120V160H0Z M60 27a41 53 0 1 0 0 106a41 53 0 1 0 0-106Z"/><ellipse cx="60" cy="80" rx="41" ry="53"/></svg><div class="cam-flash"></div></div></div>
+  <p class="cam-hint" id="cam-h" aria-live="polite">Starting camera</p><div class="cam-pills" id="cam-p" aria-label="Capture checks"></div>
+  <label class="cam-ghostrow" hidden>Last time <input type="range" min="0" max="80" value="35" id="cam-gs"><span class="num" id="cam-gv">35%</span></label>
+  <div class="cam-ctl"><button type="button" class="cam-link" id="cam-up">Upload instead</button><button type="button" class="cam-shutter" id="cam-sh" aria-label="Take photo (Space)" disabled></button><button type="button" class="cam-link" id="cam-any" hidden>Take anyway</button></div>
+  <label class="cam-auto"><input type="checkbox" id="cam-auto"> Auto-capture after 1 second of steady, good framing</label>`;
+  const q=s=>ov.querySelector(s);const video=q('video'),ghostEl=q('.cam-ghost');
+  video.srcObject=stream;video.muted=true;video.play().catch(()=>{});
+  const wrap=document.querySelector('.wrap');if(wrap)wrap.setAttribute('aria-hidden','true');
+  const oldOv=document.body.style.overflow;document.body.style.overflow='hidden';document.body.appendChild(ov);
+  let gimg=null,gAlign=null;
+  if(opts.ghost){const im=new Image();im.onload=()=>{gimg=im;try{gAlign=half(gray(im,im.naturalWidth,im.naturalHeight));ghostEl.src=opts.ghost;ghostEl.hidden=false;q('.cam-ghostrow').hidden=false}catch(e){gimg=null}};im.onerror=()=>{};im.src=opts.ghost}
+  const gs=q('#cam-gs');gs.oninput=()=>{ghostEl.style.opacity=gs.value/100;q('#cam-gv').textContent=gs.value+'%'};
+  let autoOn=false;try{autoOn=localStorage.getItem('sp_auto')==='1'}catch(e){}q('#cam-auto').checked=autoOn;
+  q('#cam-auto').onchange=e=>{autoOn=e.target.checked;try{localStorage.setItem('sp_auto',autoOn?'1':'0')}catch(x){}};
+  let fd=null;if('FaceDetector' in window){try{fd=new FaceDetector({fastMode:true,maxDetectedFaces:1})}catch(e){fd=null}}
+  let faceRatio=null,faceBusy=false,faceSeen=false,lastFace=0;
+  let idx=0,shots=[],hist=[],steady=0,cool=0,done=false,timer=0,lastKey='',lastHint='',ok=false,cur=null;
+  const stepLabel=()=>{q('#cam-s').textContent=steps.length>1?`Photo ${idx+1} of ${steps.length}`:(opts.ghost?'Match last time':'Mirror mode');q('#cam-t').textContent=steps[idx]};
+  stepLabel();
+  function finish(res){if(done)return;done=true;clearTimeout(timer);stream.getTracks().forEach(t=>t.stop());ov.remove();document.body.style.overflow=oldOv;if(wrap)wrap.removeAttribute('aria-hidden');document.removeEventListener('keydown',onKey,true);try{prevFocus&&prevFocus.focus&&prevFocus.focus()}catch(e){}resolve(res)}
+  let resolve;const p=new Promise(r=>resolve=r);
+  function snap(override){
+   if(done||!video.videoWidth)return;const [sx,sy,cw,ch]=crop34(video.videoWidth,video.videoHeight);const sc=Math.min(1,1600/ch);
+   const c=document.createElement('canvas');c.width=Math.round(cw*sc);c.height=Math.round(ch*sc);c.getContext('2d').drawImage(video,sx,sy,cw,ch,0,0,c.width,c.height);
+   const m=cur||{};const meta={alignment:m.align==null?null:Math.round(m.align),brightness:Math.round(m.brightness||0),evenness:+(m.evenness||0).toFixed(3),sharpness:+(m.sharpness||0).toFixed(1),face_ratio:faceRatio==null?null:+faceRatio.toFixed(2),used_ghost:!!gimg,passed:ok,override:!!override&&!ok,step:idx+1};
+   c.toBlob(b=>{if(!b||done)return;shots.push({file:new File([b],'mirror-'+Date.now()+'.jpg',{type:'image/jpeg'}),meta});
+    const fl=q('.cam-flash');if(!reduce){fl.classList.remove('on');void fl.offsetWidth;fl.classList.add('on')}
+    steady=0;hist=[];
+    if(idx+1>=steps.length){finish({shots});return}
+    idx++;stepLabel();cool=performance.now()+1600;setHint('Got it. Next: '+steps[idx].toLowerCase())},'image/jpeg',.92)}
+  function setHint(t){if(t!==lastHint){lastHint=t;q('#cam-h').textContent=t}}
+  async function detect(){if(!fd||faceBusy||!video.videoWidth)return;faceBusy=true;try{const f=await fd.detect(video);const [,,cw]=crop34(video.videoWidth,video.videoHeight);faceSeen=f.length>0;faceRatio=f.length?f[0].boundingBox.width/cw:null;lastFace=performance.now()}catch(e){fd=null}faceBusy=false}
+  function tick(){
+   if(done)return;timer=setTimeout(tick,200);
+   if(document.hidden||!video.videoWidth||video.readyState<2)return;
+   const g=gray(video,video.videoWidth,video.videoHeight);const m=measure(g);
+   m.align=null;if(gAlign){m.align=Math.max(0,ncc(half(g),gAlign))*100}
+   hist.push(m);if(hist.length>3)hist.shift();
+   cur={brightness:avg(hist.map(h=>h.brightness)),evenness:avg(hist.map(h=>h.evenness)),sharpness:avg(hist.map(h=>h.sharpness)),align:m.align==null?null:avg(hist.map(h=>h.align))};
+   if(fd&&performance.now()-lastFace>450)detect();
+   const pills=[],msgs=[];
+   const lightOk=cur.brightness>=T.lightLo&&cur.brightness<=T.lightHi;
+   pills.push(['light',lightOk,lightOk?'Light ✓':(cur.brightness<T.lightLo?'Too dark':'Too bright')]);
+   if(!lightOk)msgs.push(cur.brightness<T.lightLo?'Too dark. Face a window or switch on a light.':'Too bright. Step back from direct light.');
+   const evenOk=cur.evenness<=T.even;pills.push(['even',evenOk,evenOk?'Even ✓':'Side light']);
+   if(!evenOk)msgs.push('Light hits one side of your face. Face the light straight on.');
+   const sharpOk=cur.sharpness>=T.sharp;pills.push(['sharp',sharpOk,sharpOk?'Sharp ✓':'Soft']);
+   if(!sharpOk)msgs.push('Image looks soft. Hold still and wipe the lens.');
+   if(fd){const sizeOk=faceSeen&&faceRatio>=T.sizeLo&&faceRatio<=T.sizeHi;pills.push(['size',sizeOk,sizeOk?'Size ✓':(!faceSeen?'No face':(faceRatio<T.sizeLo?'Closer':'Back up'))]);
+    if(!sizeOk)msgs.push(!faceSeen?'I cannot see a face. Centre it in the oval.':(faceRatio<T.sizeLo?'Move a little closer.':'Move back a little.'))}
+   if(cur.align!=null){const aOk=cur.align>=T.align;pills.push(['align',aOk,'Aligned '+Math.round(cur.align)+'%']);if(!aOk)msgs.push('Line your face up with the ghost of last time.')}
+   ok=pills.every(x=>x[1]);
+   const key=pills.map(x=>x[0]+x[1]+x[2]).join('|');
+   if(key!==lastKey){lastKey=key;q('#cam-p').innerHTML=pills.map(x=>`<span class="cam-pill ${x[1]?'ok':'no'}">${x[2]}</span>`).join('')}
+   ov.classList.toggle('good',ok);
+   const now=performance.now(),coolOn=now<cool;
+   q('#cam-sh').disabled=!ok||coolOn;q('#cam-any').hidden=ok;q('#cam-any').disabled=coolOn;
+   if(coolOn)return;
+   if(ok){if(!steady)steady=now;setHint(autoOn?'Looks good. Hold still...':'Looks good. Press the shutter or Space.');if(autoOn&&now-steady>=1000)snap(false)}
+   else{steady=0;setHint(msgs[0])}
+  }
+  const focusables=()=>[...ov.querySelectorAll('button:not(:disabled):not([hidden]),input:not([hidden])')].filter(e=>e.offsetParent!==null);
+  function onKey(e){
+   if(e.key==='Escape'){e.preventDefault();finish({cancel:true});return}
+   if(e.key==='Tab'){const f=focusables();if(!f.length)return;const i=f.indexOf(document.activeElement);if(e.shiftKey&&i<=0){e.preventDefault();f[f.length-1].focus()}else if(!e.shiftKey&&i===f.length-1){e.preventDefault();f[0].focus()}return}
+   if((e.key===' '||e.key==='Enter')&&!(ov.contains(document.activeElement)&&/^(BUTTON|INPUT)$/.test(document.activeElement.tagName))){e.preventDefault();if(!q('#cam-sh').disabled)snap(false)}}
+  document.addEventListener('keydown',onKey,true);
+  q('#cam-close').onclick=()=>finish({cancel:true});q('#cam-up').onclick=()=>finish({upload:true});
+  q('#cam-sh').onclick=()=>snap(false);q('#cam-any').onclick=()=>snap(true);
+  stream.getVideoTracks().forEach(t=>t.addEventListener('ended',()=>finish({error:'nocamera'})));
+  ov.tabIndex=-1;ov.focus();tick();
+  return p;
+ }
+ return {open,T};
+})();
+const POSES=['Look straight at the camera','Tilt your chin slightly down','Turn a touch to your left','Turn a touch to your right','Tilt your chin slightly up','Look straight, lean back a little'];
+function camErr(r){const m={denied:'Camera access is blocked for this site. Allow it in your browser’s site settings, or choose a photo from your device instead.',nocamera:'No usable camera was found. Choose a photo from your device instead.',insecure:'This browser cannot open the camera here (it needs a secure https page). Choose a photo from your device instead.'}[r]||'The camera could not start. Choose a photo from your device instead.';return '<div class="err" role="alert">'+m+'</div>'}
+const TIPS={acne:'Acne scores move most with side light and head angle. Face a window straight on and keep your chin at the same height.',redness:'Redness reads differently under warm or coloured light. Use the same daylight spot each time, and wait the same minutes after washing.',pore:'Pores depend on sharpness and distance. Keep the same arm length and hold still until Sharp turns green.',texture:'Texture depends on sharpness and light direction. Same distance, same window, hold still until Sharp turns green.',wrinkle:'Wrinkles show or hide with light angle. Face the light straight on and keep a neutral expression.',dark_circle_v2:'Dark circles change with light from above. Face the light and keep your chin level.',eye_bag:'Eye bags change with light from above and head tilt. Face the light and keep your chin level.',moisture:'Moisture readings shift with time since washing. Photograph at the same time of day, the same minutes after washing.',oiliness:'Oiliness shifts through the day. Photograph at the same time of day, the same minutes after washing.',radiance:'Radiance follows light colour. Use the same daylight spot every time.'};
+function noiseWords(cal){const rows=Object.entries(cal.concerns).sort((a,b)=>b[1].threshold-a[1].threshold);if(!rows.length)return '';
+ const nm=c=>(st.concerns[c]||c).toLowerCase(),w=rows[0][0];
+ return `<div class="card"><span class="eyebrow">In plain words</span>${rows.map(([c,v])=>`<p style="margin:0 0 8px">Any ${esc(nm(c))} change under <span class="num">${Math.round(v.threshold)}</span> points isn’t real for you.</p>`).join('')}</div>
+ <div class="notebar"><b>Capture tip for ${esc(nm(w))}, your noisiest.</b> ${esc(TIPS[w]||'Take every photo in the same light, at the same distance, with the same head pose. Hold still until all the checks turn green.')}</div>`}
 
 /* ================= HOME ================= */
 function storyHtml(j){
@@ -342,13 +509,13 @@ function home(){
  show(`<section class="hero"><div><span class="eyebrow">Skincare, audited</span>
  <h1>Should I keep <em>buying</em> this?</h1>
  <p class="lead" style="margin-top:28px">Skin scores wobble with light, angle and distance, even when your skin has not changed. SkinProof measures that wobble on <em>your</em> face, checks the product's claims against what changed, and gives you one answer: keep, stop, or wait.</p>
- <div class="hero-cta"><button class="btn" data-go="start">Start</button><button class="btn ghost" data-go="sample">Try the sample</button></div>
+ <div class="hero-cta"><button class="btn" data-go="start">Start</button><button class="btn ghost" data-go="sample">Try the sample</button><a class="btn ghost" href="/buy">Before you buy</a></div>
  <p class="tag">No fake progress. Just proof.</p>
  <p class="small mute" style="margin:10px 0 0">The sample needs no photo and no account.</p></div>
  <aside class="story" id="story" aria-label="Real run">${storyHtml(null)}
   <div class="row"><button class="btn" data-go="volunteer">Watch the real run</button><button class="btn ghost" id="fa0">The false alarm we caught</button></div></aside></section>
  <section class="sec"><div><span class="eyebrow">How it works</span><h2>Three steps to an honest answer.</h2></div>
- <ol class="how"><li><span class="n">01</span><div><h3>Measure your noise</h3><p>Three same-day photos of your face. Differences between them are pure measurement error.</p></div></li>
+ <ol class="how"><li><span class="n">01</span><div><h3>Measure your noise</h3><p>Four same-day photos of your face. Differences between them are pure measurement error.</p></div></li>
  <li><span class="n">02</span><div><h3>Name the product</h3><p>Paste its claims, a link, or photograph the label. We read what it promises.</p></div></li>
  <li><span class="n">03</span><div><h3>Let the agent check</h3><p>It decides which tests to run, shows every step, and stays inside a hard budget of 40 units.</p></div></li></ol></section>
  <section class="sec"><div><span class="eyebrow">Specimen report</span><h2>A change only counts when it leaves the band.</h2><p class="mute">The shaded band is your own measurement noise. The marker is what changed. Inside the band, it is just wobble.</p></div>
@@ -371,27 +538,40 @@ async function start(){
  return checkin(p);
 }
 function calibrate(){
- st.files=[];
+ st.files=[];st.metas=[];st.fromCam=false;
  show(stepper(1)+`<span class="eyebrow">Step 1 of 4</span><h2>Measure your photo noise</h2><p class="mute">Take 4 to 6 photos of your face <b>today</b> (5 or 6 is best), changing light, distance and <b>turning your head a few degrees</b> each time. Your skin is identical in all of them, so any score difference is measurement noise. Fewer photos underestimate it.</p>
- <div class="card">${tipsHtml('Move a little between shots')}<div class="thumbs" id="th" hidden></div><button class="drop" id="drop">Tap to choose 4 to 6 photos</button><div id="msg"></div>
+ <div class="card"><span class="eyebrow">Quick check</span><h3>4 photos in a minute</h3><p class="small mute">The camera walks you through four poses: look straight, chin slightly down, a touch left, a touch right. It checks light and sharpness on your device, and nothing is sent until you press Measure.</p>
+ <button class="btn" id="cam">Open camera</button><div class="camnote" id="camnote"></div></div>
+ <div class="card">${tipsHtml('Move a little between shots')}<div class="thumbs" id="th" hidden></div><button class="drop" id="drop">Or choose 4 to 6 photos from your device</button><div class="row" style="margin-top:12px"><button class="btn ghost sm" id="more" hidden>Add another photo with the camera</button></div><div id="msg"></div>
  <p class="small mute" style="margin:12px 0">About ${st.status.units_per_analysis||12} units per photo. Identical photos are never charged twice.</p>
  <button class="btn" id="go" disabled>Measure noise</button>${privacyHtml()}</div>`);
- $('#drop').onclick=async()=>{const f=await pick(true);if(!f.length)return;st.files=f;const ok=f.length>=4&&f.length<=6;
+ const setFiles=(f,metas,cam)=>{st.files=f;st.metas=metas;st.fromCam=cam;const ok=f.length>=4&&f.length<=6;
   $('#drop').textContent=f.length+' photo(s) selected. Tap to change';$('#drop').classList.toggle('has',ok);$('#go').disabled=!ok;
   $('#msg').innerHTML=ok?'':'<div class="err">Choose between 4 and 6 photos (5 to 6 with slight head turns is best).</div>';
+  $('#more').hidden=!(cam&&f.length<6);$('#cam').textContent=cam?'Retake with the camera':'Open camera';
   const th=$('#th');th.hidden=false;th.innerHTML=f.slice(0,6).map(x=>`<img alt="Selected photo" src="${URL.createObjectURL(x)}">`).join('')};
+ $('#drop').onclick=async()=>{const f=await pick(true);if(f.length)setFiles(f,f.map(()=>null),false)};
+ const shoot=async(steps,append)=>{const r=await Mirror.open({steps});
+  if(r.error){$('#camnote').innerHTML=camErr(r.error);return}
+  if(r.upload){$('#drop').click();return}
+  if(r.cancel||!r.shots)return;$('#camnote').innerHTML='';
+  const sh=r.shots,f=append?st.files.concat(sh.map(x=>x.file)):sh.map(x=>x.file),m=append?st.metas.concat(sh.map(x=>x.meta)):sh.map(x=>x.meta);
+  setFiles(f,m,true);$('#go').focus()};
+ $('#cam').onclick=()=>shoot(POSES.slice(0,4),false);
+ $('#more').onclick=()=>shoot(POSES.slice(st.files.length,6).slice(0,1),true);
  $('#go').onclick=async()=>{const b=$('#go');b.disabled=true;b.innerHTML='<span class="spin"></span>Measuring, about 20 s per photo';
-  const fd=new FormData();st.files.forEach(f=>fd.append('files',f));
+  const fd=new FormData();st.files.forEach(f=>fd.append('files',f));if(st.metas.some(Boolean))fd.append('capture_meta',JSON.stringify(st.metas));
   try{const r=await api('/profiles/'+st.pid+'/calibrate',{method:'POST',body:fd});
    if(!r.ok){$('#msg').innerHTML='<div class="err">'+esc(r.body.error)+(r.body.rejected||[]).map(x=>'<br>Photo '+(x.index+1)+': '+esc(x.message)).join('')+'</div>';b.disabled=false;b.textContent='Measure noise';return}
    st.cal=r.body.calibration;refreshUnits();noiseView(r.body.calibration,r.body.rejected,()=>product())}
-  catch(e){$('#msg').innerHTML='<div class="err">'+esc(e.message)+'</div>';b.disabled=false;b.textContent='Measure noise'}}
+  catch(e){$('#msg').innerHTML=e.status===429?limitHtml(e.message):'<div class="err">'+esc(e.message)+'</div>';b.disabled=false;b.textContent='Measure noise'}}
 }
 function noiseView(cal,rej,next,sample){
  const rows=Object.entries(cal.concerns);const mx=Math.max(...rows.map(([,v])=>v.threshold),10)*1.1;
  show((sample?sampleRibbon('Invented scores, no real face.'):stepper(1))+`<span class="eyebrow">Your noise floor</span><h2>The wobble that means nothing</h2><p class="mute">Same face, same day, different light and angle. A real change must beat these bars to count.</p>
  <div class="card">${rows.map(([c,v])=>`<div class="nbar"><b style="font-weight:500">${esc(st.concerns[c]||c)}</b><div class="t"><i style="width:0" data-w="${v.threshold/mx*100}"></i></div><em>&plusmn;${Math.round(v.threshold)} pts</em></div>`).join('')}
  <p class="small mute" style="margin:12px 0 0">Rule: threshold is the largest of the observed range, 2x standard deviation, or 3 points.${(cal.n_photos&&cal.n_photos<6)?` With ${cal.n_photos} photos the range likely underestimates your real noise (a 3&deg; head turn can move a score several points), so one reading beyond it still needs a second check-in to count.`:''}</p></div>
+ ${noiseWords(cal)}
  ${(rej&&rej.length)?'<div class="err">'+rej.map(x=>'Photo '+(x.index+1)+' skipped: '+esc(x.message)).join('<br>')+'</div>':''}
  <button class="btn" id="n">${sample?'Back to the verdict':'Next: the product you are testing'}</button>`);
  requestAnimationFrame(()=>document.querySelectorAll('.nbar i').forEach(i=>i.style.width=i.dataset.w+'%'));
@@ -409,6 +589,7 @@ function product(){
  <label class="f">Or a photo of the label</label><button type="button" class="drop" id="lbl">Tap to add a label photo</button></div>
  <div id="msg"></div><button class="btn" id="sv">Save and take first check-in</button>`);
  document.querySelectorAll('.chip').forEach(e=>e.onclick=()=>{const k=e.dataset.k;st.picked.has(k)?st.picked.delete(k):st.picked.add(k);e.setAttribute('aria-pressed',st.picked.has(k))});
+ applyPrefill();
  $('#lbl').onclick=async()=>{const f=(await pick(false))[0];if(f){st.label=f;$('#lbl').textContent=f.name;$('#lbl').classList.add('has')}};
  $('#sv').onclick=async()=>{const name=$('#pn').value.trim();if(!name||!st.picked.size){$('#msg').innerHTML='<div class="err">Add a product name and pick at least one concern.</div>';return}
   const fd=new FormData();fd.append('name',name);fd.append('start_date',$('#pd').value);fd.append('concerns',[...st.picked].join(','));
@@ -420,30 +601,39 @@ function product(){
 async function checkin(){
  const p=(await api('/profiles/'+st.pid)).body;const n=p.checkins.filter(c=>!c.error).length;
  show(stepper(3)+`<span class="eyebrow">Step 3 of 4</span><h2>Check-in no. ${p.checkins.length+1}</h2><p class="mute">Same spot and same kind of light as your other check-ins, if you can. You have <span class="num">${n}</span> counted check-in${n===1?'':'s'}; two are needed to compare.</p>
- <div class="card">${tipsHtml('Same distance and light as last time')}<button class="drop" id="drop">Tap to take or choose a photo</button>
+ <div class="card">${tipsHtml('Same distance and light as last time')}${camButtons('Open camera')}
  <label class="f" for="cd">Date</label><input type="date" id="cd" value="${new Date().toISOString().slice(0,10)}"><div id="msg"></div>
  <div class="row" style="margin-top:16px"><button class="btn" id="go" disabled>Analyse</button>${n>=2?'<button class="btn ghost" data-go="results">See measurements</button>':''}</div>${privacyHtml()}</div>
  ${n>=1?`<div class="card" style="border-color:var(--accent)"><span class="eyebrow">Ready</span><h3>Should you keep buying it?</h3><p class="small mute">The agent reads the claims, checks them against your skin and tells you what it did at every step.</p><button class="btn" data-go="agent">Ask the agent</button></div>`:''}
  <div class="hist">${p.checkins.map(c=>`<span class="${c.error?'x':''}">${esc(c.date)}${c.error?' (not counted)':''}</span>`).join('')}</div>`);
- let f=null;$('#drop').onclick=async()=>{const a=await pick(false);f=a[0];if(f){$('#drop').textContent=f.name;$('#drop').classList.add('has');$('#go').disabled=false;
-  $('#gb').innerHTML=guideSvg+`<img alt="Your photo" src="${URL.createObjectURL(f)}" style="opacity:.0">`;const im=$('#gb img');im.style.opacity=1;$('#gb').insertBefore(im,$('#gb').firstChild)}};
- $('#go').onclick=async()=>{const b=$('#go');b.disabled=true;b.innerHTML='<span class="spin"></span>Analysing';const fd=new FormData();fd.append('file',f);fd.append('when',$('#cd').value);
+ let f=null,fm=null;const gh=ghostUrl(p);
+ const setF=(file,meta)=>{f=file;fm=meta||null;$('#drop').textContent=file.name;$('#drop').classList.add('has');$('#go').disabled=false;previewIn(file);$('#go').focus()};
+ $('#drop').onclick=async()=>{const a=await pick(false);if(a[0])setF(a[0],null)};
+ $('#cam').onclick=()=>camOne(gh,setF,()=>$('#drop').click());
+ $('#go').onclick=async()=>{const b=$('#go');b.disabled=true;b.innerHTML='<span class="spin"></span>Analysing';const fd=new FormData();fd.append('file',f);fd.append('when',$('#cd').value);if(fm)fd.append('capture_meta',JSON.stringify(fm));
   try{const r=await api('/profiles/'+st.pid+'/checkins',{method:'POST',body:fd});refreshUnits();
    if(!r.body.counted){$('#msg').innerHTML='<div class="err"><b>This photo was not counted.</b> '+esc(r.body.checkin.error.message)+' Retake and try again.</div>';b.disabled=false;b.textContent='Analyse';return}
    checkin()}
-  catch(e){$('#msg').innerHTML='<div class="err">'+esc(e.message)+'</div>';b.disabled=false;b.textContent='Analyse'}}
+  catch(e){$('#msg').innerHTML=e.status===429?limitHtml(e.message):'<div class="err">'+esc(e.message)+'</div>';b.disabled=false;b.textContent='Analyse'}}
 }
 async function askAgent(){
  const p=(await api('/profiles/'+st.pid)).body;const n=p.checkins.filter(c=>!c.error).length;
  show(`<span class="eyebrow">The agent</span><h2>Should you keep buying it?</h2><p class="mute">Attach today's check-in photo and the agent measures it, compares it with your noise and decides. Or skip the photo and it judges from the ${n} check-in${n===1?'':'s'} you already have. A change counts as proven only when two check-ins in a row beat your noise.</p>
- <div class="card">${tipsHtml('Same distance, light and head pose as your other check-ins')}<button class="drop" id="drop">Tap to take or choose today's photo (optional)</button>
+ <div class="card">${tipsHtml('Same distance, light and head pose as your other check-ins')}${camButtons("Open camera for today's photo")}
  <label class="f" for="cd">Date</label><input type="date" id="cd" value="${new Date().toISOString().slice(0,10)}"><div id="msg"></div>
  <p class="small mute" style="margin:12px 0">With a photo, the run spends about 22 to 56 units of the 40-unit budget (photo check 10, analysis 12, simulation 4). Without one, it spends at most 4.</p>
  <div class="row"><button class="btn" id="go">Ask without a new photo</button></div>${privacyHtml()}</div>`);
- let f=null;$('#drop').onclick=async()=>{const a=await pick(false);f=a[0];if(f){$('#drop').textContent=f.name;$('#drop').classList.add('has');$('#go').textContent='Ask the agent with this photo';
-  $('#gb').innerHTML=guideSvg+`<img alt="Your photo" src="${URL.createObjectURL(f)}">`;const im=$('#gb img');$('#gb').insertBefore(im,$('#gb').firstChild)}};
+ let f=null;const gh=ghostUrl(p);
+ const setF=file=>{f=file;$('#drop').textContent=file.name;$('#drop').classList.add('has');$('#go').textContent='Ask the agent with this photo';previewIn(file);$('#go').focus()};
+ $('#drop').onclick=async()=>{const a=await pick(false);if(a[0])setF(a[0])};
+ $('#cam').onclick=()=>camOne(gh,setF,()=>$('#drop').click());
  $('#go').onclick=()=>runAgent(f,$('#cd').value);
 }
+function ghostUrl(p){const c=(p.checkins||[]).find(x=>!x.error&&x.photo);const ph=c?c.photo:((p.calibration&&p.calibration.photos)||[])[0];return ph?'/api/files/'+ph:null}
+function previewIn(f){$('#gb').innerHTML=guideSvg+`<img alt="Your photo" src="${URL.createObjectURL(f)}">`;const im=$('#gb img');$('#gb').insertBefore(im,$('#gb').firstChild)}
+function camButtons(label){return `<button class="btn" id="cam" type="button">${label}</button><button class="drop" id="drop" style="margin-top:10px">Or choose a photo from your device</button><div class="camnote" id="camnote"></div>`}
+async function camOne(gh,onShot,onUpload){const r=await Mirror.open({ghost:gh,steps:[gh?'Line up with last time':'Fit your face in the oval']});
+ if(r.error){$('#camnote').innerHTML=camErr(r.error);return}if(r.upload){onUpload();return}if(r.shots&&r.shots[0])onShot(r.shots[0].file,r.shots[0].meta)}
 function sampleRibbon(t){return `<div class="sample" role="note"><b>Sample data</b><span>${esc(t||'Invented to show the flow. No real face, nothing sent to YouCam.')}</span></div>`}
 
 /* ================= AGENT ================= */
@@ -533,7 +723,7 @@ function renderFinal(d,ev,ctx){
  if(claims.length){h+=`<div class="sect">What the product claims</div>`+claims.map(c=>{const [t,k]=claimStatus(c.status);const lab=(st.concerns&&st.concerns[c.concern])||c.concern||'';
   return `<div class="card claim"><q>${esc(c.quote)}</q><span class="badge ${k}">${esc(t)}</span><span class="sub">${esc(lab)}${c.timeframe_weeks?` &middot; promised in <span class="num">${plural(c.timeframe_weeks,'week')}</span>`:''}${c.weeks_elapsed!=null?` &middot; ${esc(wk(c.weeks_elapsed))}`:''}${c.sentence?` &middot; ${esc(human(c.sentence))}`:''}</span></div>`}).join('')}
  const sim=d.simulation_image;
- h+=`<div class="sect">What the claim would look like</div><div class="simbox">${sim?`<img src="${esc(sim)}" alt="Simulated skin improvement, not the user's result">`:`<div class="simph">No simulation was generated in this run. This is a placeholder, not a picture of your skin.</div>`}<div class="tag">Simulation, not your result</div></div><div class="api" style="margin-top:8px">${chipApi('YouCam · Skin Simulation')}</div>`;
+ if(sim||ctx.runId!=='live-volunteer')h+=`<div class="sect">What the claim would look like</div><div class="simbox">${sim?`<img src="${esc(sim)}" alt="Simulated skin improvement, not the user's result">`:`<div class="simph">No simulation was generated in this run. This is a placeholder, not a picture of your skin.</div>`}<div class="tag">Simulation, not your result</div></div><div class="api" style="margin-top:8px">${chipApi('YouCam · Skin Simulation')}</div>`;
  h+=`<div class="cta row"><button class="btn" id="rp2">Replay the investigation</button>${ctx.sample?'<button class="btn ghost" id="nz">See the noise measurement</button><button class="btn ghost" id="fa">The false alarm we caught</button>':'<button class="btn ghost" data-go="checkin">Add a check-in</button>'}</div>`;
  const out=$('#out');out.innerHTML=h;
  requestAnimationFrame(()=>document.querySelectorAll('.axis .mk').forEach(m=>m.style.left=m.dataset.l+'%'));
@@ -573,7 +763,7 @@ async function replayRun(runId,back){
  let j=null;try{const r=await fetch(runId==='live-synthetic'?'/api/demo/agent/live':runId==='live-volunteer'?'/api/demo/agent/volunteer':'/api/agent/runs/'+encodeURIComponent(runId));if(r.ok)j=await r.json()}catch(e){}
  if(!j||!j.events){endThinking();$('#out').innerHTML='<div class="err">That stored run could not be found.</div>';return}
  try{const s=await api('/status');st.concerns=s.body.concerns||st.concerns}catch(e){}
- const ctx={sample:false,stored:true,replay:null,fast:true};
+ const ctx={sample:false,stored:true,replay:null,fast:true,runId:runId};
  ctx.replay=()=>replayRun(runId);
  if(j.decision_under_current_rules){const b=document.createElement('div');b.innerHTML=lessonBanner(j);$('#pre').appendChild(b.firstChild)}
  if(j.ten_second){const b=document.createElement('div');b.innerHTML=tenSecondHtml(j);$('#pre').appendChild(b)}
@@ -625,7 +815,9 @@ function renderResults(d){
  h+=d.concerns.map(c=>bandCard(c).replace(/<\/div>$/,photoPair(d,c)+'</div>')).join('')+'</div></div>';
  show(h,true);requestAnimationFrame(()=>document.querySelectorAll('.axis .mk').forEach(m=>m.style.left=m.dataset.l+'%'));
 }
-home();
+let _pf=null;try{_pf=sessionStorage.getItem('sp_prefill')}catch(e){}
+_pf?start():home();
 if(/^#run=[a-z0-9_-]+$/.test(location.hash))replayRun(location.hash.slice(5));
 fetch('/api/status').then(r=>r.json()).then(s=>{st.status=s;st.concerns=s.concerns;if(s.has_key)setLive(s.live_units_left)}).catch(()=>{});
 </script>
+<script src="/static/extras.js" defer></script>
