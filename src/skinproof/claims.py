@@ -12,8 +12,8 @@ from .youcam import CONCERN_LABELS
 MEASURABLE = tuple(k for k in CONCERN_LABELS if k != "skin_type")
 MAX_CHARS = 15000
 
-SUPPORTED, NOT_YET, CONTRADICTED, TOO_EARLY, NOT_MEASURABLE = (
-    "SUPPORTED", "NOT_YET_SHOWN", "CONTRADICTED", "TOO_EARLY", "NOT_MEASURABLE")
+SUPPORTED, NOT_YET, CONTRADICTED, TOO_EARLY, NOT_MEASURABLE, NEEDS_CONFIRMATION = (
+    "SUPPORTED", "NOT_YET_SHOWN", "CONTRADICTED", "TOO_EARLY", "NOT_MEASURABLE", "NEEDS_CONFIRMATION")
 
 SYSTEM = f"""You extract skincare product efficacy claims. Reply with JSON only:
 {{"product": "<product name or empty>", "claims": [{{"concern": <key or null>, "quote": "<exact words from the source>", "timeframe_weeks": <integer or null>}}]}}
@@ -167,6 +167,11 @@ def _line(c: dict, status: str, m: dict | None, weeks: float | None) -> str:
     head = f'Claim: "{q}".'
     if status == NOT_MEASURABLE:
         return f"{head} A photo cannot measure this, so SkinProof does not judge it."
+    if status == NEEDS_CONFIRMATION:
+        name = CONCERN_LABELS.get(c["concern"], c["concern"]).lower()
+        thr = round(m["threshold"]) if m else 0
+        return (f"{head} Your {name} moved {_num(m['delta'])} on the latest check-in, beyond your {thr}-point "
+                f"noise, but one reading is not proof. Needs confirmation at the next check-in.")
     if status == TOO_EARLY:
         return f"{head} The claim needs {tf} weeks and you are at {weeks:g}. Too early to judge."
     lead = f"After {weeks:g} week{'s' if weeks != 1 else ''}, " if weeks is not None else ""
@@ -200,6 +205,8 @@ def compare(claims: list[dict], verdicts: Any, weeks_elapsed: float | None = Non
             status = SUPPORTED
         elif m and m.get("verdict") == "WORSE":
             status = CONTRADICTED
+        elif m and m.get("verdict") in ("LIKELY_IMPROVED", "LIKELY_WORSE"):
+            status = NEEDS_CONFIRMATION
         elif tf and weeks_elapsed is not None and weeks_elapsed < tf:
             status = TOO_EARLY
         else:

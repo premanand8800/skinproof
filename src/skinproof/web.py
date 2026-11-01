@@ -96,7 +96,8 @@ def create_app(client: YouCamClient | None = None, store: Store | None = None,
     async def calibrate(pid: str, files: list[UploadFile] = File(...)):
         get_profile(pid)
         if len(files) < noise.MIN_RETAKES or len(files) > 6:
-            raise HTTPException(400, "Upload 3 to 6 photos of the same face taken the same day.")
+            raise HTTPException(400, f"Upload {noise.MIN_RETAKES} to 6 photos of the same face taken the same day "
+                                     f"(5 to 6 with slight head turns is best).")
         good, rejected = [], []
         for i, f in enumerate(files):
             data = await f.read()
@@ -238,6 +239,11 @@ def create_app(client: YouCamClient | None = None, store: Store | None = None,
     @app.get("/api/demo/agent")
     def demo_agent():
         return json.loads(demo_agent_path.read_text())
+
+    @app.get("/api/demo/agent/live")
+    def demo_agent_live():
+        """The recorded live run on the AI-generated face, with its lesson (events unmodified)."""
+        return json.loads((ROOT / "demo" / "agent_trace_live_synthetic.json").read_text())
 
     @app.get("/api/files/{path:path}")
     def files(path: str):

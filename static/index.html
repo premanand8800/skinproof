@@ -138,10 +138,11 @@ textarea{min-height:92px;resize:vertical}
 .decision li:before{content:"";position:absolute;left:2px;top:16px;width:8px;height:8px;background:currentColor;opacity:.55;transform:rotate(45deg)}
 .sect{font:500 12px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--mute);margin:26px 0 10px;display:flex;align-items:center;gap:10px}
 .sect:after{content:"";flex:1;height:1px;background:var(--line2)}
-.vc{border-left:5px solid var(--neutral)}.vc.IMPROVED{border-left-color:var(--good)}.vc.WORSE{border-left-color:var(--bad)}
+.vc{border-left:5px solid var(--neutral)}.vc.IMPROVED{border-left-color:var(--good)}.vc.WORSE{border-left-color:var(--bad)}.vc.LIKELY_IMPROVED,.vc.LIKELY_WORSE{border-left-color:var(--wait);border-left-style:dashed}
 .vh{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:6px}.vh strong{font:600 17px var(--serif)}
 .badge{display:inline-block;font:500 11px/1 var(--mono);letter-spacing:.06em;text-transform:uppercase;padding:6px 9px;border-radius:6px;background:var(--neutralbg);color:var(--neutral);white-space:nowrap}
-.IMPROVED .badge,.b-good{background:var(--goodbg);color:var(--good)}.WORSE .badge,.b-bad{background:var(--badbg);color:var(--bad)}.b-wait{background:var(--waitbg);color:var(--wait)}
+.IMPROVED .badge,.b-good{background:var(--goodbg);color:var(--good)}.WORSE .badge,.b-bad{background:var(--badbg);color:var(--bad)}.b-wait,.LIKELY_IMPROVED .badge,.LIKELY_WORSE .badge{background:var(--waitbg);color:var(--wait)}
+.lesson{border:1px solid var(--wait);background:var(--waitbg);color:var(--ink);border-radius:12px;padding:12px 14px;margin:0 0 14px;font-size:14px}.lesson b{font:600 11px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--wait);display:block;margin-bottom:6px}.lesson .now{margin-top:8px;padding-top:8px;border-top:1px solid rgba(0,0,0,.12)}
 .axis{position:relative;height:40px;margin:12px 4px 2px;background:repeating-linear-gradient(90deg,var(--line2) 0 1px,transparent 1px calc(100%/20));-webkit-mask:none}
 .axis .line{position:absolute;left:0;right:0;top:19px;height:2px;background:var(--line2)}
 .axis .band{position:absolute;top:8px;height:24px;background:var(--band);border-radius:3px;border-left:1px solid var(--accent);border-right:1px solid var(--accent)}
@@ -150,6 +151,7 @@ textarea{min-height:92px;resize:vertical}
 .axis .mk:after{content:"";position:absolute;left:-4px;top:-4px;border:6px solid transparent;border-top-color:inherit;border-width:6px 6px 0;border-top-color:var(--neutral)}
 .IMPROVED .axis .mk{background:var(--good)}.IMPROVED .axis .mk:after{border-top-color:var(--good)}
 .WORSE .axis .mk{background:var(--bad)}.WORSE .axis .mk:after{border-top-color:var(--bad)}
+.LIKELY_IMPROVED .axis .mk,.LIKELY_WORSE .axis .mk{background:var(--wait)}.LIKELY_IMPROVED .axis .mk:after,.LIKELY_WORSE .axis .mk:after{border-top-color:var(--wait)}
 .axlab{display:flex;justify-content:space-between;font:400 11px var(--mono);color:var(--mute);margin:0 4px;gap:8px}
 .axlab span:nth-child(2){text-align:center}
 .next{font-size:14px;border-top:1px solid var(--line);padding-top:8px;margin-top:10px}.next b{color:var(--accent)}
@@ -198,7 +200,7 @@ function pick(multi){return new Promise(res=>{const i=document.createElement('in
 function chipApi(label,cls){return label?`<span class="chipapi ${cls||''}">${esc(label)}</span>`:''}
 
 document.addEventListener('click',e=>{const t=e.target.closest('[data-go]');if(t){e.preventDefault();go(t.dataset.go)}});
-async function go(s){({home,start,calibrate,product,checkin:()=>checkin(),results,sample:trySample,agent:()=>runAgent({live:true})}[s]||home)()}
+async function go(s){({home,start,calibrate,product,checkin:()=>checkin(),results,sample:trySample,agent:()=>askAgent()}[s]||home)()}
 
 /* ================= HOME ================= */
 function home(){
@@ -232,13 +234,13 @@ async function start(){
 }
 function calibrate(){
  st.files=[];
- show(stepper(1)+`<span class="eyebrow">Step 1 of 4</span><h2>Measure your photo noise</h2><p class="mute">Take 3 to 6 photos of your face <b>today</b>, changing light, angle and distance a little each time. Your skin is identical in all of them, so any score difference is measurement noise.</p>
- <div class="card">${tipsHtml('Move a little between shots')}<div class="thumbs" id="th" hidden></div><button class="drop" id="drop">Tap to choose 3 to 6 photos</button><div id="msg"></div>
+ show(stepper(1)+`<span class="eyebrow">Step 1 of 4</span><h2>Measure your photo noise</h2><p class="mute">Take 4 to 6 photos of your face <b>today</b> (5 or 6 is best), changing light, distance and <b>turning your head a few degrees</b> each time. Your skin is identical in all of them, so any score difference is measurement noise. Fewer photos underestimate it.</p>
+ <div class="card">${tipsHtml('Move a little between shots')}<div class="thumbs" id="th" hidden></div><button class="drop" id="drop">Tap to choose 4 to 6 photos</button><div id="msg"></div>
  <p class="small mute" style="margin:12px 0">About ${st.status.units_per_analysis||12} units per photo. Identical photos are never charged twice.</p>
  <button class="btn" id="go" disabled>Measure noise</button></div>`);
- $('#drop').onclick=async()=>{const f=await pick(true);if(!f.length)return;st.files=f;const ok=f.length>=3&&f.length<=6;
+ $('#drop').onclick=async()=>{const f=await pick(true);if(!f.length)return;st.files=f;const ok=f.length>=4&&f.length<=6;
   $('#drop').textContent=f.length+' photo(s) selected. Tap to change';$('#drop').classList.toggle('has',ok);$('#go').disabled=!ok;
-  $('#msg').innerHTML=ok?'':'<div class="err">Choose between 3 and 6 photos.</div>';
+  $('#msg').innerHTML=ok?'':'<div class="err">Choose between 4 and 6 photos (5 to 6 with slight head turns is best).</div>';
   const th=$('#th');th.hidden=false;th.innerHTML=f.slice(0,6).map(x=>`<img alt="Selected photo" src="${URL.createObjectURL(x)}">`).join('')};
  $('#go').onclick=async()=>{const b=$('#go');b.disabled=true;b.innerHTML='<span class="spin"></span>Measuring, about 20 s per photo';
   const fd=new FormData();st.files.forEach(f=>fd.append('files',f));
@@ -251,7 +253,7 @@ function noiseView(cal,rej,next,sample){
  const rows=Object.entries(cal.concerns);const mx=Math.max(...rows.map(([,v])=>v.threshold),10)*1.1;
  show((sample?sampleRibbon('Invented scores, no real face.'):stepper(1))+`<span class="eyebrow">Your noise floor</span><h2>The wobble that means nothing</h2><p class="mute">Same face, same day, different light and angle. A real change must beat these bars to count.</p>
  <div class="card">${rows.map(([c,v])=>`<div class="nbar"><b style="font-weight:500">${esc(st.concerns[c]||c)}</b><div class="t"><i style="width:0" data-w="${v.threshold/mx*100}"></i></div><em>&plusmn;${Math.round(v.threshold)} pts</em></div>`).join('')}
- <p class="small mute" style="margin:12px 0 0">Rule: threshold is the largest of the observed range, 2x standard deviation, or 3 points.</p></div>
+ <p class="small mute" style="margin:12px 0 0">Rule: threshold is the largest of the observed range, 2x standard deviation, or 3 points.${(cal.n_photos&&cal.n_photos<6)?` With ${cal.n_photos} photos the range likely underestimates your real noise (a 3&deg; head turn can move a score several points), so one reading beyond it still needs a second check-in to count.`:''}</p></div>
  ${(rej&&rej.length)?'<div class="err">'+rej.map(x=>'Photo '+(x.index+1)+' skipped: '+esc(x.message)).join('<br>')+'</div>':''}
  <button class="btn" id="n">${sample?'Back to the verdict':'Next: the product you are testing'}</button>`);
  requestAnimationFrame(()=>document.querySelectorAll('.nbar i').forEach(i=>i.style.width=i.dataset.w+'%'));
@@ -283,7 +285,7 @@ async function checkin(){
  <div class="card">${tipsHtml('Same distance and light as last time')}<button class="drop" id="drop">Tap to take or choose a photo</button>
  <label class="f" for="cd">Date</label><input type="date" id="cd" value="${new Date().toISOString().slice(0,10)}"><div id="msg"></div>
  <div class="row" style="margin-top:16px"><button class="btn" id="go" disabled>Analyse</button>${n>=2?'<button class="btn ghost" data-go="results">See measurements</button>':''}</div></div>
- ${n>=2?`<div class="card" style="border-color:var(--accent)"><span class="eyebrow">Ready</span><h3>Should you keep buying it?</h3><p class="small mute">The agent reads the claims, checks them against your skin and tells you what it did at every step.</p><button class="btn" data-go="agent">Ask the agent</button></div>`:''}
+ ${n>=1?`<div class="card" style="border-color:var(--accent)"><span class="eyebrow">Ready</span><h3>Should you keep buying it?</h3><p class="small mute">The agent reads the claims, checks them against your skin and tells you what it did at every step.</p><button class="btn" data-go="agent">Ask the agent</button></div>`:''}
  <div class="hist">${p.checkins.map(c=>`<span class="${c.error?'x':''}">${esc(c.date)}${c.error?' (not counted)':''}</span>`).join('')}</div>`);
  let f=null;$('#drop').onclick=async()=>{const a=await pick(false);f=a[0];if(f){$('#drop').textContent=f.name;$('#drop').classList.add('has');$('#go').disabled=false;
   $('#gb').innerHTML=guideSvg+`<img alt="Your photo" src="${URL.createObjectURL(f)}" style="opacity:.0">`;const im=$('#gb img');im.style.opacity=1;$('#gb').insertBefore(im,$('#gb').firstChild)}};
@@ -292,6 +294,17 @@ async function checkin(){
    if(!r.body.counted){$('#msg').innerHTML='<div class="err"><b>This photo was not counted.</b> '+esc(r.body.checkin.error.message)+' Retake and try again.</div>';b.disabled=false;b.textContent='Analyse';return}
    checkin()}
   catch(e){$('#msg').innerHTML='<div class="err">'+esc(e.message)+'</div>';b.disabled=false;b.textContent='Analyse'}}
+}
+async function askAgent(){
+ const p=(await api('/profiles/'+st.pid)).body;const n=p.checkins.filter(c=>!c.error).length;
+ show(`<span class="eyebrow">The agent</span><h2>Should you keep buying it?</h2><p class="mute">Attach today's check-in photo and the agent measures it, compares it with your noise and decides. Or skip the photo and it judges from the ${n} check-in${n===1?'':'s'} you already have. A change counts as proven only when two check-ins in a row beat your noise.</p>
+ <div class="card">${tipsHtml('Same distance, light and head pose as your other check-ins')}<button class="drop" id="drop">Tap to take or choose today's photo (optional)</button>
+ <label class="f" for="cd">Date</label><input type="date" id="cd" value="${new Date().toISOString().slice(0,10)}"><div id="msg"></div>
+ <p class="small mute" style="margin:12px 0">With a photo, the run spends about 22 to 56 units of the 40-unit budget (photo check 10, analysis 12, simulation 4). Without one, it spends at most 4.</p>
+ <div class="row"><button class="btn" id="go">Ask without a new photo</button></div></div>`);
+ let f=null;$('#drop').onclick=async()=>{const a=await pick(false);f=a[0];if(f){$('#drop').textContent=f.name;$('#drop').classList.add('has');$('#go').textContent='Ask the agent with this photo';
+  $('#gb').innerHTML=guideSvg+`<img alt="Your photo" src="${URL.createObjectURL(f)}">`;const im=$('#gb img');$('#gb').insertBefore(im,$('#gb').firstChild)}};
+ $('#go').onclick=()=>runAgent(f,$('#cd').value);
 }
 function sampleRibbon(t){return `<div class="sample" role="note"><b>Sample data</b><span>${esc(t||'Invented to show the flow. No real face, nothing sent to YouCam.')}</span></div>`}
 
@@ -308,8 +321,8 @@ const TOOLMAP=[
  [/analy|measure|skin|score/i,'Measuring your skin with YouCam Skin Analysis','YouCam · Skin Analysis']];
 function toolInfo(tool){tool=tool||'';for(const [re,l,c,k] of TOOLMAP)if(re.test(tool))return {label:l,chip:c,kind:k};
  return {label:tool?tool.replace(/_/g,' ').replace(/^./,m=>m.toUpperCase()):'Working',chip:null}}
-const VL={IMPROVED:'Improved',WORSE:'Worse',NO_PROVEN_CHANGE:'No proven change'};
-const CS={SUPPORTED:['Supported','b-good'],NOT_YET_SHOWN:['Not yet shown',''],CONTRADICTED:['Contradicted','b-bad'],TOO_EARLY:['Too early','b-wait'],NOT_MEASURABLE:['Not measurable','']};
+const VL={IMPROVED:'Improved',WORSE:'Worse',LIKELY_IMPROVED:'Likely improved, needs confirmation',LIKELY_WORSE:'Likely worse, needs confirmation',NO_PROVEN_CHANGE:'No proven change'};
+const CS={SUPPORTED:['Supported','b-good'],NOT_YET_SHOWN:['Not yet shown',''],CONTRADICTED:['Contradicted','b-bad'],TOO_EARLY:['Too early','b-wait'],NEEDS_CONFIRMATION:['Needs confirmation','b-wait'],NOT_MEASURABLE:['Not measurable','']};
 
 const SAMPLE_TRACE=(()=>{const B=40;const e=(type,step,tool,summary,spent,extra)=>Object.assign({type,step,tool,summary,units_spent:spent,units_left_in_budget:B-spent},extra||{});
  return [e('start',0,null,'Starting a check on "Niacinamide 10% serum (sample)" with a budget of 40 units.',0),
@@ -338,6 +351,8 @@ const SAMPLE_TRACE=(()=>{const B=40;const e=(type,step,tool,summary,spent,extra)
    {concern:'redness',quote:'Calms redness',timeframe_weeks:4,weeks_elapsed:6,status:'NOT_YET_SHOWN'}],
   simulation_image:null}})]})();
 
+function lessonBanner(j){const d=j&&j.decision_under_current_rules;if(!d)return '';
+ return `<div class="lesson" role="note"><b>We caught our own false alarm</b>${esc(j.lesson||'')}<div class="now"><b style="display:inline">Under today's rules</b> this same data gives <strong>${esc(d.decision)}${d.wait_weeks?' '+d.wait_weeks+' WEEKS':''}</strong>: ${esc(d.headline)}</div></div>`}
 function agentShell(sample,note){
  show(`${sample?sampleRibbon(note):''}<div class="agenthead"><div><span class="eyebrow">The investigation</span><h2 style="margin:0">Should you keep buying it?</h2></div><div class="row"><button class="btn ghost sm" id="rp" hidden>Replay</button></div></div>
  <div class="meter" role="group" aria-label="Unit budget"><div class="mh"><span>YouCam units</span><span><b class="num" id="ms">0</b> / <span class="num" id="mb">40</span> spent</span></div><div class="ticks" id="tk">${'<i></i>'.repeat(40)}</div></div>
@@ -370,17 +385,18 @@ function renderFinal(d,ev,ctx){
   ${(d.reasons||[]).length?`<ul>${d.reasons.map(r=>`<li>${esc(r)}</li>`).join('')}</ul>`:''}</section>`;
  if(d.disagreement)h+=`<div class="card note-dis" role="note"><b>The model and the evidence rule disagree.</b> ${esc(d.disagreement.note||'')}</div>`;
  if(d.fallback)h+=`<div class="card note-fb" role="note"><b>Fallback decision.</b> The model did not finish on its own${d.fallback_reason?` (${esc(d.fallback_reason)})`:''}, so the fixed evidence rule decided${d.rule_decision&&d.rule_decision.rule?` (${esc(d.rule_decision.rule)})`:''}.</div>`;
- if(verdicts.length){h+=`<div class="sect">What changed on your face</div>`+verdicts.map(c=>bandCard(c)).join('')+`<p class="small mute">Shaded band is the noise measured on your own face. The marker is the change. Only a marker outside the band counts.</p>`}
+ if(verdicts.length){h+=`<div class="sect">What changed on your face</div>`+verdicts.map(c=>bandCard(c)).join('')+`<p class="small mute">Shaded band is the noise measured on your own face. The marker is the change. Only a marker outside the band counts, and it is proven only after two check-ins in a row.${d.concerns_tested?` ${d.concerns_tested} concerns were tested at once, so a lone reading can cross the line by chance.`:''}</p>`}
  if(claims.length){h+=`<div class="sect">What the product claims</div>`+claims.map(c=>{const [t,k]=claimStatus(c.status);const lab=(st.concerns&&st.concerns[c.concern])||c.concern||'';
   return `<div class="card claim"><q>${esc(c.quote)}</q><span class="badge ${k}">${esc(t)}</span><span class="sub">${esc(lab)}${c.timeframe_weeks?` &middot; promised in <span class="num">${c.timeframe_weeks}</span> weeks`:''}${c.weeks_elapsed!=null?` &middot; <span class="num">${Math.round(c.weeks_elapsed)}</span> weeks on the product`:''}${c.sentence?` &middot; ${esc(c.sentence)}`:''}</span></div>`}).join('')}
  const sim=d.simulation_image;
  h+=`<div class="sect">What the claim would look like</div><div class="simbox">${sim?`<img src="${esc(sim)}" alt="Simulated skin improvement, not the user's result">`:`<div class="simph">No simulation was generated in this run. This is a placeholder, not a picture of your skin.</div>`}<div class="tag">Simulation, not your result</div></div><div class="api" style="margin-top:8px">${chipApi('YouCam · Skin Simulation')}</div>`;
- h+=`<div class="cta row"><button class="btn" id="rp2">Replay the investigation</button>${ctx.sample?'<button class="btn ghost" id="nz">See the noise measurement</button>':'<button class="btn ghost" data-go="checkin">Add a check-in</button>'}</div>`;
+ h+=`<div class="cta row"><button class="btn" id="rp2">Replay the investigation</button>${ctx.sample?'<button class="btn ghost" id="nz">See the noise measurement</button><button class="btn ghost" id="fa">The false alarm we caught</button>':'<button class="btn ghost" data-go="checkin">Add a check-in</button>'}</div>`;
  const out=$('#out');out.innerHTML=h;
  requestAnimationFrame(()=>document.querySelectorAll('.axis .mk').forEach(m=>m.style.left=m.dataset.l+'%'));
  const rp=$('#rp');if(rp)rp.hidden=false;
  if(ctx.replay){[rp,$('#rp2')].forEach(b=>b&&(b.onclick=ctx.replay));}
  const nz=$('#nz');if(nz)nz.onclick=()=>sampleNoise(()=>trySample());
+ const fa=$('#fa');if(fa)fa.onclick=()=>replayRun('live-synthetic');
  out.querySelector('.decision').scrollIntoView({block:'start',behavior:reduce?'auto':'smooth'});
 }
 function bandCard(c){
@@ -410,26 +426,27 @@ async function sampleNoise(back){try{const d=(await api('/demo')).body;noiseView
 async function refreshUnits(){try{const r=await fetch('/api/status');const j=await r.json();if(j.has_key)setUnits(j.units)}catch(e){}}
 async function replayRun(runId,back){
  agentShell(false,null);const my=st.run;
- let j=null;try{const r=await fetch('/api/agent/runs/'+encodeURIComponent(runId));if(r.ok)j=await r.json()}catch(e){}
+ let j=null;try{const r=await fetch(runId==='live-synthetic'?'/api/demo/agent/live':'/api/agent/runs/'+encodeURIComponent(runId));if(r.ok)j=await r.json()}catch(e){}
  if(!j||!j.events){endThinking();$('#out').innerHTML='<div class="err">That stored run could not be found.</div>';return}
  try{const s=await api('/status');st.concerns=s.body.concerns||st.concerns}catch(e){}
  const ctx={sample:false,stored:true,replay:null,fast:true};
  ctx.replay=()=>replayRun(runId);
+ if(j.decision_under_current_rules){const b=document.createElement('div');b.innerHTML=lessonBanner(j);$('#tl').before(b.firstChild)}
  const note=document.createElement('p');note.className='small mute';note.textContent='Replay of stored run '+runId+(j.synthetic_face?' (AI-generated synthetic face)':'')+'. Nothing is re-run and no units are spent.';
  $('#tl').before(note);
  await playEvents(j.events,ctx);if(my===st.run){endThinking();const rp=$('#rp');if(rp){rp.hidden=false;rp.onclick=ctx.replay}}
 }
-async function runAgent(){
+async function runAgent(file,when){
  let pid=st.pid;if(!pid)return start();
  agentShell(false);const my=st.run;
  const ctx={sample:false,replay:null,fast:true,runId:null};
  let res;
- try{res=await fetch('/api/profiles/'+pid+'/agent',{method:'POST',headers:{accept:'text/event-stream'},body:new FormData()})}catch(e){res=null}
+ try{res=await fetch('/api/profiles/'+pid+'/agent',{method:'POST',headers:{accept:'text/event-stream'},body:(()=>{const fd=new FormData();if(file)fd.append('file',file);if(when)fd.append('when',when);return fd})()})}catch(e){res=null}
  if(!res||!res.ok||!res.body){
   const msg=res&&res.status===409?'Calibrate and add two check-ins first.':null;
   endThinking();$('#out').innerHTML=`<div class="err">${esc(msg||'The live agent is not available on this server yet.')}</div><div class="row"><button class="btn" data-go="sample">Watch the sample run</button><button class="btn ghost" data-go="checkin">Back</button></div>`;return}
  ctx.runId=res.headers.get('X-Run-Id');
- ctx.replay=()=>ctx.runId?replayRun(ctx.runId):runAgent();
+ ctx.replay=()=>ctx.runId?replayRun(ctx.runId):askAgent();
  const rd=res.body.getReader(),dec=new TextDecoder();let buf='';
  try{while(true){const {done,value}=await rd.read();if(done)break;buf+=dec.decode(value,{stream:true});
   let i;while((i=buf.indexOf('\n\n'))>=0){const chunk=buf.slice(0,i);buf=buf.slice(i+2);
@@ -455,14 +472,14 @@ function renderResults(d){
  if(!d.ready){show(h+`<div class="card"><h2>Not enough yet</h2><p>${esc(d.message)}</p><button class="btn" data-go="checkin">Add a check-in</button></div>`);return}
  const pr=d.product;
  h+=`<span class="eyebrow">Measurements</span><h2>${esc(pr?pr.name:'Results')}</h2><p class="mute small">${d.valid_checkins} counted check-ins${d.skipped_checkins?`, ${d.skipped_checkins} skipped for photo quality`:''}${d.weeks_on_product!=null?`, ${d.weeks_on_product.toFixed(0)} weeks in`:''}. Compared as ${esc(d.method)}.</p>`;
- const prov=d.concerns.filter(c=>c.verdict!=='NO_PROVEN_CHANGE').length;
- h+=`<div class="notebar">${prov} of ${d.concerns.length} concerns show a change bigger than your photo noise. The rest are <b>not proven</b>, which is not the same as "no effect".</div>`;
+ const prov=d.concerns.filter(c=>c.verdict==='IMPROVED'||c.verdict==='WORSE').length,lik=d.concerns.filter(c=>/^LIKELY/.test(c.verdict)).length;
+ h+=`<div class="notebar">${d.concerns.length} concerns tested. ${prov} proven (beyond noise on two check-ins in a row), ${lik} likely (beyond noise once, needs confirmation). The rest are <b>not proven</b>, which is not the same as "no effect".${d.multiple_comparison_note?' '+esc(d.multiple_comparison_note):''}</div>`;
  h+=d.concerns.map(c=>bandCard(c).replace(/<\/div>$/,photoPair(d,c)+'</div>')).join('');
  h+=`<div class="row"><button class="btn" data-go="agent">Ask the agent</button><button class="btn ghost" data-go="checkin">Add a check-in</button></div>`;
  show(h);requestAnimationFrame(()=>document.querySelectorAll('.axis .mk').forEach(m=>m.style.left=m.dataset.l+'%'));
 }
 home();
-if(/^#run=[a-f0-9_-]+$/.test(location.hash))replayRun(location.hash.slice(5));
+if(/^#run=[a-z0-9_-]+$/.test(location.hash))replayRun(location.hash.slice(5));
 fetch('/api/status').then(r=>r.json()).then(s=>{st.status=s;st.concerns=s.concerns;if(s.has_key)setUnits(s.units)}).catch(()=>{});
 </script>
 </body>

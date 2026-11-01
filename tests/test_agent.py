@@ -4,6 +4,8 @@ from datetime import date
 import pytest
 from fastapi.testclient import TestClient
 
+from pathlib import Path
+
 from conftest import jpeg
 from skinproof import noise
 from skinproof.agent import MAX_STEPS, Agent, decide
@@ -12,7 +14,8 @@ from skinproof.store import Store
 from skinproof.web import create_app
 from skinproof.youcam import YouCamClient
 
-RETAKES = [{"pore": 61, "redness": 55}, {"pore": 64, "redness": 59}, {"pore": 59, "redness": 53}]
+ROOT = Path(__file__).resolve().parents[1]
+RETAKES = [{"pore": 61, "redness": 55}, {"pore": 64, "redness": 59}, {"pore": 59, "redness": 53}, {"pore": 62, "redness": 57}]
 
 
 def tc_msg(*calls, content=None):
@@ -85,6 +88,8 @@ class FakeClaims:
                 st = "SUPPORTED"
             elif v["verdict"] == "WORSE":
                 st = "CONTRADICTED"
+            elif v["verdict"].startswith("LIKELY"):
+                st = "NEEDS_CONFIRMATION"
             elif weeks_elapsed is not None and weeks_elapsed < c["timeframe_weeks"]:
                 st = "TOO_EARLY"
             else:
@@ -131,7 +136,7 @@ def finish(decision, **kw):
 
 
 def test_happy_path_keep(tmp_path):
-    store, pid, _ = setup(tmp_path)
+    store, pid, _ = setup(tmp_path, latest_pore=70)  # 60 -> 70 -> 72: two readings beyond noise = proven
     a, chat = make_agent(store, pid, [tc_msg(("get_context", {})), tc_msg(("check_photo_consistency", {})),
                                       tc_msg(("analyze_skin", {})), tc_msg(("skin_context", {})),
                                       tc_msg(("compare_with_noise", {})), tc_msg(("read_product_claims", {})),
@@ -285,6 +290,47 @@ def test_decide(verdicts, checks, weeks, exp):
     assert decide(verdicts, checks, weeks)["decision"] == exp
 
 
+@pytest.mark.parametrize("verdicts,checks,weeks,exp", [
+    ([V("pore", "LIKELY_WORSE")], [{"concern": "pore", "status": "NEEDS_CONFIRMATION"}], 6, "WAIT"),
+    ([V("pore", "LIKELY_IMPROVED")], [{"concern": "pore", "status": "NEEDS_CONFIRMATION"}], 6, "WAIT"),
+    ([V("pore", "LIKELY_WORSE")], [], 6, "WAIT"),
+    ([V("pore", "LIKELY_WORSE")], [{"concern": "pore", "status": "NOT_YET_SHOWN"}], 12, "WAIT"),  # verdict alone triggers it
+    ([V("pore", "LIKELY_WORSE"), V("redness", "IMPROVED")], [{"concern": "pore", "status": "NEEDS_CONFIRMATION"}, {"concern": "redness", "status": "SUPPORTED"}], 6, "KEEP"),
+    ([V("pore", "LIKELY_IMPROVED"), V("redness", "WORSE")], [{"concern": "pore", "status": "NEEDS_CONFIRMATION"}, {"concern": "redness", "status": "CONTRADICTED"}], 6, "STOP"),
+])
+def test_decide_likely_never_stops_or_keeps(verdicts, checks, weeks, exp):
+    assert decide(verdicts, checks, weeks)["decision"] == exp
+
+
+def test_decide_likely_wait_message():
+    d = decide([V("pore", "LIKELY_WORSE")], [{"concern": "pore", "status": "NEEDS_CONFIRMATION"}], 6)
+    assert d["wait_weeks"] == 2 and d["rule"] == "R2b" and "confirm" in d["headline"] and "pore" in d["headline"].lower()
+
+
+def test_agent_single_reading_waits_not_stops(tmp_path):
+    # baseline 60, then 60, then new photo 52: one reading beyond noise -> LIKELY_WORSE -> WAIT
+    store, pid, _ = setup(tmp_path)
+    a, _ = make_agent(store, pid, [tc_msg(("analyze_skin", {}))] + FULL + [finish("STOP")], photo=b"NEW" + jpeg(), client=FakeClient({"pore": 52, "redness": 55}))
+    f = final(run(a))
+    pore = next(v for v in f["verdicts"] if v["concern"] == "pore")
+    assert pore["verdict"] == "LIKELY_WORSE" and f["rule_decision"]["decision"] == "WAIT"
+    assert f["disagreement"] and f["disagreement"]["rule"]["decision"] == "WAIT"
+    assert f["claims"][0]["status"] == "NEEDS_CONFIRMATION"
+
+
+def test_agent_prompt_and_tools_describe_confirmation():
+    from skinproof.agent import SYSTEM_PROMPT, TOOLS
+    assert "LIKELY" in SYSTEM_PROMPT and "re-check to confirm" in SYSTEM_PROMPT
+    desc = {t["function"]["name"]: t["function"]["description"] for t in TOOLS}
+    assert "LIKELY_WORSE" in desc["compare_with_noise"] and "NEEDS_CONFIRMATION" in desc["check_claims"]
+
+
+def test_recorded_live_run_would_wait_today():
+    d = json.loads((ROOT / "demo" / "agent_trace_live_synthetic.json").read_text())
+    assert d["decision_under_current_rules"]["decision"] == "WAIT" and d["lesson"]
+    assert d["events"][-1]["data"]["decision"] == "STOP"  # recorded events untouched
+
+
 def test_decide_wait_weeks():
     d = decide([V("pore", "NO_PROVEN_CHANGE")], [{"concern": "pore", "status": "TOO_EARLY", "timeframe_weeks": 8}], 3)
     assert d["wait_weeks"] == 5
@@ -342,3 +388,20 @@ def test_demo_agent_trace_valid(tmp_path):
     assert fin["decision"] in ("KEEP", "STOP", "WAIT") and "overall" not in json.dumps(d)
     spent = [e["units_spent"] for e in d["events"]]
     assert spent == sorted(spent) and spent[-1] <= 40
+
+
+def test_demo_live_endpoint_serves_lesson(tmp_path):
+    tc = TestClient(create_app(YouCamClient("k", cache_dir=tmp_path / "c"), Store(tmp_path / "p")))
+    d = tc.get("/api/demo/agent/live").json()
+    assert d["decision_under_current_rules"]["decision"] == "WAIT" and d["events"][-1]["data"]["decision"] == "STOP"
+
+
+def test_agent_accepts_photo_file_multipart(tmp_path):
+    store, pid, _ = setup(tmp_path, latest_pore=70)
+    chat = FakeChat([tc_msg(("analyze_skin", {}))] + FULL[1:] + [finish("KEEP")])
+    app = create_app(FakeClient(), store,
+                     agent_deps={"chat": chat, "extra": FakeExtra(), "claims": FakeClaims()})
+    r = TestClient(app).post(f"/api/profiles/{pid}/agent", data={"when": "2026-11-01"},
+                             files={"file": ("n.jpg", jpeg(), "image/jpeg")})
+    assert "analyze_skin" in chat.calls[0]["tools"] and r.status_code == 200
+    assert len(store.get_profile(pid)["checkins"]) == 3

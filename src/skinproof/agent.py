@@ -8,9 +8,12 @@ The model chooses which tools to call; code enforces everything that matters:
 
 run() is a generator of trace events (see PLAN.md "Agent trace events").
 
-DECISION RULE (decide), applied to claimed concerns:
-  1. any claimed concern WORSE beyond noise, or claim CONTRADICTED -> STOP
-  2. else any claimed concern IMPROVED beyond noise / claim SUPPORTED -> KEEP
+DECISION RULE (decide), applied to claimed concerns. Only PROVEN verdicts (beyond noise on the
+two most recent check-ins, same direction) can produce STOP or KEEP:
+  1. any claimed concern WORSE (proven), or claim CONTRADICTED -> STOP
+  2. else any claimed concern IMPROVED (proven) / claim SUPPORTED -> KEEP
+  2b. else any claimed concern LIKELY_* (one reading beyond noise) / claim NEEDS_CONFIRMATION
+      -> WAIT 2 weeks and re-check to confirm (never STOP or KEEP on one reading)
   3. else any claim TOO_EARLY (timeframe not reached) -> WAIT n, n = weeks left (min 1)
   4. else (claims NOT_YET_SHOWN past their timeframe, or nothing measurable at >= 8 weeks) -> STOP
   5. else (nothing measurable and < 8 weeks) -> WAIT for the remainder of 8 weeks
@@ -29,7 +32,7 @@ from typing import Any, Callable
 from . import noise
 from .budget import BudgetExceeded, UnitBudget
 from .store import Store
-from .verdict import IMPROVED, REBUY_WEEKS, WORSE, compute_verdicts, valid_checkins
+from .verdict import IMPROVED, LIKELY, REBUY_WEEKS, WORSE, compute_verdicts, valid_checkins
 from .youcam import CONCERN_LABELS, DEFAULT_ACTIONS, YouCamError
 
 MODEL = "google/gemini-3.8-flash"
@@ -45,6 +48,8 @@ SYSTEM_PROMPT = """You are SkinProof, an honest skincare evidence agent. Your go
 Rules you must follow:
 - Measure before you judge. Call get_context first. Do not call finish until compare_with_noise has run (the only exception: the photo is inconsistent and must be retaken).
 - A change is real only when it beats the user's own measured noise (compare_with_noise tells you). Never call a smaller change an improvement.
+- Confirmation rule: a change beyond noise on ONE check-in is only LIKELY_IMPROVED or LIKELY_WORSE and needs confirmation. It is proven (IMPROVED or WORSE) only when the two most recent check-ins are both beyond noise in the same direction. Never decide STOP or KEEP from a LIKELY verdict: finish with WAIT (1 to 2 weeks), name the concern, and say to re-check to confirm. A head turn of a few degrees can move a score by several points, so one reading is never enough.
+- Many concerns are tested at once, so some will cross the line by chance; that is why confirmation is required.
 - Never invent, estimate or average a score. Only quote numbers returned by tools. There is no overall progress score.
 - Read the product's claims (read_product_claims) and check them against the measurements (check_claims) before deciding.
 - Skin tone and Fitzpatrick type are context only, never a verdict.
@@ -65,9 +70,9 @@ TOOLS = [
     _tool("check_photo_consistency", "Photo quality check of the NEW photo (Face Attributes API: face found, frontal, head angle, lighting, face size; 10 units, free if cached). Recommends a retake if any is not 'good'."),
     _tool("analyze_skin", "Skin analysis of the new check-in photo, raw scores only; stores the check-in (about 12 units)."),
     _tool("skin_context", "Skin tone and Fitzpatrick type, context only (about 30 units, optional: skip unless the budget clearly allows it)."),
-    _tool("compare_with_noise", "Noise-gated verdict per concern over all check-ins. Free. Needs 2+ usable check-ins and a calibration."),
+    _tool("compare_with_noise", "Noise-gated verdict per concern over all check-ins. Free. Needs 2+ usable check-ins and a calibration. Verdicts: IMPROVED/WORSE are proven (last two check-ins both beyond noise, same direction); LIKELY_IMPROVED/LIKELY_WORSE need confirmation (one check-in beyond noise); NO_PROVEN_CHANGE."),
     _tool("read_product_claims", "Extract the product's claimed benefits (concern, timeframe) from its stored text, URL or label photo. No units."),
-    _tool("check_claims", "Compare the product's claims with the verdicts and weeks elapsed. Free. Run after compare_with_noise and read_product_claims."),
+    _tool("check_claims", "Compare the product's claims with the verdicts and weeks elapsed. Free. Statuses: SUPPORTED/CONTRADICTED (proven only), NEEDS_CONFIRMATION (likely, one reading), NOT_YET_SHOWN, TOO_EARLY, NOT_MEASURABLE. Run after compare_with_noise and read_product_claims."),
     _tool("simulate_claimed_result", "Skin Simulation of what the claimed improvement for one concern would look like (about 4 units). Always a simulation, not the user's result.",
           {"concern": {"type": "string", "description": "A claimed concern, e.g. pore, redness, texture, wrinkle."}}, ["concern"]),
     _tool("finish", "End the run with the final decision.", {
@@ -97,7 +102,7 @@ def decide(verdicts: list[dict], claim_checks: list[dict] | None, weeks_elapsed:
                 "headline": "Not enough usable check-ins to decide yet.",
                 "reasons": ["Need at least 2 usable check-ins and a calibration before comparing."]}
     checks = [c for c in (claim_checks or []) if c.get("status") != "NOT_MEASURABLE"]
-    worse, better, early, notyet = [], [], [], []
+    worse, better, likely, early, notyet = [], [], [], [], []
     if checks:
         for c in checks:
             v = next((x for x in verdicts if _matches(x["concern"], c.get("concern"))), None)
@@ -107,6 +112,8 @@ def decide(verdicts: list[dict], claim_checks: list[dict] | None, weeks_elapsed:
                 worse.append(name)
             elif vs == IMPROVED or st == "SUPPORTED":
                 better.append(name)
+            elif vs in LIKELY or st == "NEEDS_CONFIRMATION":
+                likely.append(f"{name} ({'up' if vs == 'LIKELY_IMPROVED' or (vs is None and ((v or {}).get('measured') or {}).get('delta', 0) > 0) else 'down'})")
             elif st == "TOO_EARLY":
                 early.append(c)
             else:
@@ -118,6 +125,8 @@ def decide(verdicts: list[dict], claim_checks: list[dict] | None, weeks_elapsed:
                     worse.append(v["label"])
                 elif v["verdict"] == IMPROVED:
                     better.append(v["label"])
+                elif v["verdict"] in LIKELY:
+                    likely.append(f"{v['label']} ({'up' if v['verdict'] == 'LIKELY_IMPROVED' else 'down'})")
                 elif weeks >= REBUY_WEEKS:
                     notyet.append(v["label"])
     if worse:
@@ -128,6 +137,11 @@ def decide(verdicts: list[dict], claim_checks: list[dict] | None, weeks_elapsed:
         return {"decision": "KEEP", "wait_weeks": None, "rule": "R2",
                 "headline": f"Keep: {', '.join(better)} improved beyond your measured noise.",
                 "reasons": [f"{n}: improvement is larger than your own measurement noise." for n in better]}
+    if likely:
+        return {"decision": "WAIT", "wait_weeks": 2, "rule": "R2b",
+                "headline": f"Wait 2 weeks and re-check to confirm: {', '.join(likely)} moved beyond noise on one check-in only.",
+                "reasons": [f"{n}: one check-in beyond your noise is 'likely', not proven. Take another in 1 to 2 weeks, "
+                            f"same light and pose; two in a row in the same direction makes it proven." for n in likely]}
     if early:
         left = [(c.get("timeframe_weeks") or REBUY_WEEKS) - weeks for c in early]
         n = max(1, math.ceil(max(left)))
@@ -363,9 +377,13 @@ class Agent:
             return ToolOut({"ready": False, "message": v["message"]}, v, v["message"])
         compact = {"method": v["method"], "weeks_on_product": v["weeks_on_product"], "concerns": [
             {"concern": c["concern"], "verdict": c["verdict"], "delta": c["delta"],
-             "noise_threshold": round(c["threshold"], 1), "targeted": c["targeted"]} for c in v["concerns"]]}
-        n_real = sum(c["verdict"] != "NO_PROVEN_CHANGE" for c in v["concerns"])
-        return ToolOut(compact, v, f"{n_real} of {len(v['concerns'])} concerns changed beyond noise")
+             "noise_threshold": round(c["threshold"], 1), "targeted": c["targeted"],
+             "recent_deltas": c.get("recent_deltas")} for c in v["concerns"]],
+            "concerns_tested": v["concerns_tested"], "note": v["multiple_comparison_note"]}
+        proven = sum(c["verdict"] in ("IMPROVED", "WORSE") for c in v["concerns"])
+        likely = sum(c["verdict"] in LIKELY for c in v["concerns"])
+        return ToolOut(compact, v, f"{proven} proven, {likely} likely (needs confirmation) of "
+                                   f"{len(v['concerns'])} concerns tested")
 
     def t_read_product_claims(self) -> ToolOut:
         if self.s.claims is not None:
@@ -497,7 +515,8 @@ class Agent:
         chosen = m or rule
         data = {"decision": chosen["decision"], "wait_weeks": chosen.get("wait_weeks"),
                 "headline": chosen["headline"], "reasons": chosen["reasons"],
-                "verdicts": vlist, "claims": self.s.claim_checks or [],
+                "verdicts": vlist, "concerns_tested": (v or {}).get("concerns_tested"),
+                "multiple_comparison_note": (v or {}).get("multiple_comparison_note"), "claims": self.s.claim_checks or [],
                 "simulation_image": self.s.sim_url,
                 "simulation_label": "Simulation, not your result" if self.s.sim_url else None,
                 "fallback": fallback, "rule_decision": {k: rule[k] for k in ("decision", "wait_weeks", "rule", "headline")},

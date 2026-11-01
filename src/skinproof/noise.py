@@ -12,6 +12,13 @@ FLOOR is 3 points so a lucky set of near-identical retakes cannot make us
 over-confident. A later change only counts as "proven" when it is larger than
 this threshold.
 
+Caveat: with fewer than 6 photos the observed range underestimates the true noise
+(a small sample rarely contains the extremes), so 5-6 photos including slight head
+turns are recommended and a minimum of 4 is enforced. A live end-to-end test showed
+why: a 3 degree head turn moved pores by 4.6 points against a threshold of 4.03 that
+came from only 3 light/zoom variants. Even with a good threshold, one reading beyond
+it is only "likely"; verdict.py requires a second check-in to confirm.
+
 Synthetic perturbations of one photo (brightness, zoom, JPEG, rotation) give a
 cheaper lower bound on the same quantity. When both are present we use the
 larger threshold per concern (real retakes are the more honest estimate).
@@ -25,7 +32,8 @@ from typing import Any
 from PIL import Image, ImageEnhance
 
 FLOOR = 3.0
-MIN_RETAKES = 3
+MIN_RETAKES = 4
+RECOMMENDED_RETAKES = 6
 
 
 def _spread(values: list[float]) -> dict[str, float]:
@@ -65,7 +73,11 @@ def build_calibration(real: list[dict[str, float]] | None = None,
         concerns[c] = {"threshold": round(thr, 2), "real": r, "synthetic": s}
     source = "retakes+synthetic" if real_n and syn_n else ("retakes" if real_n else "synthetic")
     return {"source": source, "n_photos": len(real or []), "floor": FLOOR, "concerns": concerns,
-            "rule": "threshold = max(range, 2*SD, 3) over same-day retakes"}
+            "rule": "threshold = max(range, 2*SD, 3) over same-day retakes",
+            "min_photos": MIN_RETAKES, "recommended_photos": RECOMMENDED_RETAKES,
+            "note": None if len(real or []) >= RECOMMENDED_RETAKES else
+            f"Calibrated from {len(real or [])} photos. With fewer than {RECOMMENDED_RETAKES} the observed range "
+            f"likely underestimates your real noise; add slight head turns and re-calibrate if you can."}
 
 
 def thresholds(calibration: dict[str, Any]) -> dict[str, float]:
@@ -73,7 +85,7 @@ def thresholds(calibration: dict[str, Any]) -> dict[str, float]:
 
 
 def perturbations(image_bytes: bytes) -> list[tuple[str, bytes]]:
-    """Synthetic variants of one photo: brightness +-15%, zoom 90-100%, JPEG q70, 3 deg rotation.
+    """Synthetic variants of one photo: brightness +-15%, zoom 90-100%, JPEG q70, +-3 deg rotation, small horizontal crop shift (yaw-like).
 
     Pure function, no network. Analysing these costs units, so callers must
     opt in explicitly (see scripts/synthetic_noise.py).
@@ -91,6 +103,11 @@ def perturbations(image_bytes: bytes) -> list[tuple[str, bytes]]:
         l, t = (w - cw) // 2, (h - ch) // 2
         return img.crop((l, t, l + cw, t + ch)).resize((w, h), Image.LANCZOS)
 
+    def shift(frac: float) -> Image.Image:  # crop 92% width, off-centre: a small yaw-like turn
+        cw = int(w * 0.92)
+        l = int((w - cw) / 2 + frac * w)
+        return img.crop((l, 0, l + cw, h)).resize((w, h), Image.LANCZOS)
+
     return [
         ("brightness-15", enc(ImageEnhance.Brightness(img).enhance(0.85))),
         ("brightness+15", enc(ImageEnhance.Brightness(img).enhance(1.15))),
@@ -99,4 +116,5 @@ def perturbations(image_bytes: bytes) -> list[tuple[str, bytes]]:
         ("jpeg-q70", enc(img, 70)),
         ("rotate+3", enc(img.rotate(3, resample=Image.BICUBIC, expand=False))),
         ("rotate-3", enc(img.rotate(-3, resample=Image.BICUBIC, expand=False))),
+        ("yaw-shift+4", enc(shift(0.04))),
     ]

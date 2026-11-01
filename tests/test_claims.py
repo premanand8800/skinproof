@@ -136,3 +136,10 @@ def test_validate_claims_dedupes_same_concern_and_timeframe():
     out = claims.validate_claims(raw)
     assert len(out) == 2
     assert out[0]["quote"].startswith("visibly reduces")
+
+
+def test_likely_maps_to_needs_confirmation():
+    verdicts = [v("pore", "LIKELY_WORSE", -5), v("redness", "LIKELY_IMPROVED", 6)]
+    res = claims.compare([c("pore", "q1", 4), c("redness", "q2", 4)], verdicts, 6)
+    assert [r["status"] for r in res] == ["NEEDS_CONFIRMATION", "NEEDS_CONFIRMATION"]
+    assert "Needs confirmation" in res[0]["sentence"]

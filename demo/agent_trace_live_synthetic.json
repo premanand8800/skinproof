@@ -779,5 +779,23 @@
     "llm_cost": 0.015028
    }
   }
- ]
+ ],
+ "lesson": "We caught our own false alarm. This run stopped on a single pore reading of -4.6 points against a 4.03-point noise threshold that came from only 3 synthetic variants (brightness and zoom, no rotation). The skin had not changed: the second photo was the same AI-generated face turned 3 degrees. Under the current confirmation rule a change beyond noise on one check-in is only LIKELY_WORSE and the decision is WAIT to re-check, not STOP. Calibration now also needs 4+ photos (5 to 6 recommended, with slight head turns).",
+ "decision_under_current_rules": {
+  "decision": "WAIT",
+  "wait_weeks": 2,
+  "rule": "R2b",
+  "headline": "Wait 2 weeks and re-check to confirm: Pores (down) moved beyond noise on one check-in only.",
+  "reasons": [
+   "Pores (down): one check-in beyond your noise is 'likely', not proven. Take another in 1 to 2 weeks, same light and pose; two in a row in the same direction makes it proven."
+  ],
+  "pore_verdict": "LIKELY_WORSE",
+  "claim_statuses": {
+   "texture": "NOT_YET_SHOWN",
+   "radiance": "NOT_YET_SHOWN",
+   "oiliness": "NOT_YET_SHOWN",
+   "pore": "NEEDS_CONFIRMATION",
+   "moisture": "NOT_YET_SHOWN"
+  }
+ }
 }
