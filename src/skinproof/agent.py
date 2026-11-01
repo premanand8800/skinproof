@@ -23,6 +23,7 @@ from __future__ import annotations
 
 import json
 import math
+import os
 import uuid
 from dataclasses import dataclass, field
 from datetime import date
@@ -192,7 +193,8 @@ class Agent:
     def __init__(self, *, store: Store, client: Any, profile_id: str, product_id: str | None = None,
                  photo: bytes | None = None, when: str | None = None, chat: Callable | None = None,
                  extra: Any = None, claims: Any = None, budget: UnitBudget | None = None,
-                 model: str = MODEL, runs_dir: Path | None = None, max_steps: int = MAX_STEPS):
+                 model: str = MODEL, runs_dir: Path | None = None, max_steps: int = MAX_STEPS,
+                 transport: str | None = None, mcp_client: Any = None):
         profile = store.get_profile(profile_id)
         if not profile:
             raise KeyError(profile_id)
@@ -203,6 +205,10 @@ class Agent:
         self.store, self.client, self.pid = store, client, profile_id
         self.chat, self.extra, self.claims_mod = chat, extra, claims
         self.model, self.max_steps = model, max_steps
+        self.transport = (transport or os.environ.get("SKINPROOF_YOUCAM_TRANSPORT") or "rest").lower()
+        if self.transport not in ("rest", "mcp"):
+            raise ValueError("transport must be 'rest' or 'mcp'")
+        self._mcp_client = mcp_client
         self.budget = budget or UnitBudget()
         self.runs_dir = runs_dir or store.root / "runs"
         self.run_id = uuid.uuid4().hex[:20]
@@ -329,6 +335,15 @@ class Agent:
         return ToolOut(res, {**res, "face_ratio": ratio},
                        "Photo quality is good" if not issues else "Retake recommended: " + "; ".join(issues))
 
+    def _analyzer(self):
+        """REST client by default; YouCam's official MCP server when transport == 'mcp'."""
+        if self.transport != "mcp":
+            return self.client
+        if self._mcp_client is None:
+            from .youcam_mcp import YouCamMCP
+            self._mcp_client = YouCamMCP("beauty", cache_dir=getattr(self.client, "cache_dir", ".cache/youcam"))
+        return self._mcp_client
+
     def t_analyze_skin(self) -> ToolOut:
         if self.s.photo is None:
             return ToolOut({"error": "no new photo supplied"}, summary="No new photo", error=True)
@@ -338,7 +353,7 @@ class Agent:
         rec: dict = {"date": self.when}
         try:
             res = self.paid("skin_analysis", lambda: (lambda r: {**r, "units": 0 if r.get("cached") else self.cost_of("skin_analysis")})(
-                self.client.analyze(self.s.photo, DEFAULT_ACTIONS)))
+                self._analyzer().analyze(self.s.photo, DEFAULT_ACTIONS)))
             rec["photo"] = self.store.save_photo(self.pid, "checkin", self.s.photo)
             if self.s.new_ratio:
                 rec["face_ratio"] = self.s.new_ratio

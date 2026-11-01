@@ -71,6 +71,30 @@ Why: in our first live end-to-end run on an AI-generated face, the second photo 
 - `TOO_EARLY`: the claimed timeframe has not passed
 - `NOT_MEASURABLE`: a photo cannot measure it (scent, "dermatologist tested")
 
+## MCP: both directions
+
+**1. SkinProof calls YouCam's official MCP server.** Perfect Corp runs MCP servers
+(`https://mcp-api-01.makeupar.com/mcp/beauty`, also `/fashion`, `/creators`). `youcam_mcp.py` is a small
+JSON-RPC client (initialize, tools/list, tools/call) and `bench/youcam_mcp_tools.json` is the live tool list
+(50 beauty tools). Set `SKINPROOF_YOUCAM_TRANSPORT=mcp` (default `rest`) and the agent's `analyze_skin` runs
+through `upload_file` then `AI-Skin-Analysis`. Proof on our AI-generated synthetic face: 12 units, and every
+raw score matched the REST result to within 0.001 points (`bench/youcam_mcp_vs_rest.json`).
+
+**2. SkinProof is itself an MCP server** (stdio), so Claude Desktop or Cursor can ask it questions:
+
+```json
+{ "mcpServers": { "skinproof": {
+    "command": "uv",
+    "args": ["--directory", "/path/to/skinproof", "run", "skinproof", "mcp"],
+    "env": { "SKINPROOF_MCP_ALLOW_LLM": "0" } } } }
+```
+
+Tools: `skinproof_explain_noise(profile_id)`, `skinproof_should_i_keep_buying(profile_id, product_id)`
+(deterministic rule on stored data, no YouCam units, no LLM), `skinproof_demo_runs()`, and
+`skinproof_read_claims(text|url)` which costs about a cent of OpenRouter and stays off until
+`SKINPROOF_MCP_ALLOW_LLM=1`. It is stdio only and reads your local `private/` store; nothing that can spend
+money is mounted on the public web server.
+
 ## Privacy
 
 Face photos are stored locally under `private/`, which is gitignored, and are never committed. Tests and the demo use invented scores or an AI-generated face. The YouCam and OpenRouter keys live only on the server (`.env`, gitignored).
