@@ -125,3 +125,14 @@ def test_sentence():
 
 def test_empty():
     assert claims.compare([], []) == []
+
+
+def test_validate_claims_dedupes_same_concern_and_timeframe():
+    raw = {"claims": [
+        {"concern": "pore", "timeframe_weeks": 4, "quote": "reduces pores"},
+        {"concern": "pore", "timeframe_weeks": 4, "quote": "visibly reduces the appearance of pores in 4 weeks"},
+        {"concern": "pore", "timeframe_weeks": 8, "quote": "pores smaller"},
+    ]}
+    out = claims.validate_claims(raw)
+    assert len(out) == 2
+    assert out[0]["quote"].startswith("visibly reduces")

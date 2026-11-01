@@ -47,13 +47,14 @@ class FakeExtra:
     def __init__(self, yaw_new=2):
         self.yaw_new, self.calls = yaw_new, []
 
-    def estimated_cost(self, f):
+    def estimated_cost(self, f, n=None):
         return {"face_attributes": 3, "skin_tone": 3, "fitzpatrick": 3, "skin_simulation": 8, "skin_analysis": 12}.get(f, 5)
 
     def face_attributes(self, client, img):
         self.calls.append("fa")
-        yaw = 0 if len(self.calls) % 2 == 1 else self.yaw_new  # 1st call baseline, 2nd new photo
-        return {"yaw": yaw, "pitch": 0, "roll": 0, "face_ratio": 0.6, "units": 3}
+        fq = {"has_face": True, "area": "good", "frontal": "good", "lighting": "good",
+              "faceangle": "good" if self.yaw_new < 10 else "bad"}
+        return {"face_quality": fq, "face_ratio": 0.6, "units": 3}
 
     def skin_tone(self, c, img):
         return {"tone": "medium", "units": 3}
@@ -142,7 +143,7 @@ def test_happy_path_keep(tmp_path):
     assert f["simulation_image"].startswith("/api/files/") and "Simulation" in f["simulation_label"]
     assert [e["type"] for e in evs][0] == "start" and evs[-1]["type"] == "final"
     assert {"type", "step", "summary", "units_spent", "units_left_in_budget"} <= set(evs[1])
-    assert f["units_spent"] == 12 + 3 * 2 + 3 + 3 + 8
+    assert f["units_spent"] == 12 + 3 + 3 + 3 + 8
     assert f["claims"][0]["status"] == "SUPPORTED"
     assert len(store.get_profile(pid)["checkins"]) == 3
     assert (store.root / "runs" / f"{a.run_id}.json").is_file()

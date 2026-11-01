@@ -21,6 +21,7 @@ COSTS: dict[str, float] = {
     "skin_simulation": 4.0,    # 1-4 concerns; 5-10 = 6
     "photo_lighting": 2.0,
     "text_to_image": 1.0,
+    "skin_analysis": 12.0,     # SD: 9 for 1-4 concerns, 12 for 5-8
 }
 
 PATHS = {
@@ -46,6 +47,8 @@ def estimated_cost(feature: str, n: int | None = None) -> float:
     """Units a call would cost. ``n`` = number of concerns (simulation) or features (face_attributes)."""
     if feature == "skin_simulation" and n is not None:
         return 4.0 if n <= 4 else 6.0
+    if feature == "skin_analysis" and n is not None:
+        return 9.0 if n <= 4 else 12.0
     if feature == "face_attributes" and n is not None:
         return 10.0 if n <= 5 else 20.0 if n <= 14 else 30.0
     if feature not in COSTS:

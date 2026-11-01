@@ -105,7 +105,26 @@ def validate_claims(raw: Any) -> list[dict]:
         seen.add(key)
         out.append({"concern": concern, "direction": "improve",
                     "timeframe_weeks": _weeks(it.get("timeframe_weeks")), "quote": quote})
-    return out
+    return _dedupe(out)
+
+
+def _dedupe(claims: list[dict]) -> list[dict]:
+    """One claim per (concern, timeframe): keep the most specific (longest) quote. Unmeasurable claims stay."""
+    best: dict[tuple, int] = {}
+    keep: list[dict | None] = []
+    for c in claims:
+        if c["concern"] is None:
+            keep.append(c)
+            continue
+        k = (c["concern"], c["timeframe_weeks"])
+        if k in best:
+            i = best[k]
+            if len(c["quote"]) > len(keep[i]["quote"]):
+                keep[i] = c
+            continue
+        best[k] = len(keep)
+        keep.append(c)
+    return [c for c in keep if c]
 
 
 def extract_claims(text: str | None = None, url: str | None = None, image: bytes | None = None,

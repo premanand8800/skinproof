@@ -37,9 +37,7 @@ MAX_STEPS = 12
 SIM_STRENGTH = 0.5
 DEFAULT_COST = {"skin_analysis": 12, "skin_tone": 20, "fitzpatrick": 10, "face_attributes": 10,
                 "skin_simulation": 4, "photo_lighting": 2}
-# photo-consistency limits between baseline and new photo
-MAX_ANGLE_DIFF = 10.0
-MAX_ROLL_DIFF = 8.0
+# optional framing check against a cached baseline face_aspect_ratio
 MAX_RATIO_DIFF = 0.15
 
 SYSTEM_PROMPT = """You are SkinProof, an honest skincare evidence agent. Your goal: answer "should this person keep buying this product?" for ONE product, using measurements on THEIR face.
@@ -64,7 +62,7 @@ def _tool(name: str, desc: str, props: dict | None = None, required: list | None
 
 TOOLS = [
     _tool("get_context", "Profile, calibration noise thresholds, product (name, start date, claimed concerns), check-in history with dates and raw scores, weeks elapsed, units left. Free."),
-    _tool("check_photo_consistency", "Compare pose/framing of the new photo with the baseline photo (Face Attributes API on both photos, up to 20 units, less if cached). Recommends a retake if too different."),
+    _tool("check_photo_consistency", "Photo quality check of the NEW photo (Face Attributes API: face found, frontal, head angle, lighting, face size; 10 units, free if cached). Recommends a retake if any is not 'good'."),
     _tool("analyze_skin", "Skin analysis of the new check-in photo, raw scores only; stores the check-in (about 12 units)."),
     _tool("skin_context", "Skin tone and Fitzpatrick type, context only (about 30 units, optional: skip unless the budget clearly allows it)."),
     _tool("compare_with_noise", "Noise-gated verdict per concern over all check-ins. Free. Needs 2+ usable check-ins and a calibration."),
@@ -171,6 +169,7 @@ class RunState:
     sim_url: str | None = None
     retake: bool = False
     consistency: dict | None = None
+    new_ratio: float | None = None
     tone: dict | None = None
     final: dict | None = None
 
@@ -280,31 +279,41 @@ class Agent:
                               f"{'calibrated' if cal else 'NOT calibrated'}, {self.budget.left:g} units left")
 
     def t_check_photo_consistency(self) -> ToolOut:
+        """One Face Attributes call on the NEW photo only (<=5 features = 10 units)."""
         if self.s.photo is None:
             return ToolOut({"error": "no new photo supplied"}, summary="No new photo", error=True)
-        ok = valid_checkins(self.s.checkins)
-        base = next((c for c in ok if c.get("photo")), None)
-        if not base:
-            return ToolOut({"consistent": True, "note": "no baseline photo to compare with"},
-                           {"consistent": True}, "No baseline photo; skipped")
-        base_bytes = (self.store.root / base["photo"]).read_bytes()
         fa = self._extra().face_attributes
-        a = self.paid("face_attributes", lambda: fa(self.client, base_bytes))
-        b = self.paid("face_attributes", lambda: fa(self.client, self.s.photo))
+        b = self.paid("face_attributes", lambda: fa(self.client, self.s.photo),
+                      estimate=self._extra().estimated_cost("face_attributes", 5)
+                      if hasattr(self._extra(), "estimated_cost") else None)
+        q = b.get("face_quality") or {k: b.get(k) for k in ("area", "frontal", "lighting", "faceangle")}
         issues = []
-        for k, lim in (("yaw", MAX_ANGLE_DIFF), ("pitch", MAX_ANGLE_DIFF), ("roll", MAX_ROLL_DIFF)):
-            if a.get(k) is not None and b.get(k) is not None and abs(a[k] - b[k]) > lim:
-                issues.append(f"{k} differs by {abs(a[k] - b[k]):.0f} degrees (limit {lim:g})")
-        ra, rb = a.get("face_ratio"), b.get("face_ratio")
-        if ra and rb and abs(ra - rb) / ra > MAX_RATIO_DIFF:
-            issues.append(f"face size in frame differs by {abs(ra - rb) / ra:.0%} (limit {MAX_RATIO_DIFF:.0%})")
+        if q.get("has_face") is False:
+            issues.append("no face was found in the photo")
+        for key, words in (("frontal", "the face is not facing the camera straight on"),
+                           ("faceangle", "the head angle is not straight enough"),
+                           ("lighting", "the lighting is not good enough"),
+                           ("area", "the face does not fill enough of the frame")):
+            val = q.get(key)
+            if val is not None and str(val).lower() != "good":
+                issues.append(f"{words} (rated '{val}')")
+        ratio = b.get("face_ratio")
+        self.s.new_ratio = ratio
+        base = next((c for c in valid_checkins(self.s.checkins) if c.get("face_ratio")), None)
+        ratio_note = None
+        if ratio and base:
+            diff = abs(ratio - base["face_ratio"]) / base["face_ratio"]
+            ratio_note = f"face aspect ratio differs from baseline by {diff:.0%}"
+            if diff > MAX_RATIO_DIFF:
+                issues.append(f"{ratio_note} (limit {MAX_RATIO_DIFF:.0%}); the framing or pose changed")
         self.s.retake = bool(issues)
-        res = {"consistent": not issues, "issues": issues,
+        res = {"consistent": not issues, "issues": issues, "quality": q,
                "recommendation": "retake" if issues else "ok to measure"}
+        if ratio_note:
+            res["ratio_note"] = ratio_note
         self.s.consistency = res
-        full = {**res, "baseline": {k: v for k, v in a.items() if k != "raw"},
-                "new": {k: v for k, v in b.items() if k != "raw"}}
-        return ToolOut(res, full, "Photo matches baseline" if not issues else "Retake recommended: " + "; ".join(issues))
+        return ToolOut(res, {**res, "face_ratio": ratio},
+                       "Photo quality is good" if not issues else "Retake recommended: " + "; ".join(issues))
 
     def t_analyze_skin(self) -> ToolOut:
         if self.s.photo is None:
@@ -317,6 +326,8 @@ class Agent:
             res = self.paid("skin_analysis", lambda: (lambda r: {**r, "units": 0 if r.get("cached") else self.cost_of("skin_analysis")})(
                 self.client.analyze(self.s.photo, DEFAULT_ACTIONS)))
             rec["photo"] = self.store.save_photo(self.pid, "checkin", self.s.photo)
+            if self.s.new_ratio:
+                rec["face_ratio"] = self.s.new_ratio
             rec["scores"] = {c: v["raw_score"] for c, v in res["scores"].items() if v.get("raw_score") is not None}
             rec["cached"] = res.get("cached", False)
         except YouCamError as e:
