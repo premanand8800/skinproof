@@ -120,7 +120,8 @@ def create_app(client: YouCamClient | None = None, store: Store | None = None,
         """JSON body, or multipart form (adds an optional `label` image of the product)."""
         get_profile(pid)
         label = None
-        if "multipart/form-data" in request.headers.get("content-type", ""):
+        ctype = request.headers.get("content-type", "")
+        if "multipart/form-data" in ctype or "application/x-www-form-urlencoded" in ctype:
             form = await request.form()
             raw = form.get("concerns") or ""
             body = ProductIn(name=str(form.get("name") or ""), start_date=form.get("start_date") or None,

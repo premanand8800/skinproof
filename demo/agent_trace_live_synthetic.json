@@ -1,0 +1,783 @@
+{
+ "sample": false,
+ "synthetic_face": true,
+ "note": "A live run through the real HTTP API on an AI-generated face (YouCam text-to-image), not a real person. Calibration used brightness and zoom variants of that face; the new check-in is the same face rotated 3 degrees, so the skin did not change. The agent stopped on a pore 'worsening' of 4.6 points because rotation was not part of the calibration noise: a limitation of calibrating with synthetic variants, and the reason real same-day retakes are required.",
+ "run_id": "14db7fb43720",
+ "model": "google/gemini-3.8-flash",
+ "date": "2026-11-01",
+ "events": [
+  {
+   "type": "start",
+   "step": 0,
+   "summary": "Deciding whether to keep The Ordinary Niacinamide 10% + Zinc 1%",
+   "units_spent": 0.0,
+   "units_left_in_budget": 40.0,
+   "llm_cost": 0.0,
+   "data": {
+    "run_id": "14db7fb43720",
+    "product": "The Ordinary Niacinamide 10% + Zinc 1%",
+    "model": "google/gemini-3.8-flash",
+    "max_units": 40.0,
+    "max_steps": 12,
+    "max_llm_usd": 0.1,
+    "has_new_photo": true
+   }
+  },
+  {
+   "type": "tool_call",
+   "step": 1,
+   "summary": "Calling get_context",
+   "units_spent": 0.0,
+   "units_left_in_budget": 40.0,
+   "llm_cost": 0.00105,
+   "tool": "get_context",
+   "args": {}
+  },
+  {
+   "type": "tool_result",
+   "step": 1,
+   "summary": "1 check-ins, 0.0 weeks on product, calibrated, 40 units left",
+   "units_spent": 0.0,
+   "units_left_in_budget": 40.0,
+   "llm_cost": 0.00105,
+   "tool": "get_context",
+   "data": {
+    "result": {
+     "profile": "E2E synthetic",
+     "noise_thresholds": {
+      "acne": 7.21,
+      "dark_circle_v2": 6.15,
+      "texture": 3.0,
+      "moisture": 3.21,
+      "redness": 3.0,
+      "age_spot": 3.0,
+      "pore": 4.03,
+      "wrinkle": 3.0
+     },
+     "calibrated": true,
+     "product": {
+      "name": "The Ordinary Niacinamide 10% + Zinc 1%",
+      "start_date": "2026-09-20",
+      "concerns": [
+       "pore",
+       "texture"
+      ]
+     },
+     "has_claim_inputs": true,
+     "checkins": [
+      {
+       "date": "2026-09-20",
+       "scores": {
+        "pore": 57.248528242111206,
+        "texture": 61.44500374794006,
+        "redness": 87.26336669921875,
+        "age_spot": 70.448486328125,
+        "dark_circle_v2": 88.66133689880371,
+        "wrinkle": 78.87760996818542,
+        "acne": 100.0,
+        "moisture": 39.87566530704498
+       },
+       "error": null
+      }
+     ],
+     "weeks_elapsed": 0.0,
+     "new_photo_supplied": true,
+     "new_photo_date": "2026-11-01",
+     "units_left": 40.0
+    },
+    "error": false
+   }
+  },
+  {
+   "type": "tool_call",
+   "step": 2,
+   "summary": "Calling check_photo_consistency",
+   "units_spent": 0.0,
+   "units_left_in_budget": 40.0,
+   "llm_cost": 0.002027,
+   "tool": "check_photo_consistency",
+   "args": {}
+  },
+  {
+   "type": "tool_result",
+   "step": 2,
+   "summary": "Photo quality is good",
+   "units_spent": 10.0,
+   "units_left_in_budget": 30.0,
+   "llm_cost": 0.002027,
+   "tool": "check_photo_consistency",
+   "data": {
+    "result": {
+     "consistent": true,
+     "issues": [],
+     "quality": {
+      "has_face": true,
+      "area": "good",
+      "frontal": "good",
+      "lighting": "good",
+      "faceangle": "good"
+     },
+     "recommendation": "ok to measure",
+     "face_ratio": [
+      1,
+      1.479
+     ]
+    },
+    "error": false
+   }
+  },
+  {
+   "type": "tool_call",
+   "step": 3,
+   "summary": "Calling analyze_skin",
+   "units_spent": 10.0,
+   "units_left_in_budget": 30.0,
+   "llm_cost": 0.0029,
+   "tool": "analyze_skin",
+   "args": {}
+  },
+  {
+   "type": "tool_result",
+   "step": 3,
+   "summary": "Analysed 8 concerns",
+   "units_spent": 22.0,
+   "units_left_in_budget": 18.0,
+   "llm_cost": 0.0029,
+   "tool": "analyze_skin",
+   "data": {
+    "result": {
+     "checkin": {
+      "id": "00bcfff7",
+      "date": "2026-11-01",
+      "face_ratio": [
+       1,
+       1.479
+      ],
+      "scores": {
+       "pore": 52.637802839279175,
+       "texture": 59.984999895095825,
+       "redness": 88.49063110351562,
+       "dark_circle_v2": 88.5112851858139,
+       "age_spot": 70.11819458007812,
+       "acne": 94.75687,
+       "wrinkle": 78.1708300113678,
+       "moisture": 36.790531873703
+      },
+      "cached": false
+     }
+    },
+    "error": false
+   }
+  },
+  {
+   "type": "tool_call",
+   "step": 4,
+   "summary": "Calling compare_with_noise",
+   "units_spent": 22.0,
+   "units_left_in_budget": 18.0,
+   "llm_cost": 0.003897,
+   "tool": "compare_with_noise",
+   "args": {}
+  },
+  {
+   "type": "tool_result",
+   "step": 4,
+   "summary": "1 of 8 concerns changed beyond noise",
+   "units_spent": 22.0,
+   "units_left_in_budget": 18.0,
+   "llm_cost": 0.003897,
+   "tool": "compare_with_noise",
+   "data": {
+    "result": {
+     "valid_checkins": 2,
+     "skipped_checkins": 0,
+     "concerns": [
+      {
+       "concern": "pore",
+       "label": "Pores",
+       "baseline": 57.248528242111206,
+       "latest": 52.637802839279175,
+       "delta": -4.61,
+       "threshold": 4.03,
+       "verdict": "WORSE",
+       "targeted": true,
+       "sentence": "Pores: worse by 5 points, more than the 4-point noise we measured on your face. Proven.",
+       "next": "Pause the product and check for irritation. If it persists, see a dermatologist."
+      },
+      {
+       "concern": "texture",
+       "label": "Texture",
+       "baseline": 61.44500374794006,
+       "latest": 59.984999895095825,
+       "delta": -1.46,
+       "threshold": 3.0,
+       "verdict": "NO_PROVEN_CHANGE",
+       "targeted": true,
+       "sentence": "Texture: changed by 1 point; your photos vary by 3 points even on the same day. No proven change yet.",
+       "next": "Too early to call. Keep your routine steady. Check again in about 2 weeks."
+      },
+      {
+       "concern": "acne",
+       "label": "Acne",
+       "baseline": 100.0,
+       "latest": 94.75687,
+       "delta": -5.24,
+       "threshold": 7.21,
+       "verdict": "NO_PROVEN_CHANGE",
+       "targeted": false,
+       "sentence": "Acne: changed by 5 points; your photos vary by 7 points even on the same day. No proven change yet.",
+       "next": "Not a concern this product claims to target. Nothing to decide here."
+      },
+      {
+       "concern": "age_spot",
+       "label": "Age spots",
+       "baseline": 70.448486328125,
+       "latest": 70.11819458007812,
+       "delta": -0.33,
+       "threshold": 3.0,
+       "verdict": "NO_PROVEN_CHANGE",
+       "targeted": false,
+       "sentence": "Age spots: changed by 0 points; your photos vary by 3 points even on the same day. No proven change yet.",
+       "next": "Not a concern this product claims to target. Nothing to decide here."
+      },
+      {
+       "concern": "dark_circle_v2",
+       "label": "Dark circles",
+       "baseline": 88.66133689880371,
+       "latest": 88.5112851858139,
+       "delta": -0.15,
+       "threshold": 6.15,
+       "verdict": "NO_PROVEN_CHANGE",
+       "targeted": false,
+       "sentence": "Dark circles: changed by 0 points; your photos vary by 6 points even on the same day. No proven change yet.",
+       "next": "Not a concern this product claims to target. Nothing to decide here."
+      },
+      {
+       "concern": "moisture",
+       "label": "Moisture",
+       "baseline": 39.87566530704498,
+       "latest": 36.790531873703,
+       "delta": -3.09,
+       "threshold": 3.21,
+       "verdict": "NO_PROVEN_CHANGE",
+       "targeted": false,
+       "sentence": "Moisture: changed by 3 points; your photos vary by 3 points even on the same day. No proven change yet.",
+       "next": "Not a concern this product claims to target. Nothing to decide here."
+      },
+      {
+       "concern": "redness",
+       "label": "Redness",
+       "baseline": 87.26336669921875,
+       "latest": 88.49063110351562,
+       "delta": 1.23,
+       "threshold": 3.0,
+       "verdict": "NO_PROVEN_CHANGE",
+       "targeted": false,
+       "sentence": "Redness: changed by 1 point; your photos vary by 3 points even on the same day. No proven change yet.",
+       "next": "Not a concern this product claims to target. Nothing to decide here."
+      },
+      {
+       "concern": "wrinkle",
+       "label": "Wrinkles",
+       "baseline": 78.87760996818542,
+       "latest": 78.1708300113678,
+       "delta": -0.71,
+       "threshold": 3.0,
+       "verdict": "NO_PROVEN_CHANGE",
+       "targeted": false,
+       "sentence": "Wrinkles: changed by 1 point; your photos vary by 3 points even on the same day. No proven change yet.",
+       "next": "Not a concern this product claims to target. Nothing to decide here."
+      }
+     ],
+     "ready": true,
+     "method": "first vs latest",
+     "weeks_on_product": 6.0
+    },
+    "error": false
+   }
+  },
+  {
+   "type": "tool_call",
+   "step": 5,
+   "summary": "Calling read_product_claims",
+   "units_spent": 22.0,
+   "units_left_in_budget": 18.0,
+   "llm_cost": 0.005053,
+   "tool": "read_product_claims",
+   "args": {}
+  },
+  {
+   "type": "tool_result",
+   "step": 5,
+   "summary": "7 claims from url",
+   "units_spent": 22.0,
+   "units_left_in_budget": 18.0,
+   "llm_cost": 0.011892,
+   "tool": "read_product_claims",
+   "data": {
+    "result": {
+     "product": "Niacinamide 10% + Zinc 1% Oil Control Serum",
+     "claims": [
+      {
+       "concern": "texture",
+       "direction": "improve",
+       "timeframe_weeks": 1,
+       "quote": "Get smoother, more radiant skin in 7 days."
+      },
+      {
+       "concern": "radiance",
+       "direction": "improve",
+       "timeframe_weeks": 1,
+       "quote": "Get smoother, more radiant skin in 7 days."
+      },
+      {
+       "concern": "oiliness",
+       "direction": "improve",
+       "timeframe_weeks": null,
+       "quote": "targets excess oil"
+      },
+      {
+       "concern": "pore",
+       "direction": "improve",
+       "timeframe_weeks": null,
+       "quote": "reduces pore visibility"
+      },
+      {
+       "concern": "moisture",
+       "direction": "improve",
+       "timeframe_weeks": null,
+       "quote": "strengthens the moisture barrier"
+      },
+      {
+       "concern": "texture",
+       "direction": "improve",
+       "timeframe_weeks": null,
+       "quote": "smooths"
+      },
+      {
+       "concern": "radiance",
+       "direction": "improve",
+       "timeframe_weeks": null,
+       "quote": "brightens"
+      }
+     ],
+     "source": "url",
+     "cost": 0.00683925,
+     "model": "google/gemini-3.8-flash"
+    },
+    "error": false
+   }
+  },
+  {
+   "type": "tool_call",
+   "step": 6,
+   "summary": "Calling check_claims",
+   "units_spent": 22.0,
+   "units_left_in_budget": 18.0,
+   "llm_cost": 0.01313,
+   "tool": "check_claims",
+   "args": {}
+  },
+  {
+   "type": "tool_result",
+   "step": 6,
+   "summary": "6 NOT_YET_SHOWN, 1 CONTRADICTED",
+   "units_spent": 22.0,
+   "units_left_in_budget": 18.0,
+   "llm_cost": 0.01313,
+   "tool": "check_claims",
+   "data": {
+    "result": {
+     "checks": [
+      {
+       "concern": "texture",
+       "quote": "Get smoother, more radiant skin in 7 days.",
+       "timeframe_weeks": 1,
+       "weeks_elapsed": 6.0,
+       "measured": {
+        "concern": "texture",
+        "label": "Texture",
+        "baseline": 61.44500374794006,
+        "latest": 59.984999895095825,
+        "delta": -1.46,
+        "threshold": 3.0,
+        "verdict": "NO_PROVEN_CHANGE",
+        "targeted": true,
+        "sentence": "Texture: changed by 1 point; your photos vary by 3 points even on the same day. No proven change yet.",
+        "next": "Too early to call. Keep your routine steady. Check again in about 2 weeks."
+       },
+       "status": "NOT_YET_SHOWN",
+       "sentence": "Claim: \"Get smoother, more radiant skin in 7 days.\". After 6 weeks, your texture changed by -1, inside your 3-point noise: not yet shown."
+      },
+      {
+       "concern": "radiance",
+       "quote": "Get smoother, more radiant skin in 7 days.",
+       "timeframe_weeks": 1,
+       "weeks_elapsed": 6.0,
+       "measured": null,
+       "status": "NOT_YET_SHOWN",
+       "sentence": "Claim: \"Get smoother, more radiant skin in 7 days.\". After 6 weeks, there is no measurement for this concern yet: not yet shown."
+      },
+      {
+       "concern": "oiliness",
+       "quote": "targets excess oil",
+       "timeframe_weeks": null,
+       "weeks_elapsed": 6.0,
+       "measured": null,
+       "status": "NOT_YET_SHOWN",
+       "sentence": "Claim: \"targets excess oil\". After 6 weeks, there is no measurement for this concern yet: not yet shown."
+      },
+      {
+       "concern": "pore",
+       "quote": "reduces pore visibility",
+       "timeframe_weeks": null,
+       "weeks_elapsed": 6.0,
+       "measured": {
+        "concern": "pore",
+        "label": "Pores",
+        "baseline": 57.248528242111206,
+        "latest": 52.637802839279175,
+        "delta": -4.61,
+        "threshold": 4.03,
+        "verdict": "WORSE",
+        "targeted": true,
+        "sentence": "Pores: worse by 5 points, more than the 4-point noise we measured on your face. Proven.",
+        "next": "Pause the product and check for irritation. If it persists, see a dermatologist."
+       },
+       "status": "CONTRADICTED",
+       "sentence": "Claim: \"reduces pore visibility\". After 6 weeks, your pores got worse by -5, beyond your 4-point noise: contradicted."
+      },
+      {
+       "concern": "moisture",
+       "quote": "strengthens the moisture barrier",
+       "timeframe_weeks": null,
+       "weeks_elapsed": 6.0,
+       "measured": {
+        "concern": "moisture",
+        "label": "Moisture",
+        "baseline": 39.87566530704498,
+        "latest": 36.790531873703,
+        "delta": -3.09,
+        "threshold": 3.21,
+        "verdict": "NO_PROVEN_CHANGE",
+        "targeted": false,
+        "sentence": "Moisture: changed by 3 points; your photos vary by 3 points even on the same day. No proven change yet.",
+        "next": "Not a concern this product claims to target. Nothing to decide here."
+       },
+       "status": "NOT_YET_SHOWN",
+       "sentence": "Claim: \"strengthens the moisture barrier\". After 6 weeks, your moisture changed by -3, inside your 3-point noise: not yet shown."
+      },
+      {
+       "concern": "texture",
+       "quote": "smooths",
+       "timeframe_weeks": null,
+       "weeks_elapsed": 6.0,
+       "measured": {
+        "concern": "texture",
+        "label": "Texture",
+        "baseline": 61.44500374794006,
+        "latest": 59.984999895095825,
+        "delta": -1.46,
+        "threshold": 3.0,
+        "verdict": "NO_PROVEN_CHANGE",
+        "targeted": true,
+        "sentence": "Texture: changed by 1 point; your photos vary by 3 points even on the same day. No proven change yet.",
+        "next": "Too early to call. Keep your routine steady. Check again in about 2 weeks."
+       },
+       "status": "NOT_YET_SHOWN",
+       "sentence": "Claim: \"smooths\". After 6 weeks, your texture changed by -1, inside your 3-point noise: not yet shown."
+      },
+      {
+       "concern": "radiance",
+       "quote": "brightens",
+       "timeframe_weeks": null,
+       "weeks_elapsed": 6.0,
+       "measured": null,
+       "status": "NOT_YET_SHOWN",
+       "sentence": "Claim: \"brightens\". After 6 weeks, there is no measurement for this concern yet: not yet shown."
+      }
+     ]
+    },
+    "error": false
+   }
+  },
+  {
+   "type": "tool_call",
+   "step": 7,
+   "summary": "Calling finish",
+   "units_spent": 22.0,
+   "units_left_in_budget": 18.0,
+   "llm_cost": 0.015028,
+   "tool": "finish",
+   "args": {
+    "reasons": [
+     "Pore score decreased by -4.61 points (from 57.25 to 52.64), exceeding your noise threshold of 4.03 and demonstrating a real worsening in pore visibility.",
+     "Texture change of -1.46 points remains within your noise threshold of 3.0, showing no proven change despite the product's 7-day claim after 6 weeks of use.",
+     "Product claims for pore reduction are contradicted by your face's objective measurements."
+    ],
+    "decision": "STOP",
+    "headline": "Stop using this product: pore appearance has measurably worsened and claimed texture improvements failed to materialize after 6 weeks."
+   }
+  },
+  {
+   "type": "tool_result",
+   "step": 7,
+   "summary": "Decision: STOP",
+   "units_spent": 22.0,
+   "units_left_in_budget": 18.0,
+   "llm_cost": 0.015028,
+   "tool": "finish",
+   "data": {
+    "result": {
+     "decision": "STOP",
+     "wait_weeks": null,
+     "headline": "Stop using this product: pore appearance has measurably worsened and claimed texture improvements failed to materialize after 6 weeks.",
+     "reasons": [
+      "Pore score decreased by -4.61 points (from 57.25 to 52.64), exceeding your noise threshold of 4.03 and demonstrating a real worsening in pore visibility.",
+      "Texture change of -1.46 points remains within your noise threshold of 3.0, showing no proven change despite the product's 7-day claim after 6 weeks of use.",
+      "Product claims for pore reduction are contradicted by your face's objective measurements."
+     ]
+    },
+    "error": false
+   }
+  },
+  {
+   "type": "final",
+   "step": 7,
+   "summary": "Stop using this product: pore appearance has measurably worsened and claimed texture improvements failed to materialize after 6 weeks.",
+   "units_spent": 22.0,
+   "units_left_in_budget": 18.0,
+   "llm_cost": 0.015028,
+   "data": {
+    "decision": "STOP",
+    "wait_weeks": null,
+    "headline": "Stop using this product: pore appearance has measurably worsened and claimed texture improvements failed to materialize after 6 weeks.",
+    "reasons": [
+     "Pore score decreased by -4.61 points (from 57.25 to 52.64), exceeding your noise threshold of 4.03 and demonstrating a real worsening in pore visibility.",
+     "Texture change of -1.46 points remains within your noise threshold of 3.0, showing no proven change despite the product's 7-day claim after 6 weeks of use.",
+     "Product claims for pore reduction are contradicted by your face's objective measurements."
+    ],
+    "verdicts": [
+     {
+      "concern": "pore",
+      "label": "Pores",
+      "baseline": 57.248528242111206,
+      "latest": 52.637802839279175,
+      "delta": -4.61,
+      "threshold": 4.03,
+      "verdict": "WORSE",
+      "targeted": true,
+      "sentence": "Pores: worse by 5 points, more than the 4-point noise we measured on your face. Proven.",
+      "next": "Pause the product and check for irritation. If it persists, see a dermatologist."
+     },
+     {
+      "concern": "texture",
+      "label": "Texture",
+      "baseline": 61.44500374794006,
+      "latest": 59.984999895095825,
+      "delta": -1.46,
+      "threshold": 3.0,
+      "verdict": "NO_PROVEN_CHANGE",
+      "targeted": true,
+      "sentence": "Texture: changed by 1 point; your photos vary by 3 points even on the same day. No proven change yet.",
+      "next": "Too early to call. Keep your routine steady. Check again in about 2 weeks."
+     },
+     {
+      "concern": "acne",
+      "label": "Acne",
+      "baseline": 100.0,
+      "latest": 94.75687,
+      "delta": -5.24,
+      "threshold": 7.21,
+      "verdict": "NO_PROVEN_CHANGE",
+      "targeted": false,
+      "sentence": "Acne: changed by 5 points; your photos vary by 7 points even on the same day. No proven change yet.",
+      "next": "Not a concern this product claims to target. Nothing to decide here."
+     },
+     {
+      "concern": "age_spot",
+      "label": "Age spots",
+      "baseline": 70.448486328125,
+      "latest": 70.11819458007812,
+      "delta": -0.33,
+      "threshold": 3.0,
+      "verdict": "NO_PROVEN_CHANGE",
+      "targeted": false,
+      "sentence": "Age spots: changed by 0 points; your photos vary by 3 points even on the same day. No proven change yet.",
+      "next": "Not a concern this product claims to target. Nothing to decide here."
+     },
+     {
+      "concern": "dark_circle_v2",
+      "label": "Dark circles",
+      "baseline": 88.66133689880371,
+      "latest": 88.5112851858139,
+      "delta": -0.15,
+      "threshold": 6.15,
+      "verdict": "NO_PROVEN_CHANGE",
+      "targeted": false,
+      "sentence": "Dark circles: changed by 0 points; your photos vary by 6 points even on the same day. No proven change yet.",
+      "next": "Not a concern this product claims to target. Nothing to decide here."
+     },
+     {
+      "concern": "moisture",
+      "label": "Moisture",
+      "baseline": 39.87566530704498,
+      "latest": 36.790531873703,
+      "delta": -3.09,
+      "threshold": 3.21,
+      "verdict": "NO_PROVEN_CHANGE",
+      "targeted": false,
+      "sentence": "Moisture: changed by 3 points; your photos vary by 3 points even on the same day. No proven change yet.",
+      "next": "Not a concern this product claims to target. Nothing to decide here."
+     },
+     {
+      "concern": "redness",
+      "label": "Redness",
+      "baseline": 87.26336669921875,
+      "latest": 88.49063110351562,
+      "delta": 1.23,
+      "threshold": 3.0,
+      "verdict": "NO_PROVEN_CHANGE",
+      "targeted": false,
+      "sentence": "Redness: changed by 1 point; your photos vary by 3 points even on the same day. No proven change yet.",
+      "next": "Not a concern this product claims to target. Nothing to decide here."
+     },
+     {
+      "concern": "wrinkle",
+      "label": "Wrinkles",
+      "baseline": 78.87760996818542,
+      "latest": 78.1708300113678,
+      "delta": -0.71,
+      "threshold": 3.0,
+      "verdict": "NO_PROVEN_CHANGE",
+      "targeted": false,
+      "sentence": "Wrinkles: changed by 1 point; your photos vary by 3 points even on the same day. No proven change yet.",
+      "next": "Not a concern this product claims to target. Nothing to decide here."
+     }
+    ],
+    "claims": [
+     {
+      "concern": "texture",
+      "quote": "Get smoother, more radiant skin in 7 days.",
+      "timeframe_weeks": 1,
+      "weeks_elapsed": 6.0,
+      "measured": {
+       "concern": "texture",
+       "label": "Texture",
+       "baseline": 61.44500374794006,
+       "latest": 59.984999895095825,
+       "delta": -1.46,
+       "threshold": 3.0,
+       "verdict": "NO_PROVEN_CHANGE",
+       "targeted": true,
+       "sentence": "Texture: changed by 1 point; your photos vary by 3 points even on the same day. No proven change yet.",
+       "next": "Too early to call. Keep your routine steady. Check again in about 2 weeks."
+      },
+      "status": "NOT_YET_SHOWN",
+      "sentence": "Claim: \"Get smoother, more radiant skin in 7 days.\". After 6 weeks, your texture changed by -1, inside your 3-point noise: not yet shown."
+     },
+     {
+      "concern": "radiance",
+      "quote": "Get smoother, more radiant skin in 7 days.",
+      "timeframe_weeks": 1,
+      "weeks_elapsed": 6.0,
+      "measured": null,
+      "status": "NOT_YET_SHOWN",
+      "sentence": "Claim: \"Get smoother, more radiant skin in 7 days.\". After 6 weeks, there is no measurement for this concern yet: not yet shown."
+     },
+     {
+      "concern": "oiliness",
+      "quote": "targets excess oil",
+      "timeframe_weeks": null,
+      "weeks_elapsed": 6.0,
+      "measured": null,
+      "status": "NOT_YET_SHOWN",
+      "sentence": "Claim: \"targets excess oil\". After 6 weeks, there is no measurement for this concern yet: not yet shown."
+     },
+     {
+      "concern": "pore",
+      "quote": "reduces pore visibility",
+      "timeframe_weeks": null,
+      "weeks_elapsed": 6.0,
+      "measured": {
+       "concern": "pore",
+       "label": "Pores",
+       "baseline": 57.248528242111206,
+       "latest": 52.637802839279175,
+       "delta": -4.61,
+       "threshold": 4.03,
+       "verdict": "WORSE",
+       "targeted": true,
+       "sentence": "Pores: worse by 5 points, more than the 4-point noise we measured on your face. Proven.",
+       "next": "Pause the product and check for irritation. If it persists, see a dermatologist."
+      },
+      "status": "CONTRADICTED",
+      "sentence": "Claim: \"reduces pore visibility\". After 6 weeks, your pores got worse by -5, beyond your 4-point noise: contradicted."
+     },
+     {
+      "concern": "moisture",
+      "quote": "strengthens the moisture barrier",
+      "timeframe_weeks": null,
+      "weeks_elapsed": 6.0,
+      "measured": {
+       "concern": "moisture",
+       "label": "Moisture",
+       "baseline": 39.87566530704498,
+       "latest": 36.790531873703,
+       "delta": -3.09,
+       "threshold": 3.21,
+       "verdict": "NO_PROVEN_CHANGE",
+       "targeted": false,
+       "sentence": "Moisture: changed by 3 points; your photos vary by 3 points even on the same day. No proven change yet.",
+       "next": "Not a concern this product claims to target. Nothing to decide here."
+      },
+      "status": "NOT_YET_SHOWN",
+      "sentence": "Claim: \"strengthens the moisture barrier\". After 6 weeks, your moisture changed by -3, inside your 3-point noise: not yet shown."
+     },
+     {
+      "concern": "texture",
+      "quote": "smooths",
+      "timeframe_weeks": null,
+      "weeks_elapsed": 6.0,
+      "measured": {
+       "concern": "texture",
+       "label": "Texture",
+       "baseline": 61.44500374794006,
+       "latest": 59.984999895095825,
+       "delta": -1.46,
+       "threshold": 3.0,
+       "verdict": "NO_PROVEN_CHANGE",
+       "targeted": true,
+       "sentence": "Texture: changed by 1 point; your photos vary by 3 points even on the same day. No proven change yet.",
+       "next": "Too early to call. Keep your routine steady. Check again in about 2 weeks."
+      },
+      "status": "NOT_YET_SHOWN",
+      "sentence": "Claim: \"smooths\". After 6 weeks, your texture changed by -1, inside your 3-point noise: not yet shown."
+     },
+     {
+      "concern": "radiance",
+      "quote": "brightens",
+      "timeframe_weeks": null,
+      "weeks_elapsed": 6.0,
+      "measured": null,
+      "status": "NOT_YET_SHOWN",
+      "sentence": "Claim: \"brightens\". After 6 weeks, there is no measurement for this concern yet: not yet shown."
+     }
+    ],
+    "fallback": false,
+    "rule_decision": {
+     "decision": "STOP",
+     "wait_weeks": null,
+     "rule": "R1",
+     "headline": "Stop: Pores got worse or the claim was contradicted, beyond measured noise."
+    },
+    "weeks_elapsed": 6.0,
+    "run_id": "14db7fb43720",
+    "model": "google/gemini-3.8-flash",
+    "disagreement": null,
+    "units_spent": 22.0,
+    "llm_cost": 0.015028
+   }
+  }
+ ]
+}

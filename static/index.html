@@ -96,6 +96,8 @@ textarea{min-height:92px;resize:vertical}
 .nbar em{font:500 12px var(--mono);font-style:normal;text-align:right;color:var(--mute)}
 /* ===== agent ===== */
 .agenthead{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.decision{scroll-margin-top:120px}
+.note-dis,.note-fb{border-color:var(--wait);background:var(--waitbg);font-size:14px;margin-top:12px}
 .meter{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin:0 0 16px;position:sticky;top:6px;z-index:5;box-shadow:var(--shadow)}
 .meter .mh{display:flex;justify-content:space-between;font:500 12px var(--mono);color:var(--mute);margin-bottom:8px;letter-spacing:.04em;text-transform:uppercase}
 .meter .mh b{color:var(--ink);font-weight:500}
@@ -269,9 +271,10 @@ function product(){
  document.querySelectorAll('.chip').forEach(e=>e.onclick=()=>{const k=e.dataset.k;st.picked.has(k)?st.picked.delete(k):st.picked.add(k);e.setAttribute('aria-pressed',st.picked.has(k))});
  $('#lbl').onclick=async()=>{const f=(await pick(false))[0];if(f){st.label=f;$('#lbl').textContent=f.name;$('#lbl').classList.add('has')}};
  $('#sv').onclick=async()=>{const name=$('#pn').value.trim();if(!name||!st.picked.size){$('#msg').innerHTML='<div class="err">Add a product name and pick at least one concern.</div>';return}
-  const body={name,start_date:$('#pd').value,concerns:[...st.picked]};const ct=$('#ct').value.trim(),cu=$('#cu').value.trim();if(ct)body.claim_text=ct;if(cu)body.claim_url=cu;
-  if(st.label){body.label_image=await new Promise(r=>{const fr=new FileReader();fr.onload=()=>r(fr.result);fr.readAsDataURL(st.label)})}
-  $('#sv').disabled=true;try{await api('/profiles/'+st.pid+'/products',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body)});checkin()}
+  const fd=new FormData();fd.append('name',name);fd.append('start_date',$('#pd').value);fd.append('concerns',[...st.picked].join(','));
+  const ct=$('#ct').value.trim(),cu=$('#cu').value.trim();if(ct)fd.append('claim_text',ct);if(cu)fd.append('claim_url',cu);
+  if(st.label)fd.append('label',st.label,st.label.name);
+  $('#sv').disabled=true;try{await api('/profiles/'+st.pid+'/products',{method:'POST',body:fd});checkin()}
   catch(e){$('#msg').innerHTML='<div class="err">'+esc(e.message)+'</div>';$('#sv').disabled=false}}
 }
 async function checkin(){
@@ -365,11 +368,13 @@ function renderFinal(d,ev,ctx){
  const names={KEEP:'Keep buying',STOP:'Stop buying',WAIT:'Not enough evidence yet'};
  let h=`<section class="decision ${dec}" aria-label="Decision"><span class="eyebrow">Decision</span><div class="big">${esc(word)}</div><p class="hl">${esc(d.headline||ev.summary||'')}</p>
   ${(d.reasons||[]).length?`<ul>${d.reasons.map(r=>`<li>${esc(r)}</li>`).join('')}</ul>`:''}</section>`;
+ if(d.disagreement)h+=`<div class="card note-dis" role="note"><b>The model and the evidence rule disagree.</b> ${esc(d.disagreement.note||'')}</div>`;
+ if(d.fallback)h+=`<div class="card note-fb" role="note"><b>Fallback decision.</b> The model did not finish on its own${d.fallback_reason?` (${esc(d.fallback_reason)})`:''}, so the fixed evidence rule decided${d.rule_decision&&d.rule_decision.rule?` (${esc(d.rule_decision.rule)})`:''}.</div>`;
  if(verdicts.length){h+=`<div class="sect">What changed on your face</div>`+verdicts.map(c=>bandCard(c)).join('')+`<p class="small mute">Shaded band is the noise measured on your own face. The marker is the change. Only a marker outside the band counts.</p>`}
  if(claims.length){h+=`<div class="sect">What the product claims</div>`+claims.map(c=>{const [t,k]=claimStatus(c.status);const lab=(st.concerns&&st.concerns[c.concern])||c.concern||'';
-  return `<div class="card claim"><q>${esc(c.quote)}</q><span class="badge ${k}">${esc(t)}</span><span class="sub">${esc(lab)}${c.timeframe_weeks?` &middot; promised in <span class="num">${c.timeframe_weeks}</span> weeks`:''}${c.weeks_elapsed!=null?` &middot; <span class="num">${Math.round(c.weeks_elapsed)}</span> weeks on the product`:''}${c.measured&&c.measured.sentence?` &middot; ${esc(c.measured.sentence)}`:''}</span></div>`}).join('')}
+  return `<div class="card claim"><q>${esc(c.quote)}</q><span class="badge ${k}">${esc(t)}</span><span class="sub">${esc(lab)}${c.timeframe_weeks?` &middot; promised in <span class="num">${c.timeframe_weeks}</span> weeks`:''}${c.weeks_elapsed!=null?` &middot; <span class="num">${Math.round(c.weeks_elapsed)}</span> weeks on the product`:''}${c.sentence?` &middot; ${esc(c.sentence)}`:''}</span></div>`}).join('')}
  const sim=d.simulation_image;
- h+=`<div class="sect">What the claim would look like</div><div class="simbox">${sim?`<img src="${esc(sim)}" alt="Simulated skin improvement, not the user's result">`:`<div class="simph">Simulation preview appears here when the agent generates one with YouCam Skin Simulation.</div>`}<div class="tag">Simulation, not your result</div></div><div class="api" style="margin-top:8px">${chipApi('YouCam · Skin Simulation')}</div>`;
+ h+=`<div class="sect">What the claim would look like</div><div class="simbox">${sim?`<img src="${esc(sim)}" alt="Simulated skin improvement, not the user's result">`:`<div class="simph">No simulation was generated in this run. This is a placeholder, not a picture of your skin.</div>`}<div class="tag">Simulation, not your result</div></div><div class="api" style="margin-top:8px">${chipApi('YouCam · Skin Simulation')}</div>`;
  h+=`<div class="cta row"><button class="btn" id="rp2">Replay the investigation</button>${ctx.sample?'<button class="btn ghost" id="nz">See the noise measurement</button>':'<button class="btn ghost" data-go="checkin">Add a check-in</button>'}</div>`;
  const out=$('#out');out.innerHTML=h;
  requestAnimationFrame(()=>document.querySelectorAll('.axis .mk').forEach(m=>m.style.left=m.dataset.l+'%'));
@@ -402,24 +407,38 @@ async function trySample(){
 }
 async function sampleNoise(back){try{const d=(await api('/demo')).body;noiseView(d.calibration,[],back,true)}catch(e){back()}}
 
+async function refreshUnits(){try{const r=await fetch('/api/status');const j=await r.json();if(j.has_key)setUnits(j.units)}catch(e){}}
+async function replayRun(runId,back){
+ agentShell(false,null);const my=st.run;
+ let j=null;try{const r=await fetch('/api/agent/runs/'+encodeURIComponent(runId));if(r.ok)j=await r.json()}catch(e){}
+ if(!j||!j.events){endThinking();$('#out').innerHTML='<div class="err">That stored run could not be found.</div>';return}
+ try{const s=await api('/status');st.concerns=s.body.concerns||st.concerns}catch(e){}
+ const ctx={sample:false,stored:true,replay:null,fast:true};
+ ctx.replay=()=>replayRun(runId);
+ const note=document.createElement('p');note.className='small mute';note.textContent='Replay of stored run '+runId+(j.synthetic_face?' (AI-generated synthetic face)':'')+'. Nothing is re-run and no units are spent.';
+ $('#tl').before(note);
+ await playEvents(j.events,ctx);if(my===st.run){endThinking();const rp=$('#rp');if(rp){rp.hidden=false;rp.onclick=ctx.replay}}
+}
 async function runAgent(){
  let pid=st.pid;if(!pid)return start();
  agentShell(false);const my=st.run;
- const ctx={sample:false,replay:null,fast:true};
- ctx.replay=()=>runAgent();
+ const ctx={sample:false,replay:null,fast:true,runId:null};
  let res;
- try{res=await fetch('/api/profiles/'+pid+'/agent',{method:'POST',headers:{'content-type':'application/json',accept:'text/event-stream'},body:JSON.stringify({})})}catch(e){res=null}
+ try{res=await fetch('/api/profiles/'+pid+'/agent',{method:'POST',headers:{accept:'text/event-stream'},body:new FormData()})}catch(e){res=null}
  if(!res||!res.ok||!res.body){
   const msg=res&&res.status===409?'Calibrate and add two check-ins first.':null;
   endThinking();$('#out').innerHTML=`<div class="err">${esc(msg||'The live agent is not available on this server yet.')}</div><div class="row"><button class="btn" data-go="sample">Watch the sample run</button><button class="btn ghost" data-go="checkin">Back</button></div>`;return}
+ ctx.runId=res.headers.get('X-Run-Id');
+ ctx.replay=()=>ctx.runId?replayRun(ctx.runId):runAgent();
  const rd=res.body.getReader(),dec=new TextDecoder();let buf='';
  try{while(true){const {done,value}=await rd.read();if(done)break;buf+=dec.decode(value,{stream:true});
   let i;while((i=buf.indexOf('\n\n'))>=0){const chunk=buf.slice(0,i);buf=buf.slice(i+2);
    const line=chunk.split('\n').filter(l=>l.startsWith('data:')).map(l=>l.slice(5).trim()).join('');if(!line)continue;
    let ev;try{ev=JSON.parse(line)}catch(e){continue}
+   if(ev.type==='start'&&ev.data&&ev.data.run_id)ctx.runId=ev.data.run_id;
    if(my!==st.run)return;applyEvent(ev,ctx)}}}
  catch(e){if(my===st.run){endThinking();applyEvent({type:'error',summary:'The connection dropped before the agent finished.'},ctx)}}
- finally{endThinking();const rp=$('#rp');if(rp){rp.hidden=false;rp.onclick=ctx.replay}}
+ finally{endThinking();const rp=$('#rp');if(rp){rp.hidden=false;rp.onclick=ctx.replay}refreshUnits()}
 }
 
 /* ================= RESULTS (numbers behind it) ================= */
@@ -443,6 +462,7 @@ function renderResults(d){
  show(h);requestAnimationFrame(()=>document.querySelectorAll('.axis .mk').forEach(m=>m.style.left=m.dataset.l+'%'));
 }
 home();
+if(/^#run=[a-f0-9_-]+$/.test(location.hash))replayRun(location.hash.slice(5));
 fetch('/api/status').then(r=>r.json()).then(s=>{st.status=s;st.concerns=s.concerns;if(s.has_key)setUnits(s.units)}).catch(()=>{});
 </script>
 </body>
