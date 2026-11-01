@@ -20,7 +20,7 @@ def label(c: str) -> str:
 def valid_checkins(checkins: list[dict]) -> list[dict]:
     """Photo-quality gate: a check-in with an image error is not counted."""
     ok = [c for c in checkins if not c.get("error") and c.get("scores")]
-    return sorted(ok, key=lambda c: (c.get("date", ""), c.get("id", "")))
+    return sorted(ok, key=lambda c: (c.get("date", ""), c.get("seq", 0), c.get("id", "")))
 
 
 def _median_scores(group: list[dict], concern: str) -> float | None:

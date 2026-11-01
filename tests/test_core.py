@@ -134,3 +134,14 @@ def test_store_roundtrip(tmp_path):
     assert got["checkins"][0]["scores"] == {"pore": 5} and (tmp_path / rel).read_bytes() == b"abc"
     with pytest.raises(KeyError):
         s2.add_product("nope", "x", "2026-01-01", [])
+
+
+def test_same_day_checkins_keep_insertion_order(tmp_path):
+    from skinproof.store import Store
+    from skinproof.verdict import valid_checkins
+    st = Store(tmp_path)
+    pid = st.create_profile("x")["id"]
+    for i in range(12):
+        st.add_checkin(pid, {"date": "2026-11-01", "scores": {"acne": float(i)}})
+    got = [c["scores"]["acne"] for c in valid_checkins(st.get_profile(pid)["checkins"])]
+    assert got == [float(i) for i in range(12)]

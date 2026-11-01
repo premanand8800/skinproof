@@ -4,6 +4,7 @@ from __future__ import annotations
 import json
 import re
 import threading
+import time
 import uuid
 from pathlib import Path
 from typing import Any
@@ -60,7 +61,7 @@ class Store:
         return prod
 
     def add_checkin(self, pid: str, checkin: dict) -> dict:
-        checkin = {"id": uuid.uuid4().hex[:8], **checkin}
+        checkin = {"id": uuid.uuid4().hex[:8], "seq": time.time_ns(), **checkin}
         self._mutate(pid, lambda p: p["checkins"].append(checkin))
         return checkin
 

@@ -282,7 +282,7 @@ class Agent:
         p, prod = self.s.profile, self.s.product
         cal = self.thresholds()
         hist = [{"date": c["date"], "scores": c.get("scores"), "error": (c.get("error") or {}).get("message")}
-                for c in sorted(self.s.checkins, key=lambda c: c.get("date", ""))]
+                for c in sorted(self.s.checkins, key=lambda c: (c.get("date", ""), c.get("seq", 0)))]
         d = {"profile": p["name"], "noise_thresholds": cal, "calibrated": bool(cal),
              "product": {k: prod.get(k) for k in ("name", "start_date", "concerns")},
              "has_claim_inputs": bool(prod.get("claim_text") or prod.get("claim_url") or prod.get("claim_image")),
