@@ -78,3 +78,16 @@ def test_volunteer_demo_routes():
     for p in d["photos"]:
         assert tc.get(p["src"]).status_code == 200
     assert tc.get("/demo/volunteer/nope.jpg").status_code == 404
+
+
+def test_volunteer_extras_route():
+    from fastapi.testclient import TestClient
+    from skinproof.web import create_app
+    tc = TestClient(create_app())
+    d = tc.get("/api/demo/volunteer/extras").json()
+    assert d["simulation"]["label"] == "Simulation, not your result"
+    assert d["fitzpatrick"]["type"] and d["skin_tone"]["hex"].startswith("#")
+    for u in (d["masks"]["before"], d["masks"]["after"], d["simulation"]["image"]):
+        assert tc.get(u).status_code == 200
+    r = tc.get("/static/extras.js")
+    assert r.status_code == 200 and "javascript" in r.headers["content-type"]

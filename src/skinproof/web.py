@@ -331,6 +331,14 @@ def create_app(client: YouCamClient | None = None, store: Store | None = None,
             raise HTTPException(404)
         return FileResponse(full, headers={"Cache-Control": "private, no-store"})
 
+    @app.get("/api/demo/volunteer/extras")
+    def demo_volunteer_extras():
+        """Extra YouCam outputs on the volunteer's before photo, made after the recorded run."""
+        f = ROOT / "demo" / "volunteer" / "extras.json"
+        if not f.is_file():
+            raise HTTPException(404)
+        return json.loads(f.read_text())
+
     @app.get("/favicon.svg")
     def favicon():
         return FileResponse(ROOT / "static" / "favicon.svg", media_type="image/svg+xml")
@@ -338,9 +346,10 @@ def create_app(client: YouCamClient | None = None, store: Store | None = None,
     @app.get("/static/{name}")
     def static_asset(name: str):
         # only flat, whitelisted public assets (logo/favicon)
-        if name not in {"logo.svg", "favicon.svg"}:
+        if name not in {"logo.svg", "favicon.svg", "extras.js"}:
             raise HTTPException(404)
-        return FileResponse(ROOT / "static" / name, media_type="image/svg+xml")
+        mt = "text/javascript" if name.endswith(".js") else "image/svg+xml"
+        return FileResponse(ROOT / "static" / name, media_type=mt)
 
     @app.get("/api/buy-check/example")
     def buy_check_example():

@@ -1,0 +1,34 @@
+{
+ "consent": "Manjil, the volunteer, consented to analysis and public display of his face and results.",
+ "masks": {
+  "before": "/demo/volunteer/mask_before.jpg",
+  "after": "/demo/volunteer/mask_after.jpg",
+  "concerns": [
+   "Pores",
+   "Texture",
+   "Acne",
+   "Redness"
+  ],
+  "api": "YouCam Skin Analysis masks"
+ },
+ "simulation": {
+  "image": "/demo/volunteer/simulation.jpg",
+  "targets": {
+   "pores": 0.5,
+   "texture": 0.5,
+   "oiliness": 0.5
+  },
+  "label": "Simulation, not your result",
+  "api": "YouCam Skin Simulation"
+ },
+ "skin_tone": {
+  "hex": "#a27d61",
+  "api": "YouCam Skin Tone Analysis"
+ },
+ "fitzpatrick": {
+  "type": "IV",
+  "api": "YouCam Fitzpatrick Skin Type"
+ },
+ "units_spent": 34.0,
+ "note": "Generated after the recorded run; recorded agent events are unchanged."
+}
