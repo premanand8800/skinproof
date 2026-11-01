@@ -109,7 +109,7 @@ Python, FastAPI, MCP (client and server), WebRTC camera (getUserMedia), Server-S
 
 - Live demo: https://skinproof.aether-soft.tech
 - Repo: https://github.com/premanand8800/skinproof
-- Demo video: _(add link before submitting)_
+- Demo video: https://www.youtube.com/watch?v=465tb0S2l8E
 
 ## Testing instructions for judges
 
@@ -122,6 +122,6 @@ No sign-up and no key needed for the replays.
 5. **Mirror Mode:** open the live site on a phone and start a check-in or the 60-second quick noise check. Allow the camera; the ghost overlay and the light, evenness, sharpness and alignment pills run on-device. The camera needs HTTPS, which the live site has.
 6. **Live analysis** with your own photos works but is capped per day by the spend guard (120 shared units, 72 per IP, 3 agent runs per IP, $1 shared LLM spend). If a cap is reached the site says so and the replays still work. Use "Delete my data" to remove your photos.
 7. **Repo:** https://github.com/premanand8800/skinproof. To run locally: `uv sync`, copy `.env.example` to `.env`, add your keys, `uv run skinproof serve --port 8100`, `uv run pytest -q` (155 tests).
-8. **Demo video:** _(add link before submitting)_
+8. **Demo video:** https://www.youtube.com/watch?v=465tb0S2l8E
 
 Honest limitations: one volunteer, one evening; Mirror Mode capture thresholds were tuned on a synthetic feed; no longitudinal study yet. The volunteer consented to analysis and to public display of his photos and scores.

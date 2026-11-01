@@ -1,6 +1,6 @@
 # SkinProof
 
-**Demo video:** _(add link)_ | **Live:** https://skinproof.aether-soft.tech | **Repo:** https://github.com/premanand8800/skinproof
+**Demo video:** https://www.youtube.com/watch?v=465tb0S2l8E | **Live:** https://skinproof.aether-soft.tech | **Repo:** https://github.com/premanand8800/skinproof
 
 **SkinProof makes YouCam's skin measurements trustworthy enough to act on: it learns the measurement noise on your own face, helps you capture the same way every time, and only calls a change real when it beats that noise twice in a row, so a score can drive a buy or stop decision.**
 
