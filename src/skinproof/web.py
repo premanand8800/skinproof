@@ -1,7 +1,9 @@
 """FastAPI app. The API key lives only on the server."""
 from __future__ import annotations
 
+import io
 import json
+import logging
 from datetime import date
 from pathlib import Path
 
@@ -11,13 +13,42 @@ from fastapi import FastAPI, File, Form, HTTPException, Request, UploadFile
 from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
 from pydantic import BaseModel
 
+from PIL import Image
+
 from . import noise
+from .guard import Guard, GuardLimit, UNITS_PER_ANALYSIS
 from .faceprep import crop_to_face
 from .store import Store
 from .verdict import compute_verdicts
 from .youcam import DEFAULT_ACTIONS, YouCamClient, YouCamError, CONCERN_LABELS
 
 ROOT = Path(__file__).resolve().parents[2]
+MAX_UPLOAD = 10 * 1024 * 1024
+MAX_CALIB_FILES = 6
+PID_RE = re.compile(r"[A-Za-z0-9_-]{6,64}")
+FILE_RE = re.compile(r"[a-z0-9_-]+-[a-f0-9]{8}\.jpg")
+AGENT_RESERVE_PHOTO, AGENT_RESERVE_NO_PHOTO = 40, 4
+log = logging.getLogger("skinproof")
+
+
+def client_ip(request: Request) -> str:
+    return (request.headers.get("cf-connecting-ip") or (request.client.host if request.client else "") or "unknown").strip()[:64]
+
+
+async def read_image(f: UploadFile) -> bytes:
+    """Read an upload with a size cap and verify it really is an image."""
+    data = await f.read(MAX_UPLOAD + 1)
+    if len(data) > MAX_UPLOAD:
+        raise HTTPException(413, "Photo is larger than 10 MB.")
+    if not data:
+        raise HTTPException(400, "Empty file.")
+    if f.content_type and not f.content_type.lower().startswith("image/"):
+        raise HTTPException(415, "Only image files are accepted.")
+    try:
+        Image.open(io.BytesIO(data)).verify()
+    except Exception:
+        raise HTTPException(415, "That file is not a readable image.")
+    return data
 
 
 class ProfileIn(BaseModel):
@@ -38,7 +69,7 @@ def _flat(res: dict) -> dict[str, float]:
 
 def create_app(client: YouCamClient | None = None, store: Store | None = None,
                demo_path: Path | None = None, agent_deps: dict | None = None,
-               demo_agent_path: Path | None = None) -> FastAPI:
+               demo_agent_path: Path | None = None, guard: Guard | None = None) -> FastAPI:
     """agent_deps: optional overrides {chat, extra, claims, budget_factory} (tests)."""
     app = FastAPI(title="SkinProof")
     client = client or YouCamClient(cache_dir=ROOT / ".cache" / "youcam")
@@ -46,7 +77,18 @@ def create_app(client: YouCamClient | None = None, store: Store | None = None,
     demo_path = demo_path or ROOT / "demo" / "profile.json"
     demo_agent_path = demo_agent_path or ROOT / "demo" / "agent_trace.json"
     agent_deps = agent_deps or {}
-    app.state.client, app.state.store = client, store
+    guard = guard or Guard(store.root / "guard.json")
+    app.state.client, app.state.store, app.state.guard = client, store, guard
+
+    @app.exception_handler(GuardLimit)
+    async def _limit(request: Request, exc: GuardLimit):
+        return JSONResponse({"error": "limit", "kind": exc.kind, "detail": str(exc), "live_units_left": guard.units_left(),
+                             "fallback": ["sample", "volunteer"]}, status_code=429)
+
+    @app.exception_handler(Exception)
+    async def _boom(request: Request, exc: Exception):
+        log.error("unhandled %s on %s", type(exc).__name__, request.url.path)
+        return JSONResponse({"detail": "Something went wrong on the server. Please try again."}, status_code=500)
 
     def units() -> float | None:
         try:
@@ -83,7 +125,7 @@ def create_app(client: YouCamClient | None = None, store: Store | None = None,
     def status():
         return {"has_key": client.has_key, "units": units() if client.has_key else None,
                 "concerns": {c: CONCERN_LABELS[c] for c in DEFAULT_ACTIONS},
-                "units_per_analysis": 12}
+                "units_per_analysis": UNITS_PER_ANALYSIS, "live_units_left": guard.units_left()}
 
     @app.post("/api/profiles")
     def new_profile(body: ProfileIn):
@@ -93,15 +135,24 @@ def create_app(client: YouCamClient | None = None, store: Store | None = None,
     def profile(pid: str):
         return get_profile(pid)
 
-    @app.post("/api/profiles/{pid}/calibrate")
-    async def calibrate(pid: str, files: list[UploadFile] = File(...)):
+    @app.delete("/api/profiles/{pid}")
+    def delete_profile(pid: str):
         get_profile(pid)
-        if len(files) < noise.MIN_RETAKES or len(files) > 6:
+        store.delete_profile(pid)
+        return {"deleted": True}
+
+    @app.post("/api/profiles/{pid}/calibrate")
+    async def calibrate(pid: str, request: Request, files: list[UploadFile] = File(...)):
+        get_profile(pid)
+        if len(files) < noise.MIN_RETAKES or len(files) > MAX_CALIB_FILES:
             raise HTTPException(400, f"Upload {noise.MIN_RETAKES} to 6 photos of the same face taken the same day "
                                      f"(5 to 6 with slight head turns is best).")
+        raws = [await read_image(f) for f in files]
+        reserved = UNITS_PER_ANALYSIS * len(raws)
+        guard.reserve_units(client_ip(request), reserved)
         good, rejected = [], []
-        for i, f in enumerate(files):
-            data = crop_to_face(await f.read())
+        for i, raw in enumerate(raws):
+            data = crop_to_face(raw)
             try:
                 res = run_analysis(data)
                 good.append(_flat(res))
@@ -131,7 +182,7 @@ def create_app(client: YouCamClient | None = None, store: Store | None = None,
                              claim_text=form.get("claim_text") or None, claim_url=form.get("claim_url") or None)
             up = form.get("label")
             if up is not None and hasattr(up, "read"):
-                label = await up.read() or None
+                label = await read_image(up)
         else:
             try:
                 body = ProductIn(**(await request.json()))
@@ -152,14 +203,16 @@ def create_app(client: YouCamClient | None = None, store: Store | None = None,
         return prod
 
     @app.post("/api/profiles/{pid}/checkins")
-    async def checkin(pid: str, file: UploadFile = File(...), when: str | None = Form(None)):
+    async def checkin(pid: str, request: Request, file: UploadFile = File(...), when: str | None = Form(None)):
         get_profile(pid)
-        data = crop_to_face(await file.read())
+        data = crop_to_face(await read_image(file))
         when = when or date.today().isoformat()
         try:
             date.fromisoformat(when)
         except ValueError:
             raise HTTPException(400, "Bad date")
+        ip = client_ip(request)
+        guard.reserve_units(ip, UNITS_PER_ANALYSIS)
         rec = {"date": when}
         try:
             res = run_analysis(data)
@@ -169,6 +222,7 @@ def create_app(client: YouCamClient | None = None, store: Store | None = None,
             rec["cached"] = res.get("cached", False)
         except YouCamError as e:
             if not e.is_image_error:
+                guard.refund_units(ip, UNITS_PER_ANALYSIS)
                 raise HTTPException(502, e.friendly)
             rec["error"] = {"code": e.code, "message": e.friendly}
         except Exception:
@@ -198,7 +252,7 @@ def create_app(client: YouCamClient | None = None, store: Store | None = None,
         return v
 
     @app.post("/api/profiles/{pid}/agent")
-    async def run_agent(pid: str, file: UploadFile | None = File(None), product_id: str | None = Form(None),
+    async def run_agent(pid: str, request: Request, file: UploadFile | None = File(None), product_id: str | None = Form(None),
                         when: str | None = Form(None)):
         from .agent import Agent, sse
         from .budget import UnitBudget
@@ -212,7 +266,10 @@ def create_app(client: YouCamClient | None = None, store: Store | None = None,
                 date.fromisoformat(when)
             except ValueError:
                 raise HTTPException(400, "Bad date")
-        photo = crop_to_face(await file.read()) if file is not None else None
+        photo = crop_to_face(await read_image(file)) if file is not None else None
+        ip = client_ip(request)
+        reserve = AGENT_RESERVE_PHOTO if photo else AGENT_RESERVE_NO_PHOTO
+        guard.reserve_agent(ip, reserve)
         agent = Agent(store=store, client=client, profile_id=pid, product_id=product_id, photo=photo or None,
                       when=when, chat=agent_deps.get("chat"), extra=agent_deps.get("extra"),
                       claims=agent_deps.get("claims"),
@@ -223,14 +280,17 @@ def create_app(client: YouCamClient | None = None, store: Store | None = None,
                 for ev in agent.run():
                     yield sse(ev)
             except Exception as e:  # never leave the stream hanging
-                yield sse({"type": "error", "step": agent.step, "summary": f"Agent crashed: {type(e).__name__}",
+                log.error("agent crashed: %s", type(e).__name__)
+                yield sse({"type": "error", "step": agent.step, "summary": "The agent stopped unexpectedly.",
                            "units_spent": agent.budget.spent, "units_left_in_budget": agent.budget.left})
+            finally:
+                guard.settle_agent(ip, reserve, agent.budget.spent, agent.budget.llm_cost)
         return StreamingResponse(stream(), media_type="text/event-stream",
                                  headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no", "X-Run-Id": agent.run_id})
 
     @app.get("/api/agent/runs/{run_id}")
     def agent_run(run_id: str):
-        if not re.fullmatch(r"[a-f0-9]{6,32}", run_id):
+        if not re.fullmatch(r"[a-f0-9]{12,32}", run_id):
             raise HTTPException(404)
         path = store.root / "runs" / f"{run_id}.json"
         if not path.is_file():
@@ -260,10 +320,16 @@ def create_app(client: YouCamClient | None = None, store: Store | None = None,
 
     @app.get("/api/files/{path:path}")
     def files(path: str):
-        full = (store.root / path).resolve()
-        if store.root.resolve() not in full.parents or not full.is_file():
+        parts = path.split("/")
+        if len(parts) != 2 or not PID_RE.fullmatch(parts[0]) or not FILE_RE.fullmatch(parts[1]) \
+                or not store.get_profile(parts[0]):
             raise HTTPException(404)
-        return FileResponse(full)
+        base = (store.root / parts[0])
+        full = base / parts[1]
+        if base.is_symlink() or full.is_symlink() or not full.is_file() \
+                or full.resolve().parent != base.resolve():
+            raise HTTPException(404)
+        return FileResponse(full, headers={"Cache-Control": "private, no-store"})
 
     @app.get("/")
     def index():

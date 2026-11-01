@@ -3,6 +3,8 @@ from __future__ import annotations
 
 import json
 import re
+import secrets
+import shutil
 import threading
 import time
 import uuid
@@ -30,7 +32,7 @@ class Store:
     def create_profile(self, name: str) -> dict:
         with self._lock:
             db = self._load()
-            pid = uuid.uuid4().hex[:10]
+            pid = secrets.token_urlsafe(16)
             p = {"id": pid, "name": name, "calibration": None, "products": [], "checkins": []}
             db["profiles"][pid] = p
             self._save(db)
@@ -40,7 +42,28 @@ class Store:
         return self._load()["profiles"].get(pid)
 
     def list_profiles(self) -> list[dict]:
+        """Internal use only; never exposed over HTTP."""
         return list(self._load()["profiles"].values())
+
+    def delete_profile(self, pid: str) -> bool:
+        if not re.fullmatch(r"[A-Za-z0-9_-]{6,64}", pid):
+            return False
+        with self._lock:
+            db = self._load()
+            existed = db["profiles"].pop(pid, None) is not None
+            self._save(db)
+        d = self.root / pid
+        if d.is_dir() and not d.is_symlink():
+            shutil.rmtree(d, ignore_errors=True)
+        runs = self.root / "runs"
+        if runs.is_dir():
+            for r in runs.glob("*.json"):
+                try:
+                    if pid in r.read_text():
+                        r.unlink()
+                except OSError:
+                    pass
+        return existed
 
     def _mutate(self, pid: str, fn) -> Any:
         with self._lock:

@@ -205,7 +205,7 @@ class Agent:
         self.model, self.max_steps = model, max_steps
         self.budget = budget or UnitBudget()
         self.runs_dir = runs_dir or store.root / "runs"
-        self.run_id = uuid.uuid4().hex[:12]
+        self.run_id = uuid.uuid4().hex[:20]
         self.when = when or date.today().isoformat()
         self.s = RunState(profile=profile, product=product, photo=photo, when=self.when,
                           checkins=list(profile["checkins"]))

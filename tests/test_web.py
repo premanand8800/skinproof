@@ -3,6 +3,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 from conftest import FakeYouCam, jpeg, task_json
+from skinproof.guard import Guard
 from skinproof.store import Store
 from skinproof.web import create_app
 from skinproof.youcam import YouCamClient
@@ -14,7 +15,8 @@ def make(tasks, tmp_path):
     f = FakeYouCam(tasks)
     c = YouCamClient("k", cache_dir=tmp_path / "c", poll_interval=0,
                      http=httpx.Client(transport=httpx.MockTransport(f)))
-    return TestClient(create_app(c, Store(tmp_path / "p"))), f
+    st = Store(tmp_path / "p")
+    return TestClient(create_app(c, st, guard=Guard(st.root / "guard.json", daily_units=1e6, ip_units=1e6, ip_agent_runs=100, daily_usd=100))), f
 
 
 def test_status_and_demo(tmp_path):
