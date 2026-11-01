@@ -1,21 +1,14 @@
 # SkinProof
 
-Demo video: _(placeholder)_
-Live: https://skinproof.aether-soft.tech
+**Demo video:** _(add link)_ | **Live:** https://skinproof.aether-soft.tech | **Repo:** https://github.com/premanand8800/skinproof
 
-**SkinProof is an agent that tells you whether to keep buying a skincare product, and only believes a change in your skin when it beats the noise measured on your own face, twice in a row.**
+**SkinProof makes YouCam's skin measurements trustworthy enough to act on: it learns the measurement noise on your own face, helps you capture the same way every time, and only calls a change real when it beats that noise twice in a row, so a score can drive a buy or stop decision.**
 
-## Why it matters
-
-Skincare is a USD 160 to 200 billion a year market (estimates vary), and a growing share is bought online where shoppers cannot test. In a 2024 survey of 3,224 US women, 86% believed some brands exaggerate. Brands and retailers must keep claims within the evidence (EU Regulation 655/2013), yet the shopper's only tool is a selfie score that moves with light and angle. We measured that: acne moved about 10 points between two selfies 10 seconds apart. SkinProof is for shoppers deciding whether to rebuy, for honest brands and retailers who want verifiable results, and for clinics comparing before/after photos. Sources, what we have not proven (no longitudinal study yet) and the next steps are in [docs/IMPACT.md](docs/IMPACT.md). Devpost text: [docs/DEVPOST.md](docs/DEVPOST.md).
-
-## The problem
-
-People judge skincare in the bathroom mirror, under a different light every day. Skin-analysis scores move with light, angle and distance even when the skin has not changed, and most apps turn that wobble into a "progress score". People then rebuy a serum because a number rose three points under a kinder lamp. SkinProof never outputs an overall score. It answers one question, KEEP, STOP or WAIT, and shows every step it took.
+Built on Perfect Corp's YouCam APIs and MCP server. Every camera-based measurement varies with light, angle and framing, in dermatology photography as much as in apps ([Nair and Santhanam, 2016](https://pubmed.ncbi.nlm.nih.gov/27398013/)). YouCam's own quality gates (face too small, face angle too large) already reject unusable photos up front. SkinProof adds what a buy or stop decision needs on top: a per-person noise estimate, Mirror Mode capture alignment, and a confirmation rule.
 
 ## What we measured on a real face
 
-A volunteer, with consent, took two selfies 10 seconds apart in the same room and light. His skin did not change. Raw scores moved anyway (full table, cropped and uncropped, in [bench/noise_RESULTS.md](bench/noise_RESULTS.md)):
+A volunteer, with consent, took two selfies 10 seconds apart in the same room and light. His skin did not change. YouCam's `raw_score` readings moved by normal capture variation (full table, cropped and uncropped, in [bench/noise_RESULTS.md](bench/noise_RESULTS.md)):
 
 | Concern | Before | After | Change |
 |---|---|---|---|
@@ -28,28 +21,41 @@ A volunteer, with consent, took two selfies 10 seconds apart in the same room an
 | Dark circles | 80.8 | 81.0 | +0.1 |
 | Moisture | 53.9 | 53.9 | -0.1 |
 
-Across six same-evening frontal photos one pore reading was 35.9 against 58 to 64 for the rest, so a single odd photo can swing a score by about 25 points. The live agent run on this face ends **WAIT, nothing proven** (`#run=live-volunteer`, `demo/agent_trace_live_volunteer.json`). Photo Lighting reduced the median range by 22%, below our pre-registered 25%, so it stays off ([bench/lighting_RESULTS.md](bench/lighting_RESULTS.md)). Phone selfies are auto-cropped to the face before YouCam (`src/skinproof/faceprep.py`) because YouCam rejects small faces.
+Across six same-evening frontal photos one pore reading was 35.9 against 58 to 64 for the rest, a 27.9-point range from one odd capture. This is exactly why the noise has to be measured per person before a change is believed. The live agent run on this face ends **WAIT, nothing proven** (`#run=live-volunteer`, `demo/agent_trace_live_volunteer.json`). We also tested YouCam Photo Lighting as a way to reduce that variation: it cut the median range by 22%, just under our pre-registered 25% bar, so we left it off ([bench/lighting_RESULTS.md](bench/lighting_RESULTS.md)). Phone selfies are auto-cropped to the face before YouCam (`src/skinproof/faceprep.py`) so they pass YouCam's face-size gate.
 
-## What SkinProof does
+## Features
 
-1. **Calibrate.** You take 4 to 6 photos of your face on one day (5 to 6 with slight head turns is best). Your skin is identical in all of them, so the spread in each concern's `raw_score` is your measurement noise. Threshold per concern = `max(range, 2 x SD, 3 points)`.
-2. **Tell it the product.** Name plus the claims, as pasted text, a product URL, or a photo of the label.
-3. **Check in** with a selfie (a face guide helps you frame it the same way).
-4. **Ask the agent.** An LLM agent decides which YouCam tools to call, measures, compares each change with your noise, reads the product's claims, checks them against the measurements, and ends with KEEP, STOP or WAIT N weeks. The UI streams each step and its unit cost.
+- **Noise calibration.** 4 to 6 photos on one day give a per-concern threshold = `max(range, 2 x SD, 3 points)`. Only `raw_score` is used, because it is the right signal for measurement (`ui_score` is designed for display).
+- **Mirror Mode** (in-browser camera, mobile friendly). A faint ghost overlay of your last photo lets you line up the same framing. On-device checks for light, evenness, sharpness and alignment run live; nothing leaves the browser until you press Measure. Capture metadata (alignment, brightness, evenness, sharpness, face ratio, whether the ghost was used, whether checks passed) is stored with each photo.
+- **60-second quick noise check.** Four guided poses taken in Mirror Mode produce a first noise estimate in about a minute.
+- **Before you buy** (`/buy`). Paste a product's claims, a URL or a label photo. You get a claim audit, which claims are measurable by a photo and which are marketing-only, the earliest week a change could be checked, a trial-duration reminder drawn from published trials, and a prefill into the app. "Try an example" works without a key. A retailer "Verified on real faces" badge is shown as a labelled concept only.
+- **What YouCam saw.** A context panel for the volunteer run: Skin Analysis masks, a Skin Simulation (labelled "Simulation, not your result"), Skin Tone (#a27d61) and Fitzpatrick IV. Context only, never a verdict.
+- **The agent.** An LLM tool-calling agent measures, compares with your noise, reads claims and ends with KEEP, STOP or WAIT N weeks.
+- **YouCam MCP in both directions**, a spend guard, and privacy controls (below).
 
-## YouCam APIs and why
+## How it works
+
+1. **Calibrate** with Mirror Mode (quick check or 4 to 6 photos; 5 to 6 with slight head turns is best).
+2. **Tell it the product.** Name plus claims, as pasted text, a product URL, or a photo of the label.
+3. **Check in** with a selfie. Mirror Mode shows the ghost of last time so framing and light match.
+4. **Ask the agent.** It decides which YouCam tools to call, measures, compares each change with your noise, checks claims, and ends with KEEP, STOP or WAIT N weeks. The UI streams each step and its unit cost.
+
+## YouCam APIs used
 
 Real unit costs charged by the API:
 
 | API | Endpoint | Why | Units |
 |---|---|---|---|
-| AI Skin Analysis | `/s2s/v2.0/task/skin-analysis` | The measurement. Only `raw_score` is used, never `ui_score`. 8 concerns. | 9 (1-4 concerns) / 12 (5-8) |
-| Face Attributes | `/s2s/v2.0/task/face-attr-analysis` | Photo-quality gate before measuring: face found, frontal, head angle, light, framing. Recommends a retake instead of measuring a bad photo. | 10 |
-| Skin Tone | `/s2s/v2.0/task/skin-tone-analysis` | Context for redness and spot readings. Never a verdict. | 20 |
-| Fitzpatrick | `/s2s/v2.0/task/fitzpatrick-scale-analyzer` | Context for the advice. Never a verdict. | 10 |
-| Skin Simulation | `/s2s/v2.0/task/skin-simulation` | Shows what the product's claimed improvement would look like. Always labelled "Simulation, not your result". | 4 |
-| Photo Lighting | `/s2s/v2.0/task/lighting` | Experiment: does normalising light before analysis reduce score noise? (`scripts/lighting_experiment.py`, `bench/lighting_README.md`) | 2 |
-| Text-to-Image V2 | `/s2s/v2.0/task/text-to-image/youcam` | Generates a synthetic test face, so no real person's photo was used in testing. | 1 |
+| AI Skin Analysis | `/s2s/v2.0/task/skin-analysis` | The measurement. `raw_score` for 8 concerns, plus masks for the "What YouCam saw" panel. | 9 (1-4 concerns) / 12 (5-8) |
+| Face Attributes | `/s2s/v2.0/task/face-attr-analysis` | Photo-quality gate: face found, frontal, light, framing. Recommends a retake before measuring. | 10 |
+| Skin Tone | `/s2s/v2.0/task/skin-tone-analysis` | Context for redness and spot readings (volunteer: #a27d61). Never a verdict. | 20 |
+| Fitzpatrick | `/s2s/v2.0/task/fitzpatrick-scale-analyzer` | Context for the advice (volunteer: IV). Never a verdict. | 10 |
+| Skin Simulation | `/s2s/v2.0/task/skin-simulation` | Shows what a claimed improvement would look like. Always labelled "Simulation, not your result". | 4 |
+| Photo Lighting | `/s2s/v2.0/task/lighting` | Experiment: does normalising light before analysis reduce score variation? (`scripts/lighting_experiment.py`) | 2 |
+| Text-to-Image V2 | `/s2s/v2.0/task/text-to-image/youcam` | Generates a synthetic test face so no real person's photo was needed for early testing. | 1 |
+| YouCam MCP server | `https://mcp-api-01.makeupar.com/mcp/beauty` | 50 beauty tools listed; Skin Analysis through MCP matches REST to within 0.001 (below). | same as REST |
+
+Units used so far: about 386 of the 1040 we started with (balance 654 at the last check). That covers calibration, the real-face runs, the lighting experiment, the MCP check and live testing.
 
 ## The agent
 
@@ -63,6 +69,17 @@ Real unit costs charged by the API:
 A change beyond noise on **one** check-in is only **Likely improved / Likely worse, needs confirmation**. It becomes **Improved / Worse (proven)** only when the two most recent counted check-ins are both beyond the threshold in the same direction versus the baseline (median of the first two check-ins when 4+ exist, otherwise the first). The agent may say STOP or KEEP only on proven results. A likely result gives WAIT 2 weeks, "re-check to confirm", naming the concern. Eight concerns are tested at once, so some will cross the line by chance; every verdict output says how many were tested.
 
 Why: in our first live end-to-end run on an AI-generated face, the second photo was the same face turned **3 degrees**. The skin had not changed, yet pores moved **4.6 points** against a 4.03 threshold calibrated from only 3 synthetic variants (brightness and zoom, no rotation). The agent said STOP. That was a false alarm, and it is our most honest finding: a 3 degree head turn moved a score by 4.6 points. We fixed the method instead of hiding it. The original run is kept untouched in `demo/agent_trace_live_synthetic.json`; under today's rules the same inputs give **WAIT 2 weeks (likely worse, re-check)** (rule R2b). The app replays that run with a banner explaining it ("The false alarm we caught" on the sample screen, or `#run=live-synthetic`). Calibration now requires 4+ photos; with fewer than 6 the observed range underestimates noise, so 5 to 6 with head turns is recommended. The synthetic perturbations include rotation of plus and minus 3 degrees and a small yaw-like crop shift.
+
+## Reading the product's claims
+
+`extract_claims` takes pasted text, a URL or a label photo and returns measurable claims (concern, quote, timeframe). `compare` is deterministic and gives each claim a status:
+
+- `SUPPORTED`: proven improvement
+- `CONTRADICTED`: proven worsening
+- `NEEDS_CONFIRMATION`: one check-in beyond noise (likely)
+- `NOT_YET_SHOWN`: no proven change past the claimed time
+- `TOO_EARLY`: the claimed timeframe has not passed
+- `NOT_MEASURABLE`: a photo cannot measure it (scent, "dermatologist tested")
 
 ## Reading the product's claims
 
@@ -99,18 +116,26 @@ Tools: `skinproof_explain_noise(profile_id)`, `skinproof_should_i_keep_buying(pr
 `SKINPROOF_MCP_ALLOW_LLM=1`. It is stdio only and reads your local `private/` store; nothing that can spend
 money is mounted on the public web server.
 
+## Honesty rules
+
+- No overall score, ever. One question: KEEP, STOP or WAIT.
+- `raw_score` only; simulations are illustrations of a claim, never evidence.
+- A single beyond-noise reading is "likely"; "proven" needs two in a row, same direction.
+- Every verdict says how many concerns were tested.
+- Context panels (tone, Fitzpatrick, masks) never change a verdict.
+
 ## Privacy
 
-Face photos are stored locally under `private/`, which is gitignored, and are never committed. Tests and the demo use invented scores or an AI-generated face. The YouCam and OpenRouter keys live only on the server (`.env`, gitignored).
+Face photos are stored on the server under `private/`, which is gitignored and never committed. The app tells you photos go to YouCam (Perfect Corp) for analysis, and a "Delete my data" button (`DELETE /api/profiles/{id}`) removes a profile and its files. Mirror Mode checks run on your device; nothing is uploaded until you press Measure. Tests and the demo use invented scores or an AI-generated face. The volunteer consented to the use of their scores; no images of them are published. API keys live only on the server (`.env`, gitignored). A **spend guard** caps daily YouCam units (120 shared, 72 per IP), LLM dollars ($1 per day), agent runs (3 per IP) and claim checks (10 per IP), so a public demo cannot drain the keys; when a cap is reached the site says so and the replays still work.
 
 ## Honest limitations
 
+- One volunteer, one evening. The noise numbers show that capture variation is large enough to matter, not a population estimate. No longitudinal study yet.
+- Mirror Mode thresholds (light, evenness, sharpness, alignment) were tuned on a synthetic feed, not yet validated on many real phones.
 - A photo score is a proxy, not a dermatological measurement. Not a medical device.
-- Calibration from a handful of photos is still an estimate. Proven means "beyond your noise twice in a row", not "caused by the product": anything else you changed in the same weeks is invisible to us.
+- Calibration from a handful of photos is still an estimate. Proven means "beyond your noise twice in a row", not "caused by the product".
 - Many concerns are tested together, so false positives remain possible; confirmation reduces them but does not remove them.
-- Pose, framing and light still matter. The photo gate catches obvious problems only.
-- The live validation used one synthetic face. The sample demo uses invented data and is labelled so.
-- Simulations are illustrations of a claim, never evidence.
+- The sample demo uses invented data and is labelled so. The retailer badge is a concept, not a product.
 
 ## Run it
 
@@ -121,9 +146,11 @@ uv run skinproof serve --port 8100
 uv run pytest
 ```
 
-Without keys, "Try the sample" replays a recorded run on invented data. Offline scripts: `scripts/make_demo_trace.py` (regenerates the sample trace), `scripts/reevaluate_recorded_run.py` (re-evaluates the live run under current rules). `scripts/e2e_live.py` and `scripts/synthetic_noise.py` spend units and need an explicit flag.
+Without keys, "Try the sample" replays a recorded run on invented data, and `/buy` has "Try an example". Offline scripts: `scripts/make_demo_trace.py`, `scripts/reevaluate_recorded_run.py`. `scripts/e2e_live.py` and `scripts/synthetic_noise.py` spend units and need an explicit flag. Impact case and sources: [docs/IMPACT.md](docs/IMPACT.md). Devpost text: [docs/DEVPOST.md](docs/DEVPOST.md).
 
-Tests: 123 passing (`uv run pytest`).
+## Tests
+
+155 passing (`uv run pytest -q`).
 
 ## Built during the hackathon
 
@@ -132,12 +159,14 @@ Local time, UTC+5:45, from `git log`:
 | Date, time | Commit |
 |---|---|
 | 2026-11-01 19:06 | SkinProof core: YouCam client, noise calibration, verdicts, store, web UI, tests |
-| 2026-11-01 19:07 | README, LICENSE, opt-in synthetic noise script |
-| 2026-11-01 22:07 | Build plan for the SkinProof agent |
-| 2026-11-01 22:11 | OpenRouter client and claim extraction and comparison |
-| 2026-11-01 22:14 | Tool-calling agent, unit and LLM budget, SSE endpoints, sample trace |
-| 2026-11-01 22:14 | Redesigned UI: live agent investigation screen |
-| 2026-11-01 22:14 | Extra YouCam endpoints (skin tone, Fitzpatrick, face attributes, simulation, lighting, text-to-image) |
-| 2026-11-01 22:16 | Photo consistency from real Face Attributes fields, real unit costs |
-| 2026-11-01 22:23 | Stored-run replay, live E2E script, synthetic trace, lighting experiment |
-| 2026-11-01 | Confirmation rule, 4-photo calibration, photo upload for the agent, README |
+| 2026-11-01 22:07 to 22:16 | Agent plan, OpenRouter claims, tool-calling agent with budget, extra YouCam endpoints, photo consistency |
+| 2026-11-01 22:30 | Confirmation rule, 4-photo calibration, agent photo upload |
+| 2026-11-01 23:24 to 23:31 | Lighting experiment (22%), face auto-crop, volunteer live run and noise findings |
+| 2026-11-01 23:43 | Daily spend guard, per-profile isolation, profile delete |
+| 2026-11-01 23:53 | MCP both ways (YouCam MCP client, SkinProof MCP server) |
+| 2026-11-01 23:54 | Impact case and Devpost text |
+| 2026-11-01 23:58 | UI redesign (lab-notebook look) |
+| 2026-11-02 00:06 | UI polish |
+| 2026-11-02 00:12 | Before you buy (`/buy`, claim audit) |
+| 2026-11-02 00:23 | "What YouCam saw" panel |
+| 2026-11-02 00:27 | Mirror Mode, 60-second noise check, `/buy` prefill, capture metadata |
