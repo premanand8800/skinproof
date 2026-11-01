@@ -1,0 +1,830 @@
+{
+ "sample": true,
+ "note": "SAMPLE trace on invented data (demo/profile.json). Scripted replay, not a live model run; no real face, no units spent.",
+ "run_id": "sample",
+ "profile_id": "demo",
+ "model": "sample (scripted replay)",
+ "date": "2026-10-27",
+ "fallback": false,
+ "events": [
+  {
+   "type": "start",
+   "step": 0,
+   "summary": "Deciding whether to keep Niacinamide 10% serum (sample)",
+   "units_spent": 0.0,
+   "units_left_in_budget": 40.0,
+   "llm_cost": 0.0,
+   "data": {
+    "run_id": "sample",
+    "product": "Niacinamide 10% serum (sample)",
+    "model": "google/gemini-3.8-flash",
+    "max_units": 40.0,
+    "max_steps": 12,
+    "max_llm_usd": 0.1,
+    "has_new_photo": true
+   }
+  },
+  {
+   "type": "thought",
+   "step": 1,
+   "summary": "First I need the history, the noise thresholds and how long the product has been used.",
+   "units_spent": 0.0,
+   "units_left_in_budget": 40.0,
+   "llm_cost": 0.0008
+  },
+  {
+   "type": "tool_call",
+   "step": 1,
+   "summary": "Calling get_context",
+   "units_spent": 0.0,
+   "units_left_in_budget": 40.0,
+   "llm_cost": 0.0008,
+   "tool": "get_context",
+   "args": {}
+  },
+  {
+   "type": "tool_result",
+   "step": 1,
+   "summary": "4 check-ins, 6.0 weeks on product, calibrated, 40 units left",
+   "units_spent": 0.0,
+   "units_left_in_budget": 40.0,
+   "llm_cost": 0.0008,
+   "tool": "get_context",
+   "data": {
+    "result": {
+     "profile": "Sample user (demo)",
+     "noise_thresholds": {
+      "texture": 4.0,
+      "pore": 5.0,
+      "age_spot": 3.0,
+      "redness": 6.0,
+      "acne": 3.0,
+      "wrinkle": 3.0,
+      "moisture": 6.0,
+      "dark_circle_v2": 4.0
+     },
+     "calibrated": true,
+     "product": {
+      "name": "Niacinamide 10% serum (sample)",
+      "start_date": "2026-09-01",
+      "concerns": [
+       "pore",
+       "redness",
+       "texture"
+      ]
+     },
+     "has_claim_inputs": true,
+     "checkins": [
+      {
+       "date": "2026-09-01",
+       "scores": {
+        "pore": 61,
+        "redness": 56,
+        "texture": 64,
+        "wrinkle": 72,
+        "acne": 70,
+        "age_spot": 66,
+        "dark_circle_v2": 59,
+        "moisture": 60
+       },
+       "error": null
+      },
+      {
+       "date": "2026-09-15",
+       "scores": {
+        "pore": 63,
+        "redness": 58,
+        "texture": 67,
+        "wrinkle": 72,
+        "acne": 70,
+        "age_spot": 66,
+        "dark_circle_v2": 59,
+        "moisture": 57
+       },
+       "error": null
+      },
+      {
+       "date": "2026-09-29",
+       "scores": {
+        "pore": 67,
+        "redness": 55,
+        "texture": 70,
+        "wrinkle": 72,
+        "acne": 70,
+        "age_spot": 66,
+        "dark_circle_v2": 59,
+        "moisture": 56
+       },
+       "error": null
+      },
+      {
+       "date": "2026-10-13",
+       "scores": {
+        "pore": 70,
+        "redness": 57,
+        "texture": 72,
+        "wrinkle": 72,
+        "acne": 69,
+        "age_spot": 66,
+        "dark_circle_v2": 59,
+        "moisture": 55
+       },
+       "error": null
+      }
+     ],
+     "weeks_elapsed": 6.0,
+     "new_photo_supplied": true,
+     "new_photo_date": "2026-10-27",
+     "units_left": 40.0
+    },
+    "error": false
+   }
+  },
+  {
+   "type": "thought",
+   "step": 2,
+   "summary": "A new photo came in. Before measuring I check it matches the baseline pose and framing.",
+   "units_spent": 0.0,
+   "units_left_in_budget": 40.0,
+   "llm_cost": 0.0016
+  },
+  {
+   "type": "tool_call",
+   "step": 2,
+   "summary": "Calling check_photo_consistency",
+   "units_spent": 0.0,
+   "units_left_in_budget": 40.0,
+   "llm_cost": 0.0016,
+   "tool": "check_photo_consistency",
+   "args": {}
+  },
+  {
+   "type": "tool_result",
+   "step": 2,
+   "summary": "Photo matches baseline",
+   "units_spent": 6.0,
+   "units_left_in_budget": 34.0,
+   "llm_cost": 0.0016,
+   "tool": "check_photo_consistency",
+   "data": {
+    "result": {
+     "consistent": true,
+     "issues": [],
+     "recommendation": "ok to measure",
+     "baseline": {
+      "yaw": 0,
+      "pitch": 0,
+      "roll": 0,
+      "face_ratio": 0.6,
+      "units": 3
+     },
+     "new": {
+      "yaw": 2,
+      "pitch": 0,
+      "roll": 0,
+      "face_ratio": 0.6,
+      "units": 3
+     }
+    },
+    "error": false
+   }
+  },
+  {
+   "type": "thought",
+   "step": 3,
+   "summary": "Photo is consistent. Measuring skin now (raw scores only).",
+   "units_spent": 6.0,
+   "units_left_in_budget": 34.0,
+   "llm_cost": 0.0024
+  },
+  {
+   "type": "tool_call",
+   "step": 3,
+   "summary": "Calling analyze_skin",
+   "units_spent": 6.0,
+   "units_left_in_budget": 34.0,
+   "llm_cost": 0.0024,
+   "tool": "analyze_skin",
+   "args": {}
+  },
+  {
+   "type": "tool_result",
+   "step": 3,
+   "summary": "Analysed 8 concerns",
+   "units_spent": 18.0,
+   "units_left_in_budget": 22.0,
+   "llm_cost": 0.0024,
+   "tool": "analyze_skin",
+   "data": {
+    "result": {
+     "checkin": {
+      "id": "2026-10-27",
+      "date": "2026-10-27",
+      "scores": {
+       "pore": 71,
+       "redness": 58,
+       "texture": 73,
+       "wrinkle": 72,
+       "acne": 70,
+       "age_spot": 66,
+       "dark_circle_v2": 59,
+       "moisture": 53
+      },
+      "cached": false
+     }
+    },
+    "error": false
+   }
+  },
+  {
+   "type": "thought",
+   "step": 4,
+   "summary": "Skin tone and Fitzpatrick type, for context only.",
+   "units_spent": 18.0,
+   "units_left_in_budget": 22.0,
+   "llm_cost": 0.0032
+  },
+  {
+   "type": "tool_call",
+   "step": 4,
+   "summary": "Calling skin_context",
+   "units_spent": 18.0,
+   "units_left_in_budget": 22.0,
+   "llm_cost": 0.0032,
+   "tool": "skin_context",
+   "args": {}
+  },
+  {
+   "type": "tool_result",
+   "step": 4,
+   "summary": "Tone medium, Fitzpatrick III (context only)",
+   "units_spent": 24.0,
+   "units_left_in_budget": 16.0,
+   "llm_cost": 0.0032,
+   "tool": "skin_context",
+   "data": {
+    "result": {
+     "skin_tone": "medium",
+     "fitzpatrick": "III",
+     "note": "context only, not a verdict"
+    },
+    "error": false
+   }
+  },
+  {
+   "type": "thought",
+   "step": 5,
+   "summary": "Now compare each concern with the noise measured on this face.",
+   "units_spent": 24.0,
+   "units_left_in_budget": 16.0,
+   "llm_cost": 0.004
+  },
+  {
+   "type": "tool_call",
+   "step": 5,
+   "summary": "Calling compare_with_noise",
+   "units_spent": 24.0,
+   "units_left_in_budget": 16.0,
+   "llm_cost": 0.004,
+   "tool": "compare_with_noise",
+   "args": {}
+  },
+  {
+   "type": "tool_result",
+   "step": 5,
+   "summary": "2 of 8 concerns changed beyond noise",
+   "units_spent": 24.0,
+   "units_left_in_budget": 16.0,
+   "llm_cost": 0.004,
+   "tool": "compare_with_noise",
+   "data": {
+    "result": {
+     "valid_checkins": 5,
+     "skipped_checkins": 0,
+     "concerns": [
+      {
+       "concern": "pore",
+       "label": "Pores",
+       "baseline": 62.0,
+       "latest": 70.5,
+       "delta": 8.5,
+       "threshold": 5.0,
+       "verdict": "IMPROVED",
+       "targeted": true,
+       "sentence": "Pores: improved by 8 points, more than the 5-point noise we measured on your face. Proven.",
+       "next": "Keep using it. This is a measurable effect on your face."
+      },
+      {
+       "concern": "redness",
+       "label": "Redness",
+       "baseline": 57.0,
+       "latest": 57.5,
+       "delta": 0.5,
+       "threshold": 6.0,
+       "verdict": "NO_PROVEN_CHANGE",
+       "targeted": true,
+       "sentence": "Redness: changed by 0 points; your photos vary by 6 points even on the same day. No proven change yet.",
+       "next": "No proven change after 8 weeks. Don't rebuy yet: this product hasn't shown a measurable effect on your face."
+      },
+      {
+       "concern": "texture",
+       "label": "Texture",
+       "baseline": 65.5,
+       "latest": 72.5,
+       "delta": 7.0,
+       "threshold": 4.0,
+       "verdict": "IMPROVED",
+       "targeted": true,
+       "sentence": "Texture: improved by 7 points, more than the 4-point noise we measured on your face. Proven.",
+       "next": "Keep using it. This is a measurable effect on your face."
+      },
+      {
+       "concern": "acne",
+       "label": "Acne",
+       "baseline": 70.0,
+       "latest": 69.5,
+       "delta": -0.5,
+       "threshold": 3.0,
+       "verdict": "NO_PROVEN_CHANGE",
+       "targeted": false,
+       "sentence": "Acne: changed by 0 points; your photos vary by 3 points even on the same day. No proven change yet.",
+       "next": "Not a concern this product claims to target. Nothing to decide here."
+      },
+      {
+       "concern": "age_spot",
+       "label": "Age spots",
+       "baseline": 66.0,
+       "latest": 66.0,
+       "delta": 0.0,
+       "threshold": 3.0,
+       "verdict": "NO_PROVEN_CHANGE",
+       "targeted": false,
+       "sentence": "Age spots: changed by 0 points; your photos vary by 3 points even on the same day. No proven change yet.",
+       "next": "Not a concern this product claims to target. Nothing to decide here."
+      },
+      {
+       "concern": "dark_circle_v2",
+       "label": "Dark circles",
+       "baseline": 59.0,
+       "latest": 59.0,
+       "delta": 0.0,
+       "threshold": 4.0,
+       "verdict": "NO_PROVEN_CHANGE",
+       "targeted": false,
+       "sentence": "Dark circles: changed by 0 points; your photos vary by 4 points even on the same day. No proven change yet.",
+       "next": "Not a concern this product claims to target. Nothing to decide here."
+      },
+      {
+       "concern": "moisture",
+       "label": "Moisture",
+       "baseline": 58.5,
+       "latest": 54.0,
+       "delta": -4.5,
+       "threshold": 6.0,
+       "verdict": "NO_PROVEN_CHANGE",
+       "targeted": false,
+       "sentence": "Moisture: changed by 4 points; your photos vary by 6 points even on the same day. No proven change yet.",
+       "next": "Not a concern this product claims to target. Nothing to decide here."
+      },
+      {
+       "concern": "wrinkle",
+       "label": "Wrinkles",
+       "baseline": 72.0,
+       "latest": 72.0,
+       "delta": 0.0,
+       "threshold": 3.0,
+       "verdict": "NO_PROVEN_CHANGE",
+       "targeted": false,
+       "sentence": "Wrinkles: changed by 0 points; your photos vary by 3 points even on the same day. No proven change yet.",
+       "next": "Not a concern this product claims to target. Nothing to decide here."
+      }
+     ],
+     "ready": true,
+     "method": "median of first two vs median of last two",
+     "weeks_on_product": 8.0
+    },
+    "error": false
+   }
+  },
+  {
+   "type": "thought",
+   "step": 6,
+   "summary": "Read what the product claims so I judge it against its own promises.",
+   "units_spent": 24.0,
+   "units_left_in_budget": 16.0,
+   "llm_cost": 0.0048
+  },
+  {
+   "type": "tool_call",
+   "step": 6,
+   "summary": "Calling read_product_claims",
+   "units_spent": 24.0,
+   "units_left_in_budget": 16.0,
+   "llm_cost": 0.0048,
+   "tool": "read_product_claims",
+   "args": {}
+  },
+  {
+   "type": "tool_result",
+   "step": 6,
+   "summary": "3 claims from text",
+   "units_spent": 24.0,
+   "units_left_in_budget": 16.0,
+   "llm_cost": 0.0048,
+   "tool": "read_product_claims",
+   "data": {
+    "result": {
+     "product": "Niacinamide 10% serum (sample)",
+     "source": "text",
+     "claims": [
+      {
+       "concern": "pore",
+       "direction": "improve",
+       "timeframe_weeks": 8,
+       "quote": "Visibly minimises pores in 8 weeks"
+      },
+      {
+       "concern": "texture",
+       "direction": "improve",
+       "timeframe_weeks": 4,
+       "quote": "Smoother texture in 4 weeks"
+      },
+      {
+       "concern": "redness",
+       "direction": "improve",
+       "timeframe_weeks": 6,
+       "quote": "Calms redness in 6 weeks"
+      }
+     ]
+    },
+    "error": false
+   }
+  },
+  {
+   "type": "thought",
+   "step": 7,
+   "summary": "Check each claim against the measurements and the weeks elapsed.",
+   "units_spent": 24.0,
+   "units_left_in_budget": 16.0,
+   "llm_cost": 0.0056
+  },
+  {
+   "type": "tool_call",
+   "step": 7,
+   "summary": "Calling check_claims",
+   "units_spent": 24.0,
+   "units_left_in_budget": 16.0,
+   "llm_cost": 0.0056,
+   "tool": "check_claims",
+   "args": {}
+  },
+  {
+   "type": "tool_result",
+   "step": 7,
+   "summary": "2 SUPPORTED, 1 NOT_YET_SHOWN",
+   "units_spent": 24.0,
+   "units_left_in_budget": 16.0,
+   "llm_cost": 0.0056,
+   "tool": "check_claims",
+   "data": {
+    "result": {
+     "checks": [
+      {
+       "concern": "pore",
+       "quote": "Visibly minimises pores in 8 weeks",
+       "timeframe_weeks": 8,
+       "weeks_elapsed": 8.0,
+       "measured": {
+        "concern": "pore",
+        "label": "Pores",
+        "baseline": 62.0,
+        "latest": 70.5,
+        "delta": 8.5,
+        "threshold": 5.0,
+        "verdict": "IMPROVED",
+        "targeted": true,
+        "sentence": "Pores: improved by 8 points, more than the 5-point noise we measured on your face. Proven.",
+        "next": "Keep using it. This is a measurable effect on your face."
+       },
+       "status": "SUPPORTED"
+      },
+      {
+       "concern": "texture",
+       "quote": "Smoother texture in 4 weeks",
+       "timeframe_weeks": 4,
+       "weeks_elapsed": 8.0,
+       "measured": {
+        "concern": "texture",
+        "label": "Texture",
+        "baseline": 65.5,
+        "latest": 72.5,
+        "delta": 7.0,
+        "threshold": 4.0,
+        "verdict": "IMPROVED",
+        "targeted": true,
+        "sentence": "Texture: improved by 7 points, more than the 4-point noise we measured on your face. Proven.",
+        "next": "Keep using it. This is a measurable effect on your face."
+       },
+       "status": "SUPPORTED"
+      },
+      {
+       "concern": "redness",
+       "quote": "Calms redness in 6 weeks",
+       "timeframe_weeks": 6,
+       "weeks_elapsed": 8.0,
+       "measured": {
+        "concern": "redness",
+        "label": "Redness",
+        "baseline": 57.0,
+        "latest": 57.5,
+        "delta": 0.5,
+        "threshold": 6.0,
+        "verdict": "NO_PROVEN_CHANGE",
+        "targeted": true,
+        "sentence": "Redness: changed by 0 points; your photos vary by 6 points even on the same day. No proven change yet.",
+        "next": "No proven change after 8 weeks. Don't rebuy yet: this product hasn't shown a measurable effect on your face."
+       },
+       "status": "NOT_YET_SHOWN"
+      }
+     ]
+    },
+    "error": false
+   }
+  },
+  {
+   "type": "thought",
+   "step": 8,
+   "summary": "Show what the claimed pore improvement would look like. This is a simulation only.",
+   "units_spent": 24.0,
+   "units_left_in_budget": 16.0,
+   "llm_cost": 0.0064
+  },
+  {
+   "type": "tool_call",
+   "step": 8,
+   "summary": "Calling simulate_claimed_result",
+   "units_spent": 24.0,
+   "units_left_in_budget": 16.0,
+   "llm_cost": 0.0064,
+   "tool": "simulate_claimed_result",
+   "args": {
+    "concern": "pore"
+   }
+  },
+  {
+   "type": "tool_result",
+   "step": 8,
+   "summary": "Simulation of claimed Pores improvement (not your result)",
+   "units_spent": 32.0,
+   "units_left_in_budget": 8.0,
+   "llm_cost": 0.0064,
+   "tool": "simulate_claimed_result",
+   "data": {
+    "result": {
+     "url": null,
+     "label": "Simulation, not your result",
+     "concern": "pore"
+    },
+    "error": false
+   }
+  },
+  {
+   "type": "thought",
+   "step": 9,
+   "summary": "Pores and texture improved beyond noise inside their claimed time. Redness did not change, which the label claimed at 6 weeks. Keep, with that caveat.",
+   "units_spent": 32.0,
+   "units_left_in_budget": 8.0,
+   "llm_cost": 0.0072
+  },
+  {
+   "type": "tool_call",
+   "step": 9,
+   "summary": "Calling finish",
+   "units_spent": 32.0,
+   "units_left_in_budget": 8.0,
+   "llm_cost": 0.0072,
+   "tool": "finish",
+   "args": {
+    "decision": "KEEP",
+    "headline": "Keep it: pores and texture improved by more than your own measurement noise.",
+    "reasons": [
+     "Pores: +8.5 points vs a noise threshold of 5, inside the 8 weeks claimed.",
+     "Texture: +7 points vs a noise threshold of 4, inside the 4 weeks claimed.",
+     "Redness: no change beyond noise although the label claims it calms redness by week 6; do not rely on it for redness."
+    ]
+   }
+  },
+  {
+   "type": "tool_result",
+   "step": 9,
+   "summary": "Decision: KEEP",
+   "units_spent": 32.0,
+   "units_left_in_budget": 8.0,
+   "llm_cost": 0.0072,
+   "tool": "finish",
+   "data": {
+    "result": {
+     "decision": "KEEP",
+     "wait_weeks": null,
+     "headline": "Keep it: pores and texture improved by more than your own measurement noise.",
+     "reasons": [
+      "Pores: +8.5 points vs a noise threshold of 5, inside the 8 weeks claimed.",
+      "Texture: +7 points vs a noise threshold of 4, inside the 4 weeks claimed.",
+      "Redness: no change beyond noise although the label claims it calms redness by week 6; do not rely on it for redness."
+     ]
+    },
+    "error": false
+   }
+  },
+  {
+   "type": "final",
+   "step": 9,
+   "summary": "Keep it: pores and texture improved by more than your own measurement noise.",
+   "units_spent": 32.0,
+   "units_left_in_budget": 8.0,
+   "llm_cost": 0.0072,
+   "data": {
+    "decision": "KEEP",
+    "wait_weeks": null,
+    "headline": "Keep it: pores and texture improved by more than your own measurement noise.",
+    "reasons": [
+     "Pores: +8.5 points vs a noise threshold of 5, inside the 8 weeks claimed.",
+     "Texture: +7 points vs a noise threshold of 4, inside the 4 weeks claimed.",
+     "Redness: no change beyond noise although the label claims it calms redness by week 6; do not rely on it for redness."
+    ],
+    "verdicts": [
+     {
+      "concern": "pore",
+      "label": "Pores",
+      "baseline": 62.0,
+      "latest": 70.5,
+      "delta": 8.5,
+      "threshold": 5.0,
+      "verdict": "IMPROVED",
+      "targeted": true,
+      "sentence": "Pores: improved by 8 points, more than the 5-point noise we measured on your face. Proven.",
+      "next": "Keep using it. This is a measurable effect on your face."
+     },
+     {
+      "concern": "redness",
+      "label": "Redness",
+      "baseline": 57.0,
+      "latest": 57.5,
+      "delta": 0.5,
+      "threshold": 6.0,
+      "verdict": "NO_PROVEN_CHANGE",
+      "targeted": true,
+      "sentence": "Redness: changed by 0 points; your photos vary by 6 points even on the same day. No proven change yet.",
+      "next": "No proven change after 8 weeks. Don't rebuy yet: this product hasn't shown a measurable effect on your face."
+     },
+     {
+      "concern": "texture",
+      "label": "Texture",
+      "baseline": 65.5,
+      "latest": 72.5,
+      "delta": 7.0,
+      "threshold": 4.0,
+      "verdict": "IMPROVED",
+      "targeted": true,
+      "sentence": "Texture: improved by 7 points, more than the 4-point noise we measured on your face. Proven.",
+      "next": "Keep using it. This is a measurable effect on your face."
+     },
+     {
+      "concern": "acne",
+      "label": "Acne",
+      "baseline": 70.0,
+      "latest": 69.5,
+      "delta": -0.5,
+      "threshold": 3.0,
+      "verdict": "NO_PROVEN_CHANGE",
+      "targeted": false,
+      "sentence": "Acne: changed by 0 points; your photos vary by 3 points even on the same day. No proven change yet.",
+      "next": "Not a concern this product claims to target. Nothing to decide here."
+     },
+     {
+      "concern": "age_spot",
+      "label": "Age spots",
+      "baseline": 66.0,
+      "latest": 66.0,
+      "delta": 0.0,
+      "threshold": 3.0,
+      "verdict": "NO_PROVEN_CHANGE",
+      "targeted": false,
+      "sentence": "Age spots: changed by 0 points; your photos vary by 3 points even on the same day. No proven change yet.",
+      "next": "Not a concern this product claims to target. Nothing to decide here."
+     },
+     {
+      "concern": "dark_circle_v2",
+      "label": "Dark circles",
+      "baseline": 59.0,
+      "latest": 59.0,
+      "delta": 0.0,
+      "threshold": 4.0,
+      "verdict": "NO_PROVEN_CHANGE",
+      "targeted": false,
+      "sentence": "Dark circles: changed by 0 points; your photos vary by 4 points even on the same day. No proven change yet.",
+      "next": "Not a concern this product claims to target. Nothing to decide here."
+     },
+     {
+      "concern": "moisture",
+      "label": "Moisture",
+      "baseline": 58.5,
+      "latest": 54.0,
+      "delta": -4.5,
+      "threshold": 6.0,
+      "verdict": "NO_PROVEN_CHANGE",
+      "targeted": false,
+      "sentence": "Moisture: changed by 4 points; your photos vary by 6 points even on the same day. No proven change yet.",
+      "next": "Not a concern this product claims to target. Nothing to decide here."
+     },
+     {
+      "concern": "wrinkle",
+      "label": "Wrinkles",
+      "baseline": 72.0,
+      "latest": 72.0,
+      "delta": 0.0,
+      "threshold": 3.0,
+      "verdict": "NO_PROVEN_CHANGE",
+      "targeted": false,
+      "sentence": "Wrinkles: changed by 0 points; your photos vary by 3 points even on the same day. No proven change yet.",
+      "next": "Not a concern this product claims to target. Nothing to decide here."
+     }
+    ],
+    "claims": [
+     {
+      "concern": "pore",
+      "quote": "Visibly minimises pores in 8 weeks",
+      "timeframe_weeks": 8,
+      "weeks_elapsed": 8.0,
+      "measured": {
+       "concern": "pore",
+       "label": "Pores",
+       "baseline": 62.0,
+       "latest": 70.5,
+       "delta": 8.5,
+       "threshold": 5.0,
+       "verdict": "IMPROVED",
+       "targeted": true,
+       "sentence": "Pores: improved by 8 points, more than the 5-point noise we measured on your face. Proven.",
+       "next": "Keep using it. This is a measurable effect on your face."
+      },
+      "status": "SUPPORTED"
+     },
+     {
+      "concern": "texture",
+      "quote": "Smoother texture in 4 weeks",
+      "timeframe_weeks": 4,
+      "weeks_elapsed": 8.0,
+      "measured": {
+       "concern": "texture",
+       "label": "Texture",
+       "baseline": 65.5,
+       "latest": 72.5,
+       "delta": 7.0,
+       "threshold": 4.0,
+       "verdict": "IMPROVED",
+       "targeted": true,
+       "sentence": "Texture: improved by 7 points, more than the 4-point noise we measured on your face. Proven.",
+       "next": "Keep using it. This is a measurable effect on your face."
+      },
+      "status": "SUPPORTED"
+     },
+     {
+      "concern": "redness",
+      "quote": "Calms redness in 6 weeks",
+      "timeframe_weeks": 6,
+      "weeks_elapsed": 8.0,
+      "measured": {
+       "concern": "redness",
+       "label": "Redness",
+       "baseline": 57.0,
+       "latest": 57.5,
+       "delta": 0.5,
+       "threshold": 6.0,
+       "verdict": "NO_PROVEN_CHANGE",
+       "targeted": true,
+       "sentence": "Redness: changed by 0 points; your photos vary by 6 points even on the same day. No proven change yet.",
+       "next": "No proven change after 8 weeks. Don't rebuy yet: this product hasn't shown a measurable effect on your face."
+      },
+      "status": "NOT_YET_SHOWN"
+     }
+    ],
+    "simulation_image": null,
+    "simulation_label": "Simulation, not your result",
+    "fallback": false,
+    "rule_decision": {
+     "decision": "KEEP",
+     "wait_weeks": null,
+     "rule": "R2",
+     "headline": "Keep: Pores, Texture improved beyond your measured noise."
+    },
+    "weeks_elapsed": 8.0,
+    "run_id": "sample",
+    "model": "sample (scripted replay)",
+    "disagreement": null,
+    "units_spent": 32.0,
+    "llm_cost": 0.0072
+   }
+  }
+ ]
+}

@@ -5,8 +5,10 @@ import json
 from datetime import date
 from pathlib import Path
 
-from fastapi import FastAPI, File, Form, HTTPException, UploadFile
-from fastapi.responses import FileResponse, JSONResponse
+import re
+
+from fastapi import FastAPI, File, Form, HTTPException, Request, UploadFile
+from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
 from pydantic import BaseModel
 
 from . import noise
@@ -25,6 +27,8 @@ class ProductIn(BaseModel):
     name: str
     start_date: str | None = None
     concerns: list[str] = []
+    claim_text: str | None = None
+    claim_url: str | None = None
 
 
 def _flat(res: dict) -> dict[str, float]:
@@ -32,11 +36,15 @@ def _flat(res: dict) -> dict[str, float]:
 
 
 def create_app(client: YouCamClient | None = None, store: Store | None = None,
-               demo_path: Path | None = None) -> FastAPI:
+               demo_path: Path | None = None, agent_deps: dict | None = None,
+               demo_agent_path: Path | None = None) -> FastAPI:
+    """agent_deps: optional overrides {chat, extra, claims, budget_factory} (tests)."""
     app = FastAPI(title="SkinProof")
     client = client or YouCamClient(cache_dir=ROOT / ".cache" / "youcam")
     store = store or Store(ROOT / "private")
     demo_path = demo_path or ROOT / "demo" / "profile.json"
+    demo_agent_path = demo_agent_path or ROOT / "demo" / "agent_trace.json"
+    agent_deps = agent_deps or {}
     app.state.client, app.state.store = client, store
 
     def units() -> float | None:
@@ -108,10 +116,37 @@ def create_app(client: YouCamClient | None = None, store: Store | None = None,
         return {"calibration": cal, "rejected": rejected, "units": units()}
 
     @app.post("/api/profiles/{pid}/products")
-    def add_product(pid: str, body: ProductIn):
+    async def add_product(pid: str, request: Request):
+        """JSON body, or multipart form (adds an optional `label` image of the product)."""
         get_profile(pid)
-        return store.add_product(pid, body.name, body.start_date or date.today().isoformat(),
+        label = None
+        if "multipart/form-data" in request.headers.get("content-type", ""):
+            form = await request.form()
+            raw = form.get("concerns") or ""
+            body = ProductIn(name=str(form.get("name") or ""), start_date=form.get("start_date") or None,
+                             concerns=[c.strip() for c in str(raw).split(",") if c.strip()],
+                             claim_text=form.get("claim_text") or None, claim_url=form.get("claim_url") or None)
+            up = form.get("label")
+            if up is not None and hasattr(up, "read"):
+                label = await up.read() or None
+        else:
+            try:
+                body = ProductIn(**(await request.json()))
+            except Exception:
+                raise HTTPException(422, "Bad product body")
+        if not body.name.strip():
+            raise HTTPException(422, "Product name required")
+        prod = store.add_product(pid, body.name, body.start_date or date.today().isoformat(),
                                  [c for c in body.concerns if c in CONCERN_LABELS])
+        extra = {k: v for k, v in (("claim_text", body.claim_text), ("claim_url", body.claim_url)) if v}
+        if label:
+            extra["claim_image"] = store.save_photo(pid, "label", label)
+        if extra:
+            def upd(p):
+                next(x for x in p["products"] if x["id"] == prod["id"]).update(extra)
+            store._mutate(pid, upd)
+            prod.update(extra)
+        return prod
 
     @app.post("/api/profiles/{pid}/checkins")
     async def checkin(pid: str, file: UploadFile = File(...), when: str | None = Form(None)):
@@ -158,6 +193,50 @@ def create_app(client: YouCamClient | None = None, store: Store | None = None,
         v.update({"product": d["product"], "calibration": cal, "sample_data": True,
                   "note": d["note"], "checkins": [{"id": c["id"], "date": c["date"]} for c in d["checkins"]]})
         return v
+
+    @app.post("/api/profiles/{pid}/agent")
+    async def run_agent(pid: str, file: UploadFile | None = File(None), product_id: str | None = Form(None),
+                        when: str | None = Form(None)):
+        from .agent import Agent, sse
+        from .budget import UnitBudget
+        p = get_profile(pid)
+        if not p["products"]:
+            raise HTTPException(409, "Add a product first")
+        if product_id and not any(x["id"] == product_id for x in p["products"]):
+            raise HTTPException(404, "Unknown product")
+        if when:
+            try:
+                date.fromisoformat(when)
+            except ValueError:
+                raise HTTPException(400, "Bad date")
+        photo = (await file.read()) if file is not None else None
+        agent = Agent(store=store, client=client, profile_id=pid, product_id=product_id, photo=photo or None,
+                      when=when, chat=agent_deps.get("chat"), extra=agent_deps.get("extra"),
+                      claims=agent_deps.get("claims"),
+                      budget=agent_deps["budget_factory"]() if "budget_factory" in agent_deps else UnitBudget())
+
+        def stream():
+            try:
+                for ev in agent.run():
+                    yield sse(ev)
+            except Exception as e:  # never leave the stream hanging
+                yield sse({"type": "error", "step": agent.step, "summary": f"Agent crashed: {type(e).__name__}",
+                           "units_spent": agent.budget.spent, "units_left_in_budget": agent.budget.left})
+        return StreamingResponse(stream(), media_type="text/event-stream",
+                                 headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no", "X-Run-Id": agent.run_id})
+
+    @app.get("/api/agent/runs/{run_id}")
+    def agent_run(run_id: str):
+        if not re.fullmatch(r"[a-f0-9]{6,32}", run_id):
+            raise HTTPException(404)
+        path = store.root / "runs" / f"{run_id}.json"
+        if not path.is_file():
+            raise HTTPException(404, "Unknown run")
+        return json.loads(path.read_text())
+
+    @app.get("/api/demo/agent")
+    def demo_agent():
+        return json.loads(demo_agent_path.read_text())
 
     @app.get("/api/files/{path:path}")
     def files(path: str):
