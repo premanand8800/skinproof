@@ -29,11 +29,13 @@ class GuardLimit(Exception):
 
 class Guard:
     def __init__(self, path: str | Path, *, daily_units: float | None = None, ip_units: float | None = None,
-                 ip_agent_runs: float | None = None, daily_usd: float | None = None):
+                 ip_agent_runs: float | None = None, daily_usd: float | None = None,
+                 ip_llm_calls: float | None = None):
         self.path = Path(path)
         self.daily_units = _env("SKINPROOF_DAILY_UNITS", 120) if daily_units is None else daily_units
         self.ip_units = _env("SKINPROOF_IP_UNITS", 72) if ip_units is None else ip_units
         self.ip_agent_runs = _env("SKINPROOF_IP_AGENT_RUNS", 3) if ip_agent_runs is None else ip_agent_runs
+        self.ip_llm_calls = _env("SKINPROOF_IP_LLM_CALLS", 10) if ip_llm_calls is None else ip_llm_calls
         self.daily_usd = _env("SKINPROOF_DAILY_USD", 1.0) if daily_usd is None else daily_usd
         self._lock = threading.Lock()
 
@@ -120,4 +122,28 @@ class Guard:
             d["units"] = max(0.0, d["units"] - diff)
             u["units"] = max(0.0, u["units"] - diff)
             d["usd"] += max(0.0, float(usd or 0))
+            self._save(d)
+
+    # ---- LLM-only calls (buy-check): daily $ cap + per-IP count, no YouCam units ----
+    def reserve_llm(self, ip: str, est_usd: float = 0.02) -> None:
+        with self._lock:
+            d = self._load()
+            u = self._ip(d, ip)
+            if u.get("llm_calls", 0) + 1 > self.ip_llm_calls:
+                raise GuardLimit("You have reached the daily claim-check limit for this demo (10 per day). "
+                                 "The example and cached results still work.", "ip_llm")
+            if d["usd"] + est_usd > self.daily_usd + 1e-9:
+                raise GuardLimit("Today's shared AI allowance on this demo is used up. "
+                                 "The example and cached results still work.", "usd")
+            u["llm_calls"] = u.get("llm_calls", 0) + 1
+            d["usd"] += est_usd
+            self._save(d)
+
+    def settle_llm(self, ip: str, reserved_usd: float, actual_usd: float, failed: bool = False) -> None:
+        with self._lock:
+            d = self._load()
+            u = self._ip(d, ip)
+            d["usd"] = max(0.0, d["usd"] - reserved_usd + (0.0 if failed else max(0.0, float(actual_usd or 0))))
+            if failed:
+                u["llm_calls"] = max(0, u.get("llm_calls", 0) - 1)
             self._save(d)

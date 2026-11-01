@@ -15,7 +15,7 @@ from pydantic import BaseModel
 
 from PIL import Image
 
-from . import noise
+from . import buycheck, claims as claims_mod, noise
 from .guard import Guard, GuardLimit, UNITS_PER_ANALYSIS
 from .faceprep import crop_to_face
 from .store import Store
@@ -341,6 +341,49 @@ def create_app(client: YouCamClient | None = None, store: Store | None = None,
         if name not in {"logo.svg", "favicon.svg"}:
             raise HTTPException(404)
         return FileResponse(ROOT / "static" / name, media_type="image/svg+xml")
+
+    @app.get("/api/buy-check/example")
+    def buy_check_example():
+        d = json.loads((ROOT / "demo" / "claims_example_url.json").read_text())
+        d["claims"] = claims_mod.validate_claims(d.get("claims"))
+        return {**buycheck.build(d), "example": True, "cost": 0.0, "url": d.get("url")}
+
+    @app.post("/api/buy-check")
+    async def buy_check(request: Request, text: str | None = Form(None), url: str | None = Form(None),
+                        label: UploadFile | None = File(None)):
+        image = await read_image(label) if label is not None and label.filename else None
+        text, url = (text or "").strip() or None, (url or "").strip() or None
+        if not (image or url or text):
+            raise HTTPException(422, "Paste a product link or the claim text, or add a label photo.")
+        if url and not image:
+            try:
+                url = buycheck.check_url(url)
+            except ValueError as e:
+                raise HTTPException(422, str(e))
+        cache = buycheck.Cache(store.root)
+        key = buycheck.cache_key(text, url, image)
+        hit = cache.get(key)
+        if hit:
+            return {**hit, "cached": True, "cost": 0.0}
+        ip = client_ip(request)
+        guard.reserve_llm(ip, 0.02)
+        try:
+            ext = (agent_deps.get("claims") or claims_mod).extract_claims(text=text, url=url, image=image,
+                                            mime=(label.content_type if image and label.content_type else "image/jpeg"))
+        except Exception as e:
+            guard.settle_llm(ip, 0.02, 0.0, failed=True)
+            log.error("buy-check failed %s", type(e).__name__)
+            raise HTTPException(502, "Could not read claims from that source. Try pasting the claim text instead.")
+        guard.settle_llm(ip, 0.02, ext.get("cost") or 0.0)
+        res = buycheck.build(ext)
+        if url:
+            res["url"] = url
+        cache.put(key, res)
+        return {**res, "cached": False}
+
+    @app.get("/buy")
+    def buy_page():
+        return FileResponse(ROOT / "static" / "buy.html")
 
     @app.get("/")
     def index():
