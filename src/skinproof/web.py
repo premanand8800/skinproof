@@ -12,6 +12,7 @@ from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
 from pydantic import BaseModel
 
 from . import noise
+from .faceprep import crop_to_face
 from .store import Store
 from .verdict import compute_verdicts
 from .youcam import DEFAULT_ACTIONS, YouCamClient, YouCamError, CONCERN_LABELS
@@ -100,7 +101,7 @@ def create_app(client: YouCamClient | None = None, store: Store | None = None,
                                      f"(5 to 6 with slight head turns is best).")
         good, rejected = [], []
         for i, f in enumerate(files):
-            data = await f.read()
+            data = crop_to_face(await f.read())
             try:
                 res = run_analysis(data)
                 good.append(_flat(res))
@@ -153,7 +154,7 @@ def create_app(client: YouCamClient | None = None, store: Store | None = None,
     @app.post("/api/profiles/{pid}/checkins")
     async def checkin(pid: str, file: UploadFile = File(...), when: str | None = Form(None)):
         get_profile(pid)
-        data = await file.read()
+        data = crop_to_face(await file.read())
         when = when or date.today().isoformat()
         try:
             date.fromisoformat(when)
@@ -211,7 +212,7 @@ def create_app(client: YouCamClient | None = None, store: Store | None = None,
                 date.fromisoformat(when)
             except ValueError:
                 raise HTTPException(400, "Bad date")
-        photo = (await file.read()) if file is not None else None
+        photo = crop_to_face(await file.read()) if file is not None else None
         agent = Agent(store=store, client=client, profile_id=pid, product_id=product_id, photo=photo or None,
                       when=when, chat=agent_deps.get("chat"), extra=agent_deps.get("extra"),
                       claims=agent_deps.get("claims"),
