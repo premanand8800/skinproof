@@ -45,6 +45,20 @@ FRIENDLY_ERRORS = {
     "error_lighting_dark": "The photo is too dark. Face a window or a bright, even light and retake.",
     "InvalidParameters": "The service rejected the photo or request. Retake with a clear, front-facing face.",
     "error_no_face": "No face was found. Face the camera straight on.",
+    "error_face_position_invalid": "Your whole face must be visible, forward-facing and centered.",
+    "error_face_position_too_small": "Your face is too small in the frame. Move closer.",
+    "error_face_position_out_of_boundary": "Your face touches the edge of the photo. Keep it fully inside the frame.",
+    "error_face_not_forward_facing": "Look straight at the camera.",
+    "error_face_angle_upward": "Tilt your head slightly down.",
+    "error_face_angle_downward": "Tilt your head slightly up.",
+    "error_face_angle_leftward": "Turn your head slightly to the right.",
+    "error_face_angle_rightward": "Turn your head slightly to the left.",
+    "error_face_angle_left_tilt": "Tilt your head slightly to the right.",
+    "error_face_angle_right_tilt": "Tilt your head slightly to the left.",
+    "error_face_angle_invalid": "Keep your head within 10 degrees of straight.",
+    "error_insufficient_lighting": "The photo is too dim. Use bright, even light.",
+    "error_exceed_max_image_size": "The photo is too large. Use one under 2560 px on the long side.",
+    "error_nsfw_content_detected": "The service rejected this image content.",
 }
 IMAGE_ERROR_CODES = set(FRIENDLY_ERRORS)
 
@@ -224,6 +238,31 @@ class YouCamClient:
             if time.monotonic() > deadline:
                 raise YouCamError("Timeout", f"Analysis did not finish within {self.timeout:.0f}s")
             time.sleep(self.poll_interval)
+
+    # -- generic task runner (used by youcam_extra) -------------------------
+    def poll_task(self, path: str, task_id: str) -> dict[str, Any]:
+        """Poll GET {path}/{task_id} until success/error. Raises YouCamError on error/timeout."""
+        deadline = time.monotonic() + self.timeout
+        while True:
+            body = self._request("GET", f"{path}/{task_id}")
+            d = body.get("data", {})
+            status = d.get("task_status")
+            if status == "success":
+                return body
+            if status == "error":
+                raise YouCamError(str(d.get("error") or d.get("error_code") or "TaskError"),
+                                  str(d.get("error_message") or "Task failed"))
+            if time.monotonic() > deadline:
+                raise YouCamError("Timeout", f"Task did not finish within {self.timeout:.0f}s")
+            time.sleep(self.poll_interval)
+
+    def run_task(self, path: str, body: dict[str, Any], *, file_bytes: bytes | None = None) -> dict[str, Any]:
+        """Upload file_bytes (if any, sets body['src_file_id']), POST path, poll to completion."""
+        body = dict(body)
+        if file_bytes is not None:
+            body["src_file_id"] = self.upload(file_bytes)
+        resp = self._request("POST", path, json=body)
+        return self.poll_task(path, resp["data"]["task_id"])
 
     def analyze(self, image_bytes: bytes, actions: list[str] | None = None,
                 *, use_cache: bool = True) -> dict[str, Any]:
