@@ -9,6 +9,23 @@ Live: https://skinproof.aether-soft.tech
 
 People judge skincare in the bathroom mirror, under a different light every day. Skin-analysis scores move with light, angle and distance even when the skin has not changed, and most apps turn that wobble into a "progress score". People then rebuy a serum because a number rose three points under a kinder lamp. SkinProof never outputs an overall score. It answers one question, KEEP, STOP or WAIT, and shows every step it took.
 
+## What we measured on a real face
+
+A volunteer, with consent, took two selfies 10 seconds apart in the same room and light. His skin did not change. Raw scores moved anyway (full table, cropped and uncropped, in [bench/noise_RESULTS.md](bench/noise_RESULTS.md)):
+
+| Concern | Before | After | Change |
+|---|---|---|---|
+| Acne | 95.9 | 86.5 | -9.4 |
+| Pores | 51.9 | 45.9 | -6.0 |
+| Redness | 98.0 | 95.4 | -2.6 |
+| Wrinkles | 88.0 | 90.5 | +2.5 |
+| Age spots | 93.1 | 94.3 | +1.1 |
+| Texture | 88.5 | 88.2 | -0.3 |
+| Dark circles | 80.8 | 81.0 | +0.1 |
+| Moisture | 53.9 | 53.9 | -0.1 |
+
+Across six same-evening frontal photos one pore reading was 35.9 against 58 to 64 for the rest, so a single odd photo can swing a score by about 25 points. The live agent run on this face ends **WAIT, nothing proven** (`#run=live-volunteer`, `demo/agent_trace_live_volunteer.json`). Photo Lighting reduced the median range by 22%, below our pre-registered 25%, so it stays off ([bench/lighting_RESULTS.md](bench/lighting_RESULTS.md)). Phone selfies are auto-cropped to the face before YouCam (`src/skinproof/faceprep.py`) because YouCam rejects small faces.
+
 ## What SkinProof does
 
 1. **Calibrate.** You take 4 to 6 photos of your face on one day (5 to 6 with slight head turns is best). Your skin is identical in all of them, so the spread in each concern's `raw_score` is your measurement noise. Threshold per concern = `max(range, 2 x SD, 3 points)`.
