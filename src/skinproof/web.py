@@ -331,6 +331,17 @@ def create_app(client: YouCamClient | None = None, store: Store | None = None,
             raise HTTPException(404)
         return FileResponse(full, headers={"Cache-Control": "private, no-store"})
 
+    @app.get("/favicon.svg")
+    def favicon():
+        return FileResponse(ROOT / "static" / "favicon.svg", media_type="image/svg+xml")
+
+    @app.get("/static/{name}")
+    def static_asset(name: str):
+        # only flat, whitelisted public assets (logo/favicon)
+        if name not in {"logo.svg", "favicon.svg"}:
+            raise HTTPException(404)
+        return FileResponse(ROOT / "static" / name, media_type="image/svg+xml")
+
     @app.get("/")
     def index():
         return FileResponse(ROOT / "static" / "index.html")

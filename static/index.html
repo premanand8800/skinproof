@@ -4,189 +4,283 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#F6F1E9">
 <title>SkinProof</title>
-<meta name="description" content="Should I keep buying this? SkinProof measures your skin against your own photo noise and gives one honest answer.">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%231f3a8a'/%3E%3Cpath d='M8 17l5 5 11-12' stroke='%23f4f0e8' stroke-width='3' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<meta name="description" content="Should I keep buying this? SkinProof measures your skin against your own photo noise and gives one honest answer. No fake progress. Just proof.">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
+/*
+ SkinProof design spec  (warm lab notebook: editorial calm + precise measurement)
+ ---------------------------------------------------------------------------
+ Concept   A measurement band with a marker. The mark is a bracketed band (your own noise) and a
+           dot that sits OUTSIDE it: a result only counts when it leaves the band. Same grammar is
+           reused for every data row, so the logo, the bars and the verdict say one thing.
+ Palette   canvas sandstone #F6F1E9, surface #FBF8F2, sunk #EFE8DC, ink graphite #1C1B1A,
+           ink-2 warm grey #5E5850, rules #DDD4C5 / #C9BFAD, brand ink-teal #1F4A48 (primary actions only).
+           Semantic only: proven = sage #2F6B47 on #E2EBDC, likely = ochre #7A4F07 on #F3E5C2 (dashed),
+           worse = terracotta #9A3B24 on #F2DDD3, noise band = sage-grey #D9DECF edge #9AA38F.
+           AA checked: ink 15:1, ink-2 6.1:1, sage 5.6:1, ochre 6.0:1, terracotta 5.5:1, brand-on-canvas text 9:1.
+ Type      Display / emotion: Instrument Serif (italic only for emphasis, e.g. "buying").
+           UI: Instrument Sans 400/500/600.  Every number: JetBrains Mono, tabular figures.
+           Scale (px): 11.5 label mono caps, 13.5 small, 16 body, 20 lede, 22 h3, clamp(32-46) h2,
+           clamp(46-96) hero, clamp(64-132) verdict word.
+ Space     4-pt base: 4 8 12 16 24 32 48 72 112.  Radii: 14 cards, 10 inputs, 999 buttons/pills.
+ Motion    Steps settle in (rise 450ms), marker slides to its value (900ms), decision card reveals.
+           All disabled under prefers-reduced-motion.
+ Layout    Mobile first (390). >=900: home is a 2-col editorial hero; agent screen is
+           timeline (left) + decision and evidence (right).
+*/
 :root{
- --paper:#f4f0e8;--paper2:#ece7dc;--card:#fbf9f4;--ink:#1a1d1c;--mute:#5f655f;--line:#d9d3c4;--line2:#c7c0ae;
- --accent:#1f3a8a;--accent-ink:#f7f4ec;--accent-soft:#e1e5f2;
- --good:#1d6b43;--goodbg:#dfeee4;--bad:#a8321f;--badbg:#f3ddd5;--wait:#8a5a08;--waitbg:#f4e6c4;
- --neutral:#4b5456;--neutralbg:#e6e4dc;--band:#c3c8d8;--sample:#f6e7b0;--sampleink:#4e3a00;
- --serif:"Fraunces",Georgia,"Times New Roman",serif;--sans:"Instrument Sans",system-ui,-apple-system,"Segoe UI",sans-serif;--mono:"JetBrains Mono",ui-monospace,"SF Mono",Menlo,monospace;
- --shadow:0 1px 0 rgba(26,29,28,.04),0 8px 24px -12px rgba(26,29,28,.18)}
+ --canvas:#F6F1E9;--surface:#FBF8F2;--sunk:#EFE8DC;--ink:#1C1B1A;--ink2:#5E5850;--rule:#DDD4C5;--rule2:#C9BFAD;
+ --brand:#1F4A48;--brand-h:#173836;--on-brand:#F6F1E9;--brand-soft:#DCE6E1;
+ --good:#2F6B47;--good-bg:#E2EBDC;--likely:#7A4F07;--likely-bg:#F3E5C2;--bad:#9A3B24;--bad-bg:#F2DDD3;
+ --band:#D9DECF;--band-edge:#9AA38F;--neutral:#5E5850;--neutral-bg:#E9E3D6;
+ --sample-bg:#F3E5C2;--sample-ink:#5A3A04;--scrim:rgba(28,27,26,.86);--hair:rgba(28,27,26,.12);
+ --serif:"Instrument Serif","Iowan Old Style",Georgia,serif;--sans:"Instrument Sans",system-ui,-apple-system,"Segoe UI",sans-serif;--mono:"JetBrains Mono",ui-monospace,"SF Mono",Menlo,monospace;
+ --r:14px;--r-s:10px;--ease:cubic-bezier(.2,.8,.2,1)}
 @media(prefers-color-scheme:dark){:root{
- --paper:#14161a;--paper2:#1b1e24;--card:#1c2026;--ink:#ece9e1;--mute:#a1a59f;--line:#2e333b;--line2:#3d434c;
- --accent:#8fa6f2;--accent-ink:#0f1630;--accent-soft:#232b4a;
- --good:#7fd3a0;--goodbg:#173325;--bad:#f2a08c;--badbg:#3a1f18;--wait:#e9be63;--waitbg:#3a2d10;
- --neutral:#b0b8ba;--neutralbg:#262b30;--band:#3b4468;--sample:#4a3d10;--sampleink:#f6e7b0;--shadow:0 8px 24px -12px rgba(0,0,0,.6)}}
+ --canvas:#151412;--surface:#1D1B19;--sunk:#24211E;--ink:#F0EBE1;--ink2:#ABA396;--rule:#35312C;--rule2:#4A453E;
+ --brand:#8DBDB4;--brand-h:#A6D0C8;--on-brand:#10201E;--brand-soft:#1E2D2B;
+ --good:#8CCBA0;--good-bg:#1B2D21;--likely:#E3B867;--likely-bg:#33290F;--bad:#EE9C85;--bad-bg:#37201A;
+ --band:#2D3329;--band-edge:#5F6A57;--neutral:#ABA396;--neutral-bg:#2A2622;
+ --sample-bg:#33290F;--sample-ink:#F0DFA8;--scrim:rgba(10,10,9,.88);--hair:rgba(240,235,225,.14)}}
 *{box-sizing:border-box}
-html{-webkit-text-size-adjust:100%}
-body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.55 var(--sans);-webkit-font-smoothing:antialiased;
-}
-.wrap{max-width:760px;margin:0 auto;padding:0 16px 72px}
-:focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:6px}
+html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+body{margin:0;background:var(--canvas);color:var(--ink);font:400 16px/1.55 var(--sans);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+.wrap{max-width:1200px;margin:0 auto;padding:0 16px 56px}
+.narrow{max-width:680px;margin:0 auto}
+@media(min-width:900px){.wrap{padding:0 40px 96px}}
+:focus-visible{outline:2px solid var(--brand);outline-offset:3px;border-radius:6px}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
-a{color:var(--accent)}
-header.top{display:flex;justify-content:space-between;align-items:center;padding:14px 0 10px;gap:10px}
-.logo{display:flex;gap:9px;align-items:center;cursor:pointer;background:none;border:0;color:var(--ink);font:600 19px/1 var(--serif);letter-spacing:-.01em;padding:4px;margin-left:-4px}
-.logo svg{width:26px;height:26px}
-.pill{font:500 12px/1 var(--mono);color:var(--mute);border:1px solid var(--line2);border-radius:99px;padding:6px 10px;white-space:nowrap}
-.nav{display:flex;gap:6px;align-items:center}
-.linkbtn{background:none;border:0;color:var(--mute);font:500 13px var(--sans);cursor:pointer;padding:6px 8px;border-radius:8px;text-decoration:underline;text-underline-offset:3px}
-h1,h2,h3{font-family:var(--serif);font-weight:600;letter-spacing:-.02em;margin:0}
-h1{font-size:clamp(34px,9vw,58px);line-height:1.04}
-h2{font-size:clamp(24px,6vw,30px);line-height:1.15;margin-bottom:8px}
-h3{font-size:18px;margin-bottom:6px}
-p{margin:0 0 12px}.mute{color:var(--mute)}.small{font-size:13px}
-.eyebrow{font:500 12px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin:0 0 12px;display:block}
-.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
-.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;margin:0 0 14px;box-shadow:var(--shadow)}
-.btn{appearance:none;border:1px solid var(--accent);background:var(--accent);color:var(--accent-ink);font:600 16px var(--sans);padding:14px 22px;border-radius:12px;cursor:pointer;min-height:48px;transition:transform .12s,opacity .12s}
-.btn:hover{transform:translateY(-1px)}.btn:active{transform:none}
-.btn.ghost{background:transparent;color:var(--accent)}
-.btn.sm{padding:9px 14px;min-height:40px;font-size:14px}
-.btn:disabled{opacity:.45;cursor:not-allowed;transform:none}
+a{color:var(--brand);text-underline-offset:3px}
+/* header */
+header.top{display:flex;justify-content:space-between;align-items:center;padding:18px 0 14px;gap:12px;border-bottom:1px solid var(--rule);margin-bottom:28px}
+.logo{white-space:nowrap;display:flex;gap:10px;align-items:center;cursor:pointer;background:none;border:0;color:var(--ink);font:400 27px/1 var(--serif);letter-spacing:-.01em;padding:4px;margin-left:-4px}
+.logo svg{width:30px;height:30px;display:block}
+.logo .dot{fill:var(--good)}.logo .fillb{fill:currentColor;opacity:.14}
+.nav{display:flex;gap:4px;align-items:center}
+.navlink{display:none;background:none;border:0;color:var(--ink2);font:500 14px var(--sans);cursor:pointer;padding:8px 12px;border-radius:999px}
+.navlink:hover{color:var(--ink);background:var(--sunk)}
+@media(min-width:700px){.navlink{display:inline-block}}
+.pill{font:500 11.5px/1 var(--mono);color:var(--ink2);border:1px solid var(--rule2);border-radius:999px;padding:7px 11px;white-space:nowrap;font-variant-numeric:tabular-nums}
+/* type */
+h1,h2,h3{font-family:var(--serif);font-weight:400;margin:0;letter-spacing:0;word-spacing:.1em}
+h1{font-size:clamp(50px,13.5vw,100px);line-height:.96;letter-spacing:-.025em;word-spacing:.04em}
+h2{font-size:clamp(34px,7vw,48px);line-height:1.04;margin-bottom:12px}
+h3{font-size:26px;line-height:1.15;margin-bottom:8px}
+em,.it{font-style:italic}
+p{margin:0 0 12px}.mute{color:var(--ink2)}.small{font-size:13.5px;line-height:1.5}
+.eyebrow{font:500 11.5px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--ink2);margin:0 0 14px;display:flex;align-items:center;gap:10px}
+.eyebrow:before{content:"";width:18px;height:1px;background:currentColor;opacity:.6}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums;font-feature-settings:"tnum"}
+.lead{font-size:18px;line-height:1.5;color:var(--ink2);margin:0 0 24px;max-width:36em}
+/* surfaces */
+.card{background:var(--surface);border:1px solid var(--rule);border-radius:var(--r);padding:20px;margin:0 0 16px}
+@media(min-width:900px){.card{padding:26px}}
+.btn{appearance:none;border:1px solid var(--brand);background:var(--brand);color:var(--on-brand);font:500 16px/1 var(--sans);padding:15px 26px;border-radius:999px;cursor:pointer;min-height:50px;transition:background .15s,transform .15s,border-color .15s;display:inline-flex;align-items:center;justify-content:center;gap:8px}
+.btn:hover{background:var(--brand-h);border-color:var(--brand-h)}.btn:active{transform:scale(.98)}
+.btn.ghost{background:transparent;color:var(--ink);border-color:var(--rule2)}
+.btn.ghost:hover{border-color:var(--ink);background:var(--sunk)}
+.btn.sm{padding:10px 18px;min-height:42px;font-size:14px}
+.btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
 .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-.stepper{display:flex;gap:6px;margin:6px 0 20px;font:500 11px var(--mono);color:var(--mute);letter-spacing:.06em;text-transform:uppercase}
-.stepper span{flex:1;border-top:3px solid var(--line2);padding-top:6px}.stepper span.on{border-color:var(--accent);color:var(--ink)}
-label.f{display:block;font:500 12px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--mute);margin:14px 0 6px}
-input[type=text],input[type=date],input[type=url],textarea{font:inherit;padding:12px 14px;border:1px solid var(--line2);border-radius:10px;background:var(--paper);color:var(--ink);width:100%;min-height:48px}
-textarea{min-height:92px;resize:vertical}
+.stepper{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:0 0 32px;font:500 10.5px/1.2 var(--mono);color:var(--ink2);letter-spacing:.08em;text-transform:uppercase}
+.stepper span{border-top:2px solid var(--rule2);padding-top:9px}.stepper span.on{border-color:var(--ink);color:var(--ink)}
+label.f{display:block;font:500 11.5px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--ink2);margin:20px 0 8px}
+label.f:first-child{margin-top:0}
+input[type=text],input[type=date],input[type=url],textarea{font:inherit;padding:12px 14px;border:1px solid var(--rule2);border-radius:var(--r-s);background:var(--canvas);color:var(--ink);width:100%;min-height:50px;transition:border-color .15s}
+input:hover,textarea:hover{border-color:var(--ink2)}
+input:focus,textarea:focus{outline:none;border-color:var(--brand);box-shadow:0 0 0 3px var(--brand-soft)}
+input::placeholder,textarea::placeholder{color:#8B8479;opacity:1}
+textarea{min-height:96px;resize:vertical}
 .chips{display:flex;flex-wrap:wrap;gap:8px}
-.chip{border:1px solid var(--line2);border-radius:99px;padding:9px 14px;cursor:pointer;background:var(--paper);color:var(--ink);font:500 14px var(--sans);min-height:40px}
-.chip[aria-pressed=true]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
-.sample{display:flex;gap:10px;align-items:center;background:var(--sample);color:var(--sampleink);border-radius:10px;padding:9px 12px;font-size:13px;margin:0 0 14px;border:1px solid rgba(0,0,0,.08)}
-.sample b{font:600 11px var(--mono);letter-spacing:.1em;text-transform:uppercase}
-.err{background:var(--badbg);color:var(--bad);border-radius:10px;padding:10px 12px;margin:12px 0;font-size:14px}
-.notebar{background:var(--neutralbg);border-radius:10px;padding:10px 12px;font-size:14px;margin:0 0 14px}
-/* hero */
-.hero{padding:18px 0 8px}
-.hero h1 em{font-style:italic;color:var(--accent);font-weight:500}
-.lede{font-size:18px;color:var(--mute);max-width:34em;margin:16px 0 22px}
-.specimen{margin:26px 0 8px}
-.specimen .rowv{display:grid;grid-template-columns:96px 1fr 70px;gap:10px;align-items:center;font-size:13px;padding:8px 0;border-top:1px solid var(--line)}
-.specimen .rowv:first-child{border-top:0}
-.specimen .rowv .v{font:500 11px var(--mono);text-align:right}
-.how{display:grid;gap:12px;margin:26px 0}
-@media(min-width:640px){.how{grid-template-columns:repeat(3,1fr)}}
-.how .card{margin:0}.how .n{font:500 12px var(--mono);color:var(--accent)}
-.api{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 0}
-.chipapi{display:inline-flex;align-items:center;gap:6px;font:500 11px/1 var(--mono);color:var(--accent);background:var(--accent-soft);border-radius:6px;padding:5px 8px;white-space:nowrap}
-.chipapi:before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
-.chipapi.llm{color:var(--wait);background:var(--waitbg)}
+.chip{border:1px solid var(--rule2);border-radius:999px;padding:9px 16px;cursor:pointer;background:transparent;color:var(--ink);font:500 14px var(--sans);min-height:42px;transition:background .15s,border-color .15s}
+.chip:hover{border-color:var(--ink)}
+.chip[aria-pressed=true]{background:var(--brand);color:var(--on-brand);border-color:var(--brand)}
+.sample{display:flex;gap:12px;align-items:baseline;background:var(--sample-bg);color:var(--sample-ink);border:1px dashed var(--likely);border-radius:var(--r-s);padding:10px 14px;font-size:13.5px;margin:0 0 24px}
+.sample b{font:500 11px var(--mono);letter-spacing:.12em;text-transform:uppercase;white-space:nowrap}
+.err{background:var(--bad-bg);color:var(--bad);border-radius:var(--r-s);padding:12px 14px;margin:14px 0;font-size:14px}
+.err a{color:inherit;font-weight:600}
+.notebar{background:var(--sunk);border-radius:var(--r-s);padding:12px 14px;font-size:14px;margin:0 0 20px;color:var(--ink2)}
+/* ===== home ===== */
+.hero{display:grid;gap:40px;padding:8px 0 24px}
+.hero h1 em{color:var(--good)}
+.hero-cta{display:flex;gap:10px;flex-wrap:wrap;margin:0 0 20px}
+.tag{font:italic 400 24px/1.2 var(--serif);color:var(--ink);margin:0}
+.story{background:var(--surface);border:1px solid var(--rule);border-radius:var(--r);padding:20px;align-self:start}
+.story .imgs{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:2px 0 16px}
+.story figure{margin:0;position:relative}
+.story img{display:block;width:100%;aspect-ratio:4/5;object-fit:cover;border-radius:var(--r-s);background:var(--sunk);border:1px solid var(--rule)}
+.story figcaption{font:500 11.5px var(--mono);color:var(--ink2);margin-top:6px;display:flex;justify-content:space-between;gap:4px;flex-wrap:wrap}
+.stat{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;border-top:1px solid var(--rule);padding-top:14px}
+.stat .big{font:500 clamp(30px,8vw,40px)/1 var(--mono);letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+.stat .big i{font-style:normal;color:var(--ink2);margin:0 .12em}
+.stat .delta{font:500 14px var(--mono);color:var(--likely);background:var(--likely-bg);padding:5px 9px;border-radius:6px;border:1px dashed var(--likely)}
+.story h3{font-size:26px;margin:0 0 6px}
+.story .row{margin-top:18px;gap:8px}.story .btn{padding:13px 20px;min-height:46px;font-size:15px}
+@media(min-width:900px){.hero{grid-template-columns:minmax(0,1.2fr) minmax(0,.8fr);gap:72px;align-items:center;padding:24px 0 56px}.story{padding:24px}}
+.sec{border-top:1px solid var(--rule);padding:48px 0 8px;display:grid;gap:28px}
+.sec>div:first-child h2{font-size:clamp(30px,6vw,40px)}
+@media(min-width:900px){.sec{grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);gap:72px;padding-top:64px}}
+.how{display:grid;gap:0;margin:0;padding:0;list-style:none}
+.how li{display:grid;grid-template-columns:44px 1fr;gap:4px 12px;padding:18px 0;border-top:1px solid var(--rule)}
+.how li:first-child{border-top:0;padding-top:0}
+.how .n{font:500 12px/2 var(--mono);color:var(--ink2)}
+.how h3{font-size:25px;margin:0 0 4px}.how p{margin:0;color:var(--ink2);font-size:15px}
+.spec{background:var(--surface);border:1px solid var(--rule);border-radius:var(--r);padding:8px 20px 18px}
+.spec .rowv{display:grid;grid-template-columns:78px 1fr;gap:6px 14px;align-items:center;padding:14px 0;border-top:1px solid var(--rule)}
+.spec .rowv:first-of-type{border-top:0}
+.spec .rowv b{font-weight:500;font-size:15px}
+.spec .rowv .badge{grid-column:2;justify-self:start}
+.spec .axis{margin:0}
+.api{display:flex;flex-wrap:wrap;gap:8px;margin:0}
+.built{border-top:1px solid var(--rule);margin-top:48px;padding-top:24px;display:flex;gap:12px 16px;flex-wrap:wrap;align-items:center}
+.chipapi{display:inline-flex;align-items:center;gap:7px;font:500 11px/1 var(--mono);letter-spacing:.02em;color:var(--ink2);border:1px solid var(--rule2);border-radius:999px;padding:6px 10px;white-space:nowrap}
+.chipapi:before{content:"";width:6px;height:6px;border-radius:50%;background:var(--good)}
+.chipapi.llm:before{background:var(--likely)}
 /* face guide / dropzone */
-.guidebox{position:relative;aspect-ratio:3/4;max-width:260px;margin:0 auto 12px;border-radius:14px;background:var(--paper2);overflow:hidden;border:1px solid var(--line)}
-.guidebox svg{position:absolute;inset:0;width:100%;height:100%;color:var(--accent)}
+.guidebox{position:relative;aspect-ratio:3/4;max-width:220px;margin:0 auto 16px;border-radius:var(--r);background:var(--sunk);overflow:hidden;border:1px solid var(--rule)}
+.guidebox svg{position:absolute;inset:0;width:100%;height:100%;color:var(--ink2)}
 .guidebox img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-.tips{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0 14px}
-.tips div{font-size:13px;background:var(--paper2);border-radius:10px;padding:9px 10px;display:flex;gap:8px;line-height:1.35}
-.tips div:before{content:"+";font:600 13px var(--mono);color:var(--accent)}
-.drop{display:block;width:100%;border:1.5px dashed var(--line2);border-radius:12px;padding:20px;text-align:center;cursor:pointer;color:var(--mute);background:transparent;font:500 15px var(--sans);min-height:56px}
-.drop.has{border-color:var(--accent);color:var(--ink);border-style:solid}
-.thumbs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:10px 0}
-.thumbs img{width:100%;aspect-ratio:3/4;object-fit:cover;border-radius:8px;border:1px solid var(--line)}
+.tips{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:0 0 20px}
+.tips div{font-size:13px;background:var(--sunk);border-radius:var(--r-s);padding:10px 12px;display:flex;gap:8px;line-height:1.35;color:var(--ink2)}
+.tips div:before{content:"";flex:none;width:6px;height:6px;border-radius:50%;background:var(--good);margin-top:6px}
+.drop{display:block;width:100%;border:1.5px dashed var(--rule2);border-radius:var(--r-s);padding:20px;text-align:center;cursor:pointer;color:var(--ink2);background:transparent;font:500 15px var(--sans);min-height:60px;transition:border-color .15s,background .15s}
+.drop:hover{border-color:var(--ink);background:var(--sunk)}
+.drop.has{border-color:var(--good);border-style:solid;color:var(--ink);background:var(--good-bg)}
+.thumbs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:0 0 14px}
+.thumbs img{width:100%;aspect-ratio:3/4;object-fit:cover;border-radius:8px;border:1px solid var(--rule)}
+.privacy{font-size:12.5px;color:var(--ink2);margin:20px 0 0;padding-top:14px;border-top:1px solid var(--rule);line-height:1.5}
+.privacy .btn{padding:4px 12px;min-height:30px;font-size:12.5px;margin-left:4px}
 /* noise bars */
-.nbar{display:grid;grid-template-columns:104px 1fr 54px;gap:10px;align-items:center;margin:10px 0;font-size:14px}
-.nbar .t{position:relative;height:12px;background:repeating-linear-gradient(90deg,var(--line2) 0 1px,transparent 1px 10%);border-bottom:1px solid var(--line2)}
-.nbar .t i{position:absolute;left:0;top:2px;bottom:0;background:var(--band);border-right:3px solid var(--accent);transition:width .8s cubic-bezier(.2,.8,.2,1)}
-.nbar em{font:500 12px var(--mono);font-style:normal;text-align:right;color:var(--mute)}
+.nbar{display:grid;grid-template-columns:104px 1fr 62px;gap:12px;align-items:center;margin:14px 0;font-size:15px}
+.nbar b{font-weight:500}
+.nbar .t{position:relative;height:14px;background:repeating-linear-gradient(90deg,var(--rule2) 0 1px,transparent 1px 10%);border-bottom:1px solid var(--rule2)}
+.nbar .t i{position:absolute;left:0;top:2px;bottom:0;background:var(--band);border-right:2px solid var(--ink);transition:width .9s var(--ease)}
+.nbar em{font:500 12px var(--mono);font-style:normal;text-align:right;color:var(--ink2)}
 /* ===== agent ===== */
-.agenthead{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap;margin-bottom:14px}
-.decision{scroll-margin-top:120px}
-.note-dis,.note-fb{border-color:var(--wait);background:var(--waitbg);font-size:14px;margin-top:12px}
-.meter{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin:0 0 16px;position:sticky;top:6px;z-index:5;box-shadow:var(--shadow)}
-.meter .mh{display:flex;justify-content:space-between;font:500 12px var(--mono);color:var(--mute);margin-bottom:8px;letter-spacing:.04em;text-transform:uppercase}
+.agenthead{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap;margin-bottom:28px}
+.agenthead h2{margin:0}
+.agentgrid{display:grid;gap:8px}
+@media(min-width:960px){.agentgrid{grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:64px;align-items:start}.agentgrid .colr{border-left:1px solid var(--rule);padding-left:64px;margin-left:-32px}}
+.await{display:none}
+@media(min-width:960px){.await{display:block;color:var(--ink2);border:1px dashed var(--rule2);border-radius:var(--r);padding:56px 32px;text-align:center}.await .it{font:italic 400 28px/1.15 var(--serif);color:var(--ink);display:block;margin-bottom:8px}}
+.meter{background:var(--surface);border:1px solid var(--rule);border-radius:var(--r);padding:12px 14px;margin:0 0 24px;position:sticky;top:8px;z-index:5}
+.meter .mh{display:flex;justify-content:space-between;font:500 11.5px var(--mono);color:var(--ink2);margin-bottom:10px;letter-spacing:.06em;text-transform:uppercase}
 .meter .mh b{color:var(--ink);font-weight:500}
 .ticks{display:grid;grid-template-columns:repeat(40,1fr);gap:2px;height:14px}
-.ticks i{background:var(--line);border-radius:1px;transition:background .3s}
-.ticks i.on{background:var(--accent)}.ticks i.on.hot{background:var(--wait)}
+.ticks i{background:var(--rule);border-radius:1px;transition:background .3s}
+.ticks i.on{background:var(--ink)}.ticks i.on.hot{background:var(--likely)}
 .tl{list-style:none;margin:0 0 18px;padding:0;position:relative}
-.tl:before{content:"";position:absolute;left:15px;top:8px;bottom:8px;width:2px;background:var(--line)}
-.st{position:relative;display:grid;grid-template-columns:32px 1fr;gap:12px;padding:0 0 18px;animation:rise .45s cubic-bezier(.2,.8,.2,1)}
-.st .dot{width:32px;height:32px;border-radius:50%;background:var(--card);border:2px solid var(--line2);display:grid;place-items:center;z-index:1;color:var(--accent)}
-.st.done .dot{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
-.st.run .dot{border-color:var(--accent)}
+.tl:before{content:"";position:absolute;left:13px;top:8px;bottom:8px;width:1px;background:var(--rule2)}
+.st{position:relative;display:grid;grid-template-columns:28px 1fr;gap:14px;padding:0 0 14px;animation:rise .5s var(--ease)}
+.st .dot{width:27px;height:27px;border-radius:50%;background:var(--canvas);border:1.5px solid var(--rule2);display:grid;place-items:center;z-index:1;color:var(--on-brand)}
+.st.done .dot{background:var(--ink);border-color:var(--ink);color:var(--canvas);animation:settle .4s var(--ease)}
+.st.run .dot{border-color:var(--ink)}
 .st.fail .dot{background:var(--bad);border-color:var(--bad);color:#fff}
-.st .dot svg{width:16px;height:16px}
-.spinner{width:14px;height:14px;border:2px solid var(--accent);border-right-color:transparent;border-radius:50%;animation:spin 1s linear infinite}
-.st .body{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px;min-width:0}
-.st.run .body{border-color:var(--accent)}
+.st .dot svg{width:14px;height:14px}
+.spinner{width:12px;height:12px;border:2px solid var(--ink);border-right-color:transparent;border-radius:50%;animation:spin 1s linear infinite}
+.st .body{background:var(--surface);border:1px solid var(--rule);border-radius:var(--r);padding:12px 14px;min-width:0}
+.st.run .body{border-color:var(--ink2)}
 .st .t{font:600 15px/1.3 var(--sans);margin:0 0 4px}
-.st .s{font-size:14px;color:var(--mute);margin:0;overflow-wrap:anywhere}
-.st .meta{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:8px}
-.st .u{font:500 11px var(--mono);color:var(--mute)}
-.note{margin:0 0 16px 44px;font:italic 400 14px/1.45 var(--serif);color:var(--mute);border-left:2px solid var(--line2);padding-left:10px;animation:rise .4s}
-.thinking{display:flex;gap:8px;align-items:center;color:var(--mute);font-size:14px;margin:0 0 18px 4px}
+.st .s{font-size:14px;color:var(--ink2);margin:0;overflow-wrap:anywhere}
+.st .meta{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:10px}
+.st .meta:empty{display:none}
+.st .u{font:500 11.5px var(--mono);color:var(--ink2)}
+.note{word-spacing:.08em;margin:0 0 16px 42px;font:italic 400 18px/1.35 var(--serif);color:var(--ink2);animation:rise .5s var(--ease)}
+.thinking{display:flex;gap:10px;align-items:center;color:var(--ink2);font-size:14px;margin:0 0 18px 6px}
 @keyframes spin{to{transform:rotate(360deg)}}
-@keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@keyframes settle{0%{transform:scale(.7)}60%{transform:scale(1.12)}100%{transform:scale(1)}}
 /* decision */
-.decision{border-radius:20px;padding:22px 20px;margin:6px 0 16px;border:1px solid;animation:rise .6s cubic-bezier(.2,.8,.2,1);position:relative;overflow:hidden}
-.decision.KEEP{background:var(--goodbg);border-color:var(--good);color:var(--ink)}
-.decision.STOP{background:var(--badbg);border-color:var(--bad)}
-.decision.WAIT{background:var(--waitbg);border-color:var(--wait)}
-.decision .big{font:700 clamp(44px,13vw,76px)/.95 var(--serif);letter-spacing:-.03em;margin:4px 0 12px}
-.decision.KEEP .big{color:var(--good)}.decision.STOP .big{color:var(--bad)}.decision.WAIT .big{color:var(--wait)}
-.decision .eyebrow{color:var(--mute)}
-.decision .hl{font:600 clamp(19px,4.6vw,24px)/1.25 var(--serif);margin:0 0 12px}
+.decision{border-radius:var(--r);padding:26px 22px 20px;margin:0 0 24px;border:1px solid;animation:reveal .8s var(--ease);position:relative;scroll-margin-top:96px}
+@keyframes reveal{from{opacity:0;transform:translateY(16px) scale(.985)}to{opacity:1;transform:none}}
+.decision.KEEP{background:var(--good-bg);border-color:var(--good)}
+.decision.STOP{background:var(--bad-bg);border-color:var(--bad)}
+.decision.WAIT{background:var(--likely-bg);border-color:var(--likely);border-style:dashed}
+.decision .big{font:400 clamp(64px,17vw,128px)/.9 var(--serif);letter-spacing:-.03em;margin:2px 0 14px;text-transform:uppercase}
+.decision.KEEP .big{color:var(--good)}.decision.STOP .big{color:var(--bad)}.decision.WAIT .big{color:var(--likely)}
+.decision .eyebrow{color:var(--ink)}
+.decision .hl{word-spacing:.1em;font:400 clamp(24px,5vw,30px)/1.15 var(--serif);margin:0 0 18px;max-width:22em}
 .decision ul{margin:0;padding:0;list-style:none}
-.decision li{padding:8px 0 8px 22px;position:relative;font-size:15px;border-top:1px solid rgba(0,0,0,.1)}
-@media(prefers-color-scheme:dark){.decision li{border-top-color:rgba(255,255,255,.12)}}
-.decision li:before{content:"";position:absolute;left:2px;top:16px;width:8px;height:8px;background:currentColor;opacity:.55;transform:rotate(45deg)}
-.sect{font:500 12px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--mute);margin:26px 0 10px;display:flex;align-items:center;gap:10px}
-.sect:after{content:"";flex:1;height:1px;background:var(--line2)}
-.vc{border-left:5px solid var(--neutral)}.vc.IMPROVED{border-left-color:var(--good)}.vc.WORSE{border-left-color:var(--bad)}.vc.LIKELY_IMPROVED,.vc.LIKELY_WORSE{border-left-color:var(--wait);border-left-style:dashed}
-.vh{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:6px}.vh strong{font:600 17px var(--serif)}
-.badge{display:inline-block;font:500 11px/1 var(--mono);letter-spacing:.06em;text-transform:uppercase;padding:6px 9px;border-radius:6px;background:var(--neutralbg);color:var(--neutral);white-space:nowrap}
-.IMPROVED .badge,.b-good{background:var(--goodbg);color:var(--good)}.WORSE .badge,.b-bad{background:var(--badbg);color:var(--bad)}.b-wait,.LIKELY_IMPROVED .badge,.LIKELY_WORSE .badge{background:var(--waitbg);color:var(--wait)}
-.real{border:1px solid var(--accent);background:var(--card);border-radius:16px;padding:18px;margin:22px 0 14px;box-shadow:var(--shadow)}
-.real h3{margin:4px 0 6px}.real .row{margin-top:12px}
-.tenpair{margin:0 0 14px}.tenpair .imgs{display:grid;grid-template-columns:1fr 1fr;gap:10px;max-width:520px}
-.tenpair figure{margin:0}.tenpair img{display:block;width:100%;aspect-ratio:3/4;object-fit:cover;border-radius:12px;border:1px solid var(--line)}
-.tenpair figcaption{font:500 12px var(--mono);color:var(--mute);margin-top:4px}
-.tentable{width:100%;border-collapse:collapse;font-size:13px;margin:8px 0}.tentable th,.tentable td{text-align:right;padding:5px 6px;border-bottom:1px solid var(--line)}.tentable th:first-child,.tentable td:first-child{text-align:left}.tentable th{font:500 11px var(--mono);color:var(--mute);letter-spacing:.04em}.tentable .big{font-weight:700}
-@media(max-width:520px){.tentable{font-size:11px}.tentable th,.tentable td{padding:5px 3px}.tentable th{font-size:9px;letter-spacing:0}.tenpair.card{padding:14px}}
-.lesson{border:1px solid var(--wait);background:var(--waitbg);color:var(--ink);border-radius:12px;padding:12px 14px;margin:0 0 14px;font-size:14px}.lesson b{font:600 11px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--wait);display:block;margin-bottom:6px}.lesson .now{margin-top:8px;padding-top:8px;border-top:1px solid rgba(0,0,0,.12)}
-.axis{position:relative;height:40px;margin:12px 4px 2px;background:repeating-linear-gradient(90deg,var(--line2) 0 1px,transparent 1px calc(100%/20));-webkit-mask:none}
-.axis .line{position:absolute;left:0;right:0;top:19px;height:2px;background:var(--line2)}
-.axis .band{position:absolute;top:8px;height:24px;background:var(--band);border-radius:3px;border-left:1px solid var(--accent);border-right:1px solid var(--accent)}
-.axis .zero{position:absolute;top:2px;bottom:2px;width:1px;background:var(--mute)}
-.axis .mk{position:absolute;top:3px;width:4px;height:34px;margin-left:-2px;border-radius:2px;background:var(--neutral);transition:left .9s cubic-bezier(.2,.8,.2,1)}
-.axis .mk:after{content:"";position:absolute;left:-4px;top:-4px;border:6px solid transparent;border-top-color:inherit;border-width:6px 6px 0;border-top-color:var(--neutral)}
-.IMPROVED .axis .mk{background:var(--good)}.IMPROVED .axis .mk:after{border-top-color:var(--good)}
-.WORSE .axis .mk{background:var(--bad)}.WORSE .axis .mk:after{border-top-color:var(--bad)}
-.LIKELY_IMPROVED .axis .mk,.LIKELY_WORSE .axis .mk{background:var(--wait)}.LIKELY_IMPROVED .axis .mk:after,.LIKELY_WORSE .axis .mk:after{border-top-color:var(--wait)}
-.axlab{display:flex;justify-content:space-between;font:400 11px var(--mono);color:var(--mute);margin:0 4px;gap:8px}
+.decision li{padding:10px 0 10px 24px;position:relative;font-size:15px;border-top:1px solid var(--hair)}
+.decision li:before{content:"";position:absolute;left:2px;top:19px;width:7px;height:7px;border-radius:50%;background:currentColor;opacity:.5}
+@media(min-width:900px){.decision{padding:34px 36px 26px}}
+.note-dis,.note-fb{border-color:var(--likely);border-style:dashed;background:var(--likely-bg);font-size:14px;margin-top:12px}
+.sect{font:500 11.5px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--ink2);margin:36px 0 14px;display:flex;align-items:center;gap:12px}
+.sect:after{content:"";flex:1;height:1px;background:var(--rule)}
+/* verdict cards */
+.vc{border-left:4px solid var(--neutral);border-radius:4px var(--r) var(--r) 4px}
+.vc.IMPROVED{border-left-color:var(--good)}.vc.WORSE{border-left-color:var(--bad)}
+.vc.LIKELY_IMPROVED,.vc.LIKELY_WORSE{border-left-color:var(--likely);border-left-style:dashed}
+.vh{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:6px}.vh strong{font:400 26px/1.1 var(--serif)}
+.badge{display:inline-block;font:500 10.5px/1 var(--mono);letter-spacing:.07em;text-transform:uppercase;padding:6px 9px;border-radius:6px;background:var(--neutral-bg);color:var(--neutral);white-space:nowrap}
+.IMPROVED .badge,.b-good{background:var(--good-bg);color:var(--good)}
+.WORSE .badge,.b-bad{background:var(--bad-bg);color:var(--bad)}
+.b-wait,.LIKELY_IMPROVED .badge,.LIKELY_WORSE .badge{background:var(--likely-bg);color:var(--likely);border:1px dashed var(--likely)}
+.vc>p{color:var(--ink2)}
+/* axis: band + marker */
+.axis{position:relative;height:44px;margin:14px 6px 2px}
+.axis:before{content:"";position:absolute;left:0;right:0;bottom:2px;height:6px;background:repeating-linear-gradient(90deg,var(--rule2) 0 1px,transparent 1px 5%);opacity:.8}
+.axis .line{position:absolute;left:0;right:0;top:21px;height:1px;background:var(--rule2)}
+.axis .band{position:absolute;top:9px;height:26px;background:var(--band);border-left:2px solid var(--band-edge);border-right:2px solid var(--band-edge);border-radius:2px}
+.axis .zero{position:absolute;top:3px;bottom:3px;width:1px;background:var(--ink2);opacity:.5}
+.axis .mk{position:absolute;top:3px;width:2px;height:38px;margin-left:-1px;background:var(--neutral);transition:left .95s var(--ease)}
+.axis .mk:after{content:"";position:absolute;left:-7px;top:12px;width:16px;height:16px;border-radius:50%;background:var(--neutral);border:3px solid var(--surface);box-sizing:content-box;margin:-3px}
+.IMPROVED .axis .mk,.IMPROVED .axis .mk:after{background:var(--good)}
+.WORSE .axis .mk,.WORSE .axis .mk:after{background:var(--bad)}
+.LIKELY_IMPROVED .axis .mk,.LIKELY_WORSE .axis .mk{background:var(--likely)}
+.LIKELY_IMPROVED .axis .mk:after,.LIKELY_WORSE .axis .mk:after{background:var(--surface);border:2px dashed var(--likely);margin:-2px}
+.axlab{display:flex;justify-content:space-between;font:400 11.5px var(--mono);color:var(--ink2);margin:6px 6px 0;gap:8px}
 .axlab span:nth-child(2){text-align:center}
-.next{font-size:14px;border-top:1px solid var(--line);padding-top:8px;margin-top:10px}.next b{color:var(--accent)}
-.claim{display:grid;grid-template-columns:1fr auto;gap:6px 12px;align-items:start}
-.claim q{font:italic 400 15px/1.4 var(--serif);quotes:"\201C" "\201D"}
-.claim .sub{grid-column:1/-1;font-size:13px;color:var(--mute)}
-.simbox{position:relative;border-radius:14px;overflow:hidden;border:1px solid var(--line);background:var(--paper2);max-width:340px}
+.next{font-size:14px;border-top:1px solid var(--rule);padding-top:10px;margin-top:12px}.next b{font-weight:600}
+.claim{display:grid;grid-template-columns:1fr auto;gap:8px 14px;align-items:start}
+.claim q{word-spacing:.08em;font:italic 400 21px/1.25 var(--serif);quotes:"\201C" "\201D"}
+.claim .sub{grid-column:1/-1;font-size:13px;color:var(--ink2)}
+.simbox{position:relative;border-radius:var(--r);overflow:hidden;border:1px solid var(--rule);background:var(--sunk);max-width:360px}
 .simbox img{display:block;width:100%}
-.simbox .tag{position:absolute;left:0;right:0;bottom:0;background:rgba(20,22,26,.82);color:#f7f4ec;font:500 12px var(--mono);letter-spacing:.06em;text-transform:uppercase;padding:9px 12px}
-.simph{aspect-ratio:16/9;display:grid;place-items:center;text-align:center;padding:20px;color:var(--mute);font-size:13px}
-.ba{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}
-.ba figure{margin:0;text-align:center;font-size:12px;color:var(--mute)}
-.ba img,.ba .ph{width:100%;aspect-ratio:3/4;object-fit:cover;border-radius:8px;background:var(--neutralbg);display:flex;align-items:center;justify-content:center;font-size:12px;padding:8px}
-.hist{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0}.hist span{font:400 12px var(--mono);border:1px solid var(--line2);border-radius:6px;padding:3px 8px}.hist .x{color:var(--bad);border-color:var(--bad)}
-.cta{padding:12px 0;margin-top:10px}
-footer{font-size:12px;color:var(--mute);text-align:center;margin-top:36px;line-height:1.5}
+.simbox .tag{position:absolute;left:0;right:0;bottom:0;background:var(--scrim);color:#F6F1E9;font:500 11.5px var(--mono);letter-spacing:.08em;text-transform:uppercase;padding:10px 12px}
+.simph{aspect-ratio:16/10;display:grid;place-items:center;text-align:center;padding:24px 20px 44px;color:var(--ink2);font-size:13px}
+.ba{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0 0}
+.ba figure{margin:0;text-align:center;font-size:12px;color:var(--ink2)}
+.ba img,.ba .ph{width:100%;aspect-ratio:3/4;object-fit:cover;border-radius:8px;background:var(--neutral-bg);display:flex;align-items:center;justify-content:center;font-size:12px;padding:8px}
+.hist{display:flex;gap:6px;flex-wrap:wrap;margin:14px 0}.hist span{font:400 12px var(--mono);border:1px solid var(--rule2);border-radius:6px;padding:4px 9px;color:var(--ink2)}.hist .x{color:var(--bad);border-color:var(--bad)}
+.cta{padding:8px 0;margin-top:28px}
+/* real-run (ten second) + lesson */
+.tenpair{padding:20px}
+.tenpair h3{margin:0 0 14px;font-size:28px}
+.tenpair .imgs{display:grid;grid-template-columns:1fr 1fr;gap:10px;max-width:440px}
+.tenpair figure{margin:0}.tenpair img{display:block;width:100%;aspect-ratio:4/5;object-fit:cover;border-radius:var(--r-s);border:1px solid var(--rule)}
+.tenpair figcaption{font:500 11.5px var(--mono);color:var(--ink2);margin-top:6px}
+.tentable{width:100%;border-collapse:collapse;font-size:13px;margin:4px 0 12px}
+.tentable th,.tentable td{text-align:right;padding:8px 6px;border-bottom:1px solid var(--rule)}
+.tentable th:first-child,.tentable td:first-child{text-align:left;padding-left:0}
+.tentable th{font:500 10.5px var(--mono);color:var(--ink2);letter-spacing:.04em;text-transform:uppercase}
+.tentable .num{font-size:12.5px}
+.tentable .big{font-weight:500;color:var(--likely);background:var(--likely-bg)}
+.tp-r .small:last-child{margin:0}
+@media(min-width:900px){.tenpair{display:grid;grid-template-columns:minmax(0,420px) minmax(0,1fr);gap:0 48px;padding:28px 32px}.tenpair>.eyebrow,.tenpair>h3{grid-column:1/-1}.tenpair .imgs{max-width:none}}
+@media(max-width:520px){.tentable th{font-size:9px;letter-spacing:0}.tentable th,.tentable td{padding:8px 3px}.tentable .num{font-size:11.5px}}
+.lesson{border:1px dashed var(--likely);background:var(--likely-bg);color:var(--ink);border-radius:var(--r);padding:16px 18px;margin:0 0 20px;font-size:14.5px}
+.lesson b{font:500 11px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--likely);display:block;margin-bottom:6px}
+.lesson .now{margin-top:10px;padding-top:10px;border-top:1px solid var(--hair)}
+.replaynote{margin:0 0 24px;color:var(--ink2)}
+footer{font-size:12.5px;color:var(--ink2);text-align:center;margin-top:72px;line-height:1.6;border-top:1px solid var(--rule);padding-top:24px}
+footer .logo2{display:block;font:italic 400 20px var(--serif);color:var(--ink);margin-bottom:6px}
 .spin{display:inline-block;width:14px;height:14px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;animation:spin 1s linear infinite;vertical-align:-2px;margin-right:8px}
-@media(min-width:900px){.wrap{padding-bottom:96px}.card{padding:22px}.st .body{padding:14px 18px}.decision{padding:30px 32px}}
-@media(max-width:380px){.nbar{grid-template-columns:84px 1fr 48px}.tips{grid-template-columns:1fr}}
-@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}.spinner,.spin{animation:none;border-right-color:currentColor}}
+@media(max-width:380px){.nbar{grid-template-columns:84px 1fr 52px}.tips{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}.spinner,.spin{animation:none;border-right-color:currentColor}}
 </style>
 </head>
 <body>
 <div class="wrap">
-<header class="top"><button class="logo" data-go="home" aria-label="SkinProof home"><svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="8" fill="var(--accent)"/><path d="M8 17l5 5 11-12" stroke="var(--accent-ink)" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>SkinProof</button>
-<div class="nav"><span class="pill" id="units" hidden></span></div></header>
+<header class="top"><button class="logo" data-go="home" aria-label="SkinProof home"><svg viewBox="0 0 32 32" fill="none" aria-hidden="true"><rect class="fillb" x="3" y="9" width="15" height="14"/><path d="M7 7H3v18h4M14 7h4v18h-4" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><circle class="dot" cx="25.5" cy="16" r="4.2"/></svg>SkinProof</button>
+<div class="nav"><button class="navlink" data-go="sample">Sample</button><button class="navlink" data-go="volunteer">Real run</button><button class="navlink" data-go="start">Start</button><span class="pill" id="units" hidden></span></div></header>
 <main id="main" tabindex="-1" aria-live="polite"></main>
-<footer>SkinProof is a measurement tool, not medical advice.<br>Photos stay on this machine. Simulations are never your result.</footer>
+<footer><span class="logo2">No fake progress. Just proof.</span>SkinProof is a measurement tool, not medical advice.<br>Photos stay on this machine. Simulations are never your result.</footer>
 </div>
 <script>
 const $=s=>document.querySelector(s), main=$('#main');
@@ -198,14 +292,14 @@ const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
 async function api(path,opt){const r=await fetch('/api'+path,opt);let b={};try{b=await r.json()}catch(e){}
  if(!r.ok&&r.status!==422)throw new Error(b.detail||b.error||('Request failed ('+r.status+')'));return {ok:r.ok,status:r.status,body:b}}
 function setUnits(u){const el=$('#units');if(u==null){el.hidden=true;return}el.hidden=false;el.textContent=Math.round(u)+' units left'}
-function setLive(n){if(n==null)return;st.live=n;const el=$('#units');if(el){el.hidden=false;el.title='Shared live-analysis allowance left today';el.textContent='Live analysis today: '+Math.round(n)+' units left'}}
+function setLive(n){if(n==null)return;st.live=n;const el=$('#units');if(el){el.hidden=false;el.title='Shared live-analysis allowance left today';el.textContent='Live today: '+Math.round(n)+' units left'}}
 function limitHtml(m){return '<div class="err">'+esc(m||'Daily live-analysis limit reached.')+' Try the free <a href="#" data-go="sample">sample</a> or watch the <a href="#" data-go="volunteer">real-run replay</a>.</div>'}
 function stepper(n){const l=['Calibrate','Product','Check-in','Verdict'];return '<div class="stepper" aria-label="Progress">'+l.map((x,i)=>`<span class="${i<n?'on':''}"${i===n-1?' aria-current="step"':''}>${i+1} ${x}</span>`).join('')+'</div>'}
-function show(html){st.run++;main.innerHTML=html;window.scrollTo({top:0,behavior:reduce?'auto':'smooth'})}
+function show(html,wide){st.run++;main.innerHTML=wide?html:'<div class="narrow">'+html+'</div>';window.scrollTo({top:0,behavior:reduce?'auto':'smooth'})}
 const IC={check:'<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5l3.2 3.2L13 4.5"/></svg>',x:'<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M4 4l8 8M12 4l-8 8"/></svg>'};
 const guideSvg=`<svg viewBox="0 0 120 160" fill="none" stroke="currentColor" aria-hidden="true"><g stroke-width="2" stroke-linecap="round" opacity=".9"><path d="M8 26V8h18M94 8h18v18M112 134v18H94M26 152H8v-18"/></g><g stroke-width="1" opacity=".35"><path d="M60 8v144M8 80h104M8 53h104M8 107h104"/></g><ellipse cx="60" cy="80" rx="37" ry="50" stroke-width="2" stroke-dasharray="5 5"/><g stroke-width="1.5" opacity=".6"><circle cx="46" cy="70" r="2.5"/><circle cx="74" cy="70" r="2.5"/><path d="M48 100q12 9 24 0" stroke-linecap="round"/></g></svg>`;
-function privacyHtml(){return `<p class="small mute" id="privacy" style="margin:10px 0">Photos are sent to YouCam (Perfect Corp) for analysis and stored on this demo server; use the Delete button to remove them. <button class="btn ghost" id="delme" type="button" style="padding:4px 10px;min-height:0">Delete my data</button></p>`}
-function tipsHtml(extra){return privacyHtml()+`<div class="guidebox" id="gb">${guideSvg}</div><div class="tips"><div>No glasses, hair off your face</div><div>Even light, face a window</div><div>Face fills the oval, over 60% of width</div><div>${extra||'Straight on, neutral expression'}</div></div>`}
+function privacyHtml(){return `<p class="privacy" id="privacy">Photos are sent to YouCam (Perfect Corp) for analysis and stored on this demo server; use the Delete button to remove them. <button class="btn ghost" id="delme" type="button">Delete my data</button></p>`}
+function tipsHtml(extra){return `<div class="guidebox" id="gb">${guideSvg}</div><div class="tips"><div>No glasses, hair off your face</div><div>Even light, face a window</div><div>Face fills the oval, over 60% of width</div><div>${extra||'Straight on, neutral expression'}</div></div>`}
 function pick(multi){return new Promise(res=>{const i=document.createElement('input');i.type='file';i.accept='image/*';i.multiple=multi;if(!multi)i.setAttribute('capture','user');i.onchange=()=>res([...i.files]);i.click()})}
 function chipApi(label,cls){return label?`<span class="chipapi ${cls||''}">${esc(label)}</span>`:''}
 
@@ -214,26 +308,37 @@ document.addEventListener('click',async e=>{if(e.target.id==='delme'){e.preventD
 async function go(s){({home,start,calibrate,product,checkin:()=>checkin(),results,sample:trySample,volunteer:()=>replayRun('live-volunteer'),agent:()=>askAgent()}[s]||home)()}
 
 /* ================= HOME ================= */
+function storyHtml(j){
+ const r=j&&j.ten_second&&j.ten_second.rows&&(j.ten_second.rows.find(x=>x.concern==='acne')||j.ten_second.rows[0]);const ph=(j&&j.photos)||[];
+ if(!r)return `<span class="eyebrow">Real run</span><h3>Same face, 10 seconds apart</h3><p class="small mute">A volunteer, with consent, took two mirror selfies 10 seconds apart in the same light. Skin scores still moved by up to 10 points.</p>`;
+ const f=n=>(n>0?'+':'')+n.toFixed(1);
+ return `<span class="eyebrow">Real run &middot; with consent</span>
+ <div class="imgs">${ph.map((p,i)=>`<figure><img src="${esc(p.src)}" alt="Volunteer selfie ${i?'after':'before'}, taken at ${esc(p.label)}"><figcaption><span>${i?'After':'Before'}</span><span class="num">${esc(p.label)}</span></figcaption></figure>`).join('')}</div>
+ <div class="stat"><span class="big">${r.before.toFixed(1)}<i>&rarr;</i>${r.after.toFixed(1)}</span><span class="delta">${f(r.delta)} ${esc(r.label.toLowerCase())}</span></div>
+ <h3 style="margin-top:14px">Same face, 10 seconds apart.</h3>
+ <p class="small mute" style="margin:0">Nothing changed in the skin, yet the acne score moved about <span class="num">10</span> points. This face's own noise is &plusmn;<span class="num">${r.threshold.toFixed(1)}</span>. The agent answered WAIT: nothing beat the noise twice in a row.</p>`;
+}
 function home(){
  st.demo=false;
- const sp=[['Pores','Improved',58,'b-good'],['Redness','No proven change',18,''],['Texture','Improved',66,'b-good']];
- show(`<section class="hero"><span class="eyebrow">Skincare, audited</span>
+ const sp=[['Pores','IMPROVED',84,'Improved'],['Redness','NO_PROVEN_CHANGE',53,'Not proven'],['Texture','IMPROVED',72,'Improved']];
+ show(`<section class="hero"><div><span class="eyebrow">Skincare, audited</span>
  <h1>Should I keep <em>buying</em> this?</h1>
- <p class="lede">Skin scores wobble with light, angle and distance, even when your skin has not changed. SkinProof measures that wobble on <em>your</em> face, checks the product's claims against what changed, and gives you one answer: keep, stop, or wait.</p>
- <div class="row"><button class="btn" data-go="start">Start</button><button class="btn ghost" data-go="sample">Try the sample</button></div>
- <p class="small mute" style="margin-top:12px">The sample needs no photo and no account. <b>No fake progress. Just proof.</b></p></section>
- <section class="real" aria-label="Real run"><span class="eyebrow">Real run</span><h3>Real run: same face, 10 seconds apart</h3>
-  <p class="small mute" style="margin:0">A volunteer, with consent, took two mirror selfies 10 seconds apart in the same light and "started" a serum between them. Skin scores still moved by up to 10 points. The agent answered WAIT, because nothing beat the noise measured on his own face twice.</p>
-  <div class="row"><button class="btn" data-go="volunteer">Watch the real run</button><button class="btn ghost" data-go="sample">Try the sample</button><button class="btn ghost" id="fa0">The false alarm we caught</button></div></section>
- <div class="specimen card" aria-label="Example of a report">
-  <span class="eyebrow">Specimen report</span>
-  ${sp.map(r=>`<div class="rowv"><span>${r[0]}</span><div class="axis" style="height:22px;margin:0"><div class="line" style="top:10px"></div><div class="band" style="left:42%;width:16%;top:3px;height:16px"></div><div class="zero"></div><div class="mk" style="left:${r[2]+ (r[0]==='Redness'?32:0)}%;top:0;height:22px;background:${r[3]?'var(--good)':'var(--neutral)'}"></div></div><span class="v ${r[3]}" style="padding:3px 0">${r[1]==='No proven change'?'NOT PROVEN':r[1].toUpperCase()}</span></div>`).join('')}
-  <p class="small mute" style="margin:10px 0 0">Shaded band = your own measurement noise. A change only counts when the marker leaves it.</p></div>
- <div class="how"><div class="card"><span class="n">01</span><h3>Measure your noise</h3><p class="small mute">Three same-day photos of your face. Differences between them are pure measurement error.</p></div>
- <div class="card"><span class="n">02</span><h3>Name the product</h3><p class="small mute">Paste its claims, a link, or photograph the label. We read what it promises.</p></div>
- <div class="card"><span class="n">03</span><h3>Let the agent check</h3><p class="small mute">It decides which tests to run, shows every step, and stays inside a hard budget of 40 units.</p></div></div>
- <div class="api"><span class="small mute" style="margin-right:4px">Built on</span>${['Skin Analysis','Skin Tone','Fitzpatrick','Face Attributes','Skin Simulation','Photo Lighting'].map(x=>chipApi('YouCam · '+x)).join('')}</div>`);
+ <p class="lead" style="margin-top:28px">Skin scores wobble with light, angle and distance, even when your skin has not changed. SkinProof measures that wobble on <em>your</em> face, checks the product's claims against what changed, and gives you one answer: keep, stop, or wait.</p>
+ <div class="hero-cta"><button class="btn" data-go="start">Start</button><button class="btn ghost" data-go="sample">Try the sample</button></div>
+ <p class="tag">No fake progress. Just proof.</p>
+ <p class="small mute" style="margin:10px 0 0">The sample needs no photo and no account.</p></div>
+ <aside class="story" id="story" aria-label="Real run">${storyHtml(null)}
+  <div class="row"><button class="btn" data-go="volunteer">Watch the real run</button><button class="btn ghost" id="fa0">The false alarm we caught</button></div></aside></section>
+ <section class="sec"><div><span class="eyebrow">How it works</span><h2>Three steps to an honest answer.</h2></div>
+ <ol class="how"><li><span class="n">01</span><div><h3>Measure your noise</h3><p>Three same-day photos of your face. Differences between them are pure measurement error.</p></div></li>
+ <li><span class="n">02</span><div><h3>Name the product</h3><p>Paste its claims, a link, or photograph the label. We read what it promises.</p></div></li>
+ <li><span class="n">03</span><div><h3>Let the agent check</h3><p>It decides which tests to run, shows every step, and stays inside a hard budget of 40 units.</p></div></li></ol></section>
+ <section class="sec"><div><span class="eyebrow">Specimen report</span><h2>A change only counts when it leaves the band.</h2><p class="mute">The shaded band is your own measurement noise. The marker is what changed. Inside the band, it is just wobble.</p></div>
+ <div class="spec" aria-label="Example of a report">${sp.map(r=>`<div class="rowv ${r[1]}"><b>${r[0]}</b><div class="axis" role="img" aria-label="${r[0]}: ${r[3]}"><div class="line"></div><div class="band" style="left:40%;width:20%"></div><div class="zero" style="left:50%"></div><div class="mk" style="left:50%" data-l="${r[2]}"></div></div><span class="badge">${r[3]}</span></div>`).join('')}</div></section>
+ <div class="built"><span class="small mute">Built on</span><div class="api">${['Skin Analysis','Skin Tone','Fitzpatrick','Face Attributes','Skin Simulation','Photo Lighting'].map(x=>chipApi('YouCam · '+x)).join('')}</div></div>`,true);
  const f0=$('#fa0');if(f0)f0.onclick=()=>replayRun('live-synthetic');
+ requestAnimationFrame(()=>setTimeout(()=>document.querySelectorAll('.spec .mk').forEach(m=>m.style.left=m.dataset.l+'%'),120));
+ const my=st.run;fetch('/api/demo/agent/volunteer').then(r=>r.ok?r.json():null).then(j=>{const el=$('#story');if(j&&el&&my===st.run){const row=el.querySelector('.row');el.innerHTML=storyHtml(j);el.appendChild(row);const fb=$('#fa0');if(fb)fb.onclick=()=>replayRun('live-synthetic')}}).catch(()=>{});
 }
 
 /* ================= FLOW ================= */
@@ -252,7 +357,7 @@ function calibrate(){
  show(stepper(1)+`<span class="eyebrow">Step 1 of 4</span><h2>Measure your photo noise</h2><p class="mute">Take 4 to 6 photos of your face <b>today</b> (5 or 6 is best), changing light, distance and <b>turning your head a few degrees</b> each time. Your skin is identical in all of them, so any score difference is measurement noise. Fewer photos underestimate it.</p>
  <div class="card">${tipsHtml('Move a little between shots')}<div class="thumbs" id="th" hidden></div><button class="drop" id="drop">Tap to choose 4 to 6 photos</button><div id="msg"></div>
  <p class="small mute" style="margin:12px 0">About ${st.status.units_per_analysis||12} units per photo. Identical photos are never charged twice.</p>
- <button class="btn" id="go" disabled>Measure noise</button></div>`);
+ <button class="btn" id="go" disabled>Measure noise</button>${privacyHtml()}</div>`);
  $('#drop').onclick=async()=>{const f=await pick(true);if(!f.length)return;st.files=f;const ok=f.length>=4&&f.length<=6;
   $('#drop').textContent=f.length+' photo(s) selected. Tap to change';$('#drop').classList.toggle('has',ok);$('#go').disabled=!ok;
   $('#msg').innerHTML=ok?'':'<div class="err">Choose between 4 and 6 photos (5 to 6 with slight head turns is best).</div>';
@@ -299,7 +404,7 @@ async function checkin(){
  show(stepper(3)+`<span class="eyebrow">Step 3 of 4</span><h2>Check-in no. ${p.checkins.length+1}</h2><p class="mute">Same spot and same kind of light as your other check-ins, if you can. You have <span class="num">${n}</span> counted check-in${n===1?'':'s'}; two are needed to compare.</p>
  <div class="card">${tipsHtml('Same distance and light as last time')}<button class="drop" id="drop">Tap to take or choose a photo</button>
  <label class="f" for="cd">Date</label><input type="date" id="cd" value="${new Date().toISOString().slice(0,10)}"><div id="msg"></div>
- <div class="row" style="margin-top:16px"><button class="btn" id="go" disabled>Analyse</button>${n>=2?'<button class="btn ghost" data-go="results">See measurements</button>':''}</div></div>
+ <div class="row" style="margin-top:16px"><button class="btn" id="go" disabled>Analyse</button>${n>=2?'<button class="btn ghost" data-go="results">See measurements</button>':''}</div>${privacyHtml()}</div>
  ${n>=1?`<div class="card" style="border-color:var(--accent)"><span class="eyebrow">Ready</span><h3>Should you keep buying it?</h3><p class="small mute">The agent reads the claims, checks them against your skin and tells you what it did at every step.</p><button class="btn" data-go="agent">Ask the agent</button></div>`:''}
  <div class="hist">${p.checkins.map(c=>`<span class="${c.error?'x':''}">${esc(c.date)}${c.error?' (not counted)':''}</span>`).join('')}</div>`);
  let f=null;$('#drop').onclick=async()=>{const a=await pick(false);f=a[0];if(f){$('#drop').textContent=f.name;$('#drop').classList.add('has');$('#go').disabled=false;
@@ -316,7 +421,7 @@ async function askAgent(){
  <div class="card">${tipsHtml('Same distance, light and head pose as your other check-ins')}<button class="drop" id="drop">Tap to take or choose today's photo (optional)</button>
  <label class="f" for="cd">Date</label><input type="date" id="cd" value="${new Date().toISOString().slice(0,10)}"><div id="msg"></div>
  <p class="small mute" style="margin:12px 0">With a photo, the run spends about 22 to 56 units of the 40-unit budget (photo check 10, analysis 12, simulation 4). Without one, it spends at most 4.</p>
- <div class="row"><button class="btn" id="go">Ask without a new photo</button></div></div>`);
+ <div class="row"><button class="btn" id="go">Ask without a new photo</button></div>${privacyHtml()}</div>`);
  let f=null;$('#drop').onclick=async()=>{const a=await pick(false);f=a[0];if(f){$('#drop').textContent=f.name;$('#drop').classList.add('has');$('#go').textContent='Ask the agent with this photo';
   $('#gb').innerHTML=guideSvg+`<img alt="Your photo" src="${URL.createObjectURL(f)}">`;const im=$('#gb img');$('#gb').insertBefore(im,$('#gb').firstChild)}};
  $('#go').onclick=()=>runAgent(f,$('#cd').value);
@@ -369,16 +474,15 @@ const SAMPLE_TRACE=(()=>{const B=40;const e=(type,step,tool,summary,spent,extra)
 function lessonBanner(j){const d=j&&j.decision_under_current_rules;if(!d)return '';
  return `<div class="lesson" role="note"><b>We caught our own false alarm</b>${esc(j.lesson||'')}<div class="now"><b style="display:inline">Under today's rules</b> this same data gives <strong>${esc(d.decision)}${d.wait_weeks?' '+d.wait_weeks+' WEEKS':''}</strong>: ${esc(d.headline)}</div></div>`}
 function tenSecondHtml(j){const t=j.ten_second,ph=j.photos||[];const f=n=>(n>0?'+':'')+n.toFixed(1);
- return `<div class="tenpair card"><span class="eyebrow">Real face, with consent</span><h3 style="margin:4px 0 8px">${esc(t.caption)}</h3>
- <div class="imgs">${ph.map((p,i)=>`<figure><img src="${esc(p.src)}" alt="Volunteer selfie ${i?'after':'before'}, taken at ${esc(p.label)}"><figcaption>${i?'After':'Before'} &middot; ${esc(p.label)}</figcaption></figure>`).join('')}</div>
- <p class="small mute" style="margin:10px 0 0">${esc(j.note||'')}</p>
- <table class="tentable"><caption class="small mute" style="text-align:left;caption-side:top">Raw scores, 10 seconds apart. Noise = this face's own threshold.</caption><thead><tr><th>Concern</th><th>Before</th><th>After</th><th>Change</th><th>Uncropped</th><th>Noise</th></tr></thead><tbody>
+ return `<div class="tenpair card"><span class="eyebrow">Real face, with consent</span><h3>${esc(t.caption)}</h3>
+ <div class="tp-l"><div class="imgs">${ph.map((p,i)=>`<figure><img src="${esc(p.src)}" alt="Volunteer selfie ${i?'after':'before'}, taken at ${esc(p.label)}"><figcaption>${i?'After':'Before'} &middot; <span class="num">${esc(p.label)}</span></figcaption></figure>`).join('')}</div>
+ <p class="small mute" style="margin:12px 0 0">${esc(j.note||'')}</p></div>
+ <div class="tp-r"><table class="tentable"><caption class="small mute" style="text-align:left;caption-side:top;padding:12px 0 4px">Raw scores, 10 seconds apart. Noise = this face's own threshold.</caption><thead><tr><th>Concern</th><th>Before</th><th>After</th><th>Change</th><th>Uncropped</th><th>Noise</th></tr></thead><tbody>
  ${t.rows.map(r=>{const o=Math.abs(r.delta)>r.threshold;return `<tr><td>${esc(r.label)}</td><td class="num">${r.before.toFixed(1)}</td><td class="num">${r.after.toFixed(1)}</td><td class="num ${o?'big':''}">${f(r.delta)}</td><td class="num">${f(r.uncropped_delta)}</td><td class="num">${r.threshold.toFixed(1)}</td></tr>`}).join('')}</tbody></table>
- <p class="small mute" style="margin:0">Nothing changed in the skin, yet acne moved by about 10 points, and its direction flipped between the cropped and uncropped version of the same two photos. That is why a single reading never decides.</p></div>`}
+ <p class="small mute">Nothing changed in the skin, yet acne moved by about 10 points, and its direction flipped between the cropped and uncropped version of the same two photos. That is why a single reading never decides.</p></div></div>`}
 function agentShell(sample,note){
  show(`${sample?sampleRibbon(note):''}<div class="agenthead"><div><span class="eyebrow">The investigation</span><h2 style="margin:0">Should you keep buying it?</h2></div><div class="row"><button class="btn ghost sm" id="rp" hidden>Replay</button></div></div>
- <div class="meter" role="group" aria-label="Unit budget"><div class="mh"><span>YouCam units</span><span><b class="num" id="ms">0</b> / <span class="num" id="mb">40</span> spent</span></div><div class="ticks" id="tk">${'<i></i>'.repeat(40)}</div></div>
- <ol class="tl" id="tl" aria-live="polite"></ol><div id="think" class="thinking"><span class="spinner" aria-hidden="true"></span>Agent is working</div><div id="out"></div>`);
+ <div id="pre"></div><div class="agentgrid"><div class="coll"><div class="meter" role="group" aria-label="Unit budget"><div class="mh"><span>YouCam units</span><span><b class="num" id="ms">0</b> / <span class="num" id="mb">40</span> spent</span></div><div class="ticks" id="tk">${'<i></i>'.repeat(40)}</div></div><ol class="tl" id="tl" aria-live="polite"></ol><div id="think" class="thinking"><span class="spinner" aria-hidden="true"></span>Agent is working</div></div><div class="colr" id="out"><div class="await"><span class="it">The decision lands here.</span>Keep, stop or wait, with the evidence behind it, once the agent has finished checking.</div></div></div>`,true);
 }
 function setMeter(spent,left){const b=Math.round((spent||0)+(left??(40-(spent||0))));const budget=b>0?b:40;$('#ms').textContent=Math.round(spent);$('#mb').textContent=budget;
  const n=Math.round(spent/budget*40);document.querySelectorAll('#tk i').forEach((t,i)=>{t.className=i<n?'on'+(spent/budget>.8?' hot':''):''})}
@@ -453,10 +557,10 @@ async function replayRun(runId,back){
  try{const s=await api('/status');st.concerns=s.body.concerns||st.concerns}catch(e){}
  const ctx={sample:false,stored:true,replay:null,fast:true};
  ctx.replay=()=>replayRun(runId);
- if(j.decision_under_current_rules){const b=document.createElement('div');b.innerHTML=lessonBanner(j);$('#tl').before(b.firstChild)}
- if(j.ten_second){const b=document.createElement('div');b.innerHTML=tenSecondHtml(j);$('#tl').before(b)}
- const note=document.createElement('p');note.className='small mute';note.textContent='Replay of stored run '+runId+(j.synthetic_face?' (AI-generated synthetic face)':j.real_face?' (a volunteer, with consent)':'')+'. Nothing is re-run and no units are spent.';
- $('#tl').before(note);
+ if(j.decision_under_current_rules){const b=document.createElement('div');b.innerHTML=lessonBanner(j);$('#pre').appendChild(b.firstChild)}
+ if(j.ten_second){const b=document.createElement('div');b.innerHTML=tenSecondHtml(j);$('#pre').appendChild(b)}
+ const note=document.createElement('p');note.className='small replaynote';note.textContent='Replay of stored run '+runId+(j.synthetic_face?' (AI-generated synthetic face)':j.real_face?' (a volunteer, with consent)':'')+'. Nothing is re-run and no units are spent.';
+ $('#pre').appendChild(note);
  await playEvents(j.events,ctx);if(my===st.run){endThinking();const rp=$('#rp');if(rp){rp.hidden=false;rp.onclick=ctx.replay}}
 }
 async function runAgent(file,when){
@@ -506,5 +610,3 @@ home();
 if(/^#run=[a-z0-9_-]+$/.test(location.hash))replayRun(location.hash.slice(5));
 fetch('/api/status').then(r=>r.json()).then(s=>{st.status=s;st.concerns=s.concerns;if(s.has_key)setLive(s.live_units_left)}).catch(()=>{});
 </script>
-</body>
-</html>
