@@ -44,6 +44,7 @@ change real when it beats that noise twice in a row.
 >
 > - **Video (2:23):** https://www.youtube.com/watch?v=465tb0S2l8E
 > - **Live demo:** https://skinproof.aether-soft.tech
+> - **The full journey in one click (8 weeks, invented data, ends KEEP):** https://skinproof.aether-soft.tech/#sample
 > - **Three free replays, no keys, no spend:**
 >   - the volunteer's real run, ending WAIT: https://skinproof.aether-soft.tech/#run=live-volunteer
 >   - the false alarm we caught: https://skinproof.aether-soft.tech/#run=live-synthetic
@@ -65,7 +66,7 @@ framing, in dermatology photography as much as in apps
 adds what a buy or stop decision needs on top: a per-person noise estimate, Mirror Mode capture alignment, and a
 confirmation rule.
 
-**Contents:** [What we measured](#what-we-measured-on-a-real-face) · [Features](#features) ·
+**Contents:** [What we measured](#what-we-measured-on-a-real-face) · [Why retailers win](#why-this-is-good-for-retailers-and-youcam) · [Features](#features) ·
 [How it works](#how-it-works) · [YouCam APIs](#youcam-apis-used) · [The agent](#the-agent) ·
 [Confirmation rule](#the-confirmation-rule) · [Product claims](#reading-the-products-claims) ·
 [MCP](#mcp-in-both-directions) · [Honesty rules](#honesty-rules) · [Privacy](#privacy) ·
@@ -98,6 +99,22 @@ live agent run on this face ends **WAIT, nothing proven** (`#run=live-volunteer`
 We also tested YouCam Photo Lighting as a way to reduce that variation. It cut the median range by 22%, just under
 our pre-registered 25% bar, so we left it off ([bench/lighting_RESULTS.md](bench/lighting_RESULTS.md)). Phone selfies
 are auto-cropped to the face before YouCam (`src/skinproof/faceprep.py`) so they pass YouCam's face-size gate.
+
+---
+
+## Why this is good for retailers and YouCam
+
+A tool that can say STOP sounds bad for sales. It is the opposite for anyone selling products that work:
+
+- **Products that work get proof.** A brand that lists a claim and a timeframe can show how many opted-in customers
+  actually beat their own noise ("Verified on real faces", shown in `/buy` as a labelled concept). That is a claim
+  shoppers can trust, unlike "clinically proven" with no data.
+- **Fewer returns and refund disputes.** A shopper who sees "WAIT 4 weeks, too early to tell" keeps using the product
+  instead of returning it after 10 days of normal photo wobble.
+- **Claims stay inside the evidence.** EU Regulation 655/2013 requires cosmetic claims to be supported; `/buy` shows
+  which claims a photo can test and when.
+- **YouCam's scores become decision-grade.** The same raw scores, read against each person's noise, turn a number that
+  moves 9.9 points in 10 seconds into a result a retailer can stand behind. More trust means more scans.
 
 ---
 

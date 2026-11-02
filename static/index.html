@@ -845,7 +845,7 @@ function renderResults(d){
 }
 let _pf=null;try{_pf=sessionStorage.getItem('sp_prefill')}catch(e){}
 _pf?start():home();
-if(/^#run=[a-z0-9_-]+$/.test(location.hash))replayRun(location.hash.slice(5));
+if(/^#run=[a-z0-9_-]+$/.test(location.hash))replayRun(location.hash.slice(5));else if(location.hash==='#sample')trySample();
 fetch('/api/status').then(r=>r.json()).then(s=>{st.status=s;st.concerns=s.concerns;if(s.has_key)setLive(s.live_units_left)}).catch(()=>{});
 </script>
 <script src="/static/extras.js" defer></script>
