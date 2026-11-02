@@ -289,12 +289,14 @@ server.
 
 ## Privacy
 
-- Face photos are stored on the server under `private/`, which is gitignored and never committed.
+- User face photos are stored on the server under `private/`, which is gitignored and never committed.
+  The one exception is `demo/volunteer/`: the volunteer's two check-in photos, their masks and the simulation image are
+  published with his explicit consent, so judges can see exactly what YouCam measured.
 - The app tells you photos go to YouCam (Perfect Corp) for analysis, and a "Delete my data" button
   (`DELETE /api/profiles/{id}`) removes a profile and its files.
 - Mirror Mode checks run on your device; nothing is uploaded until you press Measure.
-- Tests and the demo use invented scores or an AI-generated face. The volunteer consented to the use of their scores
-  and to the public display of the screenshots in this README.
+- Tests and the sample run use invented scores or an AI-generated face. The volunteer consented to analysis and to the
+  public display of his photos, scores, the demo video and the screenshots in this README.
 - API keys live only on the server (`.env`, gitignored).
 - A **spend guard** caps daily YouCam units (120 shared, 72 per IP), LLM dollars ($1 per day), agent runs (3 per IP)
   and claim checks (10 per IP), so a public demo cannot drain the keys. When a cap is reached the site says so and the

@@ -12,7 +12,7 @@ Rules that never bend:
 - No overall progress score.
 - Simulated images are always labelled "Simulation, not your result".
 - A hard unit budget per agent run (default 40 YouCam units), enforced in code, not in the prompt.
-- Face photos stay in `private/` and are never committed.
+- Face photos stay in `private/` and are never committed, except the consenting volunteer's demo photos in `demo/volunteer/`.
 
 ## YouCam APIs used
 
