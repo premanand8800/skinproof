@@ -369,7 +369,7 @@ def create_app(client: YouCamClient | None = None, store: Store | None = None,
         if name not in {"logo.svg", "favicon.svg", "extras.js", "theme.js"}:
             raise HTTPException(404)
         mt = "text/javascript" if name.endswith(".js") else "image/svg+xml"
-        return FileResponse(ROOT / "static" / name, media_type=mt)
+        return FileResponse(ROOT / "static" / name, media_type=mt, headers={"Cache-Control": "no-cache"})
 
     @app.get("/api/buy-check/example")
     def buy_check_example():
@@ -412,11 +412,11 @@ def create_app(client: YouCamClient | None = None, store: Store | None = None,
 
     @app.get("/buy")
     def buy_page():
-        return FileResponse(ROOT / "static" / "buy.html")
+        return FileResponse(ROOT / "static" / "buy.html", headers={"Cache-Control": "no-cache"})
 
     @app.get("/")
     def index():
-        return FileResponse(ROOT / "static" / "index.html")
+        return FileResponse(ROOT / "static" / "index.html", headers={"Cache-Control": "no-cache"})
 
     return app
 
