@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="color-scheme" content="light dark">
+<script src="/static/theme.js"></script>
 <meta name="theme-color" content="#F6F1E9">
 <title>Before you buy | SkinProof</title>
 <meta name="description" content="Paste a skincare product link or claim. SkinProof lists which claims a photo can actually test, and how long you would need to check them on your own face.">
@@ -21,12 +22,19 @@
  --sample-bg:#F3E5C2;--sample-ink:#5A3A04;--scrim:rgba(28,27,26,.86);--hair:rgba(28,27,26,.12);
  --serif:"Instrument Serif","Iowan Old Style",Georgia,serif;--sans:"Instrument Sans",system-ui,-apple-system,"Segoe UI",sans-serif;--mono:"JetBrains Mono",ui-monospace,"SF Mono",Menlo,monospace;
  --r:14px;--r-s:10px;--ease:cubic-bezier(.2,.8,.2,1)}
-@media(prefers-color-scheme:dark){:root{
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]){
  --canvas:#151412;--surface:#1D1B19;--sunk:#24211E;--ink:#F0EBE1;--ink2:#ABA396;--rule:#35312C;--rule2:#4A453E;
  --brand:#8DBDB4;--brand-h:#A6D0C8;--on-brand:#10201E;--brand-soft:#1E2D2B;
  --good:#8CCBA0;--good-bg:#1B2D21;--likely:#E3B867;--likely-bg:#33290F;--bad:#EE9C85;--bad-bg:#37201A;
  --band:#2D3329;--band-edge:#5F6A57;--neutral:#ABA396;--neutral-bg:#2A2622;
  --sample-bg:#33290F;--sample-ink:#F0DFA8;--scrim:rgba(10,10,9,.88);--hair:rgba(240,235,225,.14)}}
+:root[data-theme=dark]{
+ --canvas:#151412;--surface:#1D1B19;--sunk:#24211E;--ink:#F0EBE1;--ink2:#ABA396;--rule:#35312C;--rule2:#4A453E;
+ --brand:#8DBDB4;--brand-h:#A6D0C8;--on-brand:#10201E;--brand-soft:#1E2D2B;
+ --good:#8CCBA0;--good-bg:#1B2D21;--likely:#E3B867;--likely-bg:#33290F;--bad:#EE9C85;--bad-bg:#37201A;
+ --band:#2D3329;--band-edge:#5F6A57;--neutral:#ABA396;--neutral-bg:#2A2622;
+ --sample-bg:#33290F;--sample-ink:#F0DFA8;--scrim:rgba(10,10,9,.88);--hair:rgba(240,235,225,.14)}
+.theme-btn{display:inline-grid;place-items:center;width:40px;height:40px;flex:none;border:1px solid var(--rule2);border-radius:999px;background:transparent;color:var(--ink2);cursor:pointer;padding:0;transition:background .15s,color .15s,border-color .15s}.theme-btn:hover{color:var(--ink);border-color:var(--ink);background:var(--sunk)}.theme-btn svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}.theme-btn .i-moon{fill:currentColor;stroke:none}.theme-btn .i-sun{display:none}:root[data-theme=dark] .theme-btn .i-sun{display:block}:root[data-theme=dark] .theme-btn .i-moon{display:none}@media(prefers-color-scheme:dark){:root:not([data-theme=light]) .theme-btn .i-sun{display:block}:root:not([data-theme=light]) .theme-btn .i-moon{display:none}}
 *{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
 body{margin:0;background:var(--canvas);color:var(--ink);font:400 16px/1.55 var(--sans);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
@@ -37,7 +45,9 @@ a{color:var(--brand);text-underline-offset:3px}
 header.top{display:flex;justify-content:space-between;align-items:center;padding:18px 0 14px;gap:12px;border-bottom:1px solid var(--rule);margin-bottom:28px}
 .logo{white-space:nowrap;display:flex;gap:10px;align-items:center;color:var(--ink);font:400 27px/1 var(--serif);letter-spacing:-.01em;text-decoration:none}
 .logo img{width:30px;height:30px;display:block}
-@media(prefers-color-scheme:dark){.logo img{filter:invert(.9) hue-rotate(180deg) saturate(.8)}}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]) .logo img{filter:invert(.9) hue-rotate(180deg) saturate(.8)}}
+:root[data-theme=dark] .logo img{filter:invert(.9) hue-rotate(180deg) saturate(.8)}
+.nav{display:flex;gap:8px;align-items:center}
 .nav a{color:var(--ink2);font:500 14px var(--sans);text-decoration:none;padding:8px 12px;border-radius:999px;border:1px solid var(--rule2)}
 .nav a:hover{color:var(--ink);background:var(--sunk)}
 h1,h2,h3{font-family:var(--serif);font-weight:400;margin:0;word-spacing:.1em}
@@ -126,7 +136,7 @@ footer{border-top:1px solid var(--rule);margin-top:48px;padding-top:20px;font-si
 </head>
 <body>
 <div class="wrap">
-<header class="top"><a class="logo" href="/" aria-label="SkinProof home"><img src="/static/logo.svg" alt="" width="30" height="30">SkinProof</a><nav class="nav"><a href="/">Open the app</a></nav></header>
+<header class="top"><a class="logo" href="/" aria-label="SkinProof home"><img src="/static/logo.svg" alt="" width="30" height="30">SkinProof</a><nav class="nav"><a href="/">Open the app</a><button class="theme-btn" type="button" aria-label="Switch theme"><svg class="i-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg><svg class="i-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M5.3 18.7l1.6-1.6M17.1 6.9l1.6-1.6"/></svg></button></nav></header>
 <main>
 <section class="hero">
  <div>

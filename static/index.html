@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="color-scheme" content="light dark">
+<script src="/static/theme.js"></script>
 <meta name="theme-color" content="#F6F1E9">
 <title>SkinProof</title>
 <meta name="description" content="Should I keep buying this? SkinProof measures your skin against your own photo noise and gives one honest answer. No fake progress. Just proof.">
@@ -41,12 +42,19 @@
  --sample-bg:#F3E5C2;--sample-ink:#5A3A04;--scrim:rgba(28,27,26,.86);--hair:rgba(28,27,26,.12);
  --serif:"Instrument Serif","Iowan Old Style",Georgia,serif;--sans:"Instrument Sans",system-ui,-apple-system,"Segoe UI",sans-serif;--mono:"JetBrains Mono",ui-monospace,"SF Mono",Menlo,monospace;
  --r:14px;--r-s:10px;--ease:cubic-bezier(.2,.8,.2,1)}
-@media(prefers-color-scheme:dark){:root{
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]){
  --canvas:#151412;--surface:#1D1B19;--sunk:#24211E;--ink:#F0EBE1;--ink2:#ABA396;--rule:#35312C;--rule2:#4A453E;
  --brand:#8DBDB4;--brand-h:#A6D0C8;--on-brand:#10201E;--brand-soft:#1E2D2B;
  --good:#8CCBA0;--good-bg:#1B2D21;--likely:#E3B867;--likely-bg:#33290F;--bad:#EE9C85;--bad-bg:#37201A;
  --band:#2D3329;--band-edge:#5F6A57;--neutral:#ABA396;--neutral-bg:#2A2622;
  --sample-bg:#33290F;--sample-ink:#F0DFA8;--scrim:rgba(10,10,9,.88);--hair:rgba(240,235,225,.14)}}
+:root[data-theme=dark]{
+ --canvas:#151412;--surface:#1D1B19;--sunk:#24211E;--ink:#F0EBE1;--ink2:#ABA396;--rule:#35312C;--rule2:#4A453E;
+ --brand:#8DBDB4;--brand-h:#A6D0C8;--on-brand:#10201E;--brand-soft:#1E2D2B;
+ --good:#8CCBA0;--good-bg:#1B2D21;--likely:#E3B867;--likely-bg:#33290F;--bad:#EE9C85;--bad-bg:#37201A;
+ --band:#2D3329;--band-edge:#5F6A57;--neutral:#ABA396;--neutral-bg:#2A2622;
+ --sample-bg:#33290F;--sample-ink:#F0DFA8;--scrim:rgba(10,10,9,.88);--hair:rgba(240,235,225,.14)}
+.theme-btn{display:inline-grid;place-items:center;width:40px;height:40px;flex:none;border:1px solid var(--rule2);border-radius:999px;background:transparent;color:var(--ink2);cursor:pointer;padding:0;transition:background .15s,color .15s,border-color .15s}.theme-btn:hover{color:var(--ink);border-color:var(--ink);background:var(--sunk)}.theme-btn svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}.theme-btn .i-moon{fill:currentColor;stroke:none}.theme-btn .i-sun{display:none}:root[data-theme=dark] .theme-btn .i-sun{display:block}:root[data-theme=dark] .theme-btn .i-moon{display:none}@media(prefers-color-scheme:dark){:root:not([data-theme=light]) .theme-btn .i-sun{display:block}:root:not([data-theme=light]) .theme-btn .i-moon{display:none}}
 *{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
 body{margin:0;background:var(--canvas);color:var(--ink);font:400 16px/1.55 var(--sans);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
@@ -331,7 +339,7 @@ a.btn,a.navlink{text-decoration:none}
 <body>
 <div class="wrap">
 <header class="top"><button class="logo" data-go="home" aria-label="SkinProof home"><svg viewBox="0 0 32 32" fill="none" aria-hidden="true"><rect class="fillb" x="3" y="9" width="15" height="14"/><path d="M7 7H3v18h4M14 7h4v18h-4" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><circle class="dot" cx="25.5" cy="16" r="4.2"/></svg>SkinProof</button>
-<div class="nav"><button class="navlink" data-go="sample">Sample</button><button class="navlink" data-go="volunteer">Real run</button><a class="navlink" href="/buy">Before you buy</a><button class="navlink" data-go="start">Start</button><span class="pill" id="units" hidden></span></div></header>
+<div class="nav"><button class="navlink" data-go="sample">Sample</button><button class="navlink" data-go="volunteer">Real run</button><a class="navlink" href="/buy">Before you buy</a><button class="navlink" data-go="start">Start</button><span class="pill" id="units" hidden></span><button class="theme-btn" type="button" aria-label="Switch theme"><svg class="i-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg><svg class="i-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M5.3 18.7l1.6-1.6M17.1 6.9l1.6-1.6"/></svg></button></div></header>
 <main id="main" tabindex="-1" aria-live="polite"></main>
 <footer><span class="logo2">No fake progress. Just proof.</span>SkinProof is a measurement tool, not medical advice.<br>Photos stay on this machine. Simulations are never your result.</footer>
 </div>

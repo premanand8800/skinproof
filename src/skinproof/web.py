@@ -366,7 +366,7 @@ def create_app(client: YouCamClient | None = None, store: Store | None = None,
     @app.get("/static/{name}")
     def static_asset(name: str):
         # only flat, whitelisted public assets (logo/favicon)
-        if name not in {"logo.svg", "favicon.svg", "extras.js"}:
+        if name not in {"logo.svg", "favicon.svg", "extras.js", "theme.js"}:
             raise HTTPException(404)
         mt = "text/javascript" if name.endswith(".js") else "image/svg+xml"
         return FileResponse(ROOT / "static" / name, media_type=mt)
