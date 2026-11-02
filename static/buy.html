@@ -132,6 +132,13 @@ textarea{min-height:96px;resize:vertical}
 footer{border-top:1px solid var(--rule);margin-top:48px;padding-top:20px;font-size:13px;color:var(--ink2)}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 @media(max-width:420px){.audit>div{padding:12px 10px}}
+/* entrance motion, matching the app */
+main>section>div>*,main>section>*{animation:bin .7s cubic-bezier(.2,.8,.2,1) both}
+main>section>div>*:nth-child(2){animation-delay:.08s}main>section>div>*:nth-child(3){animation-delay:.18s}main>section>div>*:nth-child(4){animation-delay:.28s}main>section>div>*:nth-child(n+5){animation-delay:.36s}
+main h1{animation:bh1 .9s cubic-bezier(.2,.8,.2,1) both!important;animation-delay:.05s!important}
+@keyframes bin{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes bh1{from{opacity:0;transform:translateY(.25em);filter:blur(8px)}to{opacity:1;transform:none;filter:none}}
+@media(prefers-reduced-motion:reduce){main *{animation:none!important}}
 </style>
 </head>
 <body>

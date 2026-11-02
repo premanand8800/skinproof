@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="color-scheme" content="light dark">
 <script src="/static/theme.js"></script>
+<script>(function(){var h=document.documentElement;if(!document.fonts||matchMedia("(prefers-reduced-motion: reduce)").matches){window.fontsGate=Promise.resolve();return}h.classList.add("fwait");window.fontsGate=Promise.race([document.fonts.ready,new Promise(function(r){setTimeout(r,900)})]);window.fontsGate.then(function(){h.classList.remove("fwait")})})();</script>
 <meta name="theme-color" content="#F6F1E9">
 <title>SkinProof</title>
 <meta name="description" content="Should I keep buying this? SkinProof measures your skin against your own photo noise and gives one honest answer. No fake progress. Just proof.">
@@ -287,7 +288,16 @@ footer{font-size:12.5px;color:var(--ink2);text-align:center;margin-top:72px;line
 footer .logo2{display:block;font:italic 400 28px var(--serif);word-spacing:.1em;color:var(--ink);margin-bottom:6px}
 .spin{display:inline-block;width:14px;height:14px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;animation:spin 1s linear infinite;vertical-align:-2px;margin-right:8px}
 @media(max-width:380px){.nbar{grid-template-columns:84px 1fr 52px}.tips{grid-template-columns:1fr}}
-@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}.spinner,.spin{animation:none;border-right-color:currentColor}}
+/* text motion: headings rise word by word, blocks fade up, sections reveal on scroll */
+html.fwait #main{visibility:hidden}
+.w{display:inline-block;white-space:pre;opacity:0;transform:translateY(.42em);filter:blur(6px);animation:wordin .7s var(--ease) forwards;animation-delay:calc(var(--i)*55ms + 60ms)}
+@keyframes wordin{to{opacity:1;transform:none;filter:none}}
+.fx{opacity:0;animation:rise .6s var(--ease) forwards;animation-delay:var(--d,0ms)}
+.sr-wait{opacity:0;transform:translateY(22px);transition:opacity .7s var(--ease),transform .7s var(--ease)}
+.sr-wait.sr-in{opacity:1;transform:none}
+.eyebrow.fx:before{transform-origin:left;animation:line .6s var(--ease) both;animation-delay:var(--d,0ms)}
+@keyframes line{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.w,.fx,.sr-wait{opacity:1!important;transform:none!important;filter:none!important}*,*:before,*:after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}.spinner,.spin{animation:none;border-right-color:currentColor}}
 /* ===== mirror mode (camera). Dark capture room: the one place the canvas gives way to ink. ===== */
 :root{--cam-bg:#12110F;--cam-ink:#F0EBE1;--cam-ink2:#B4ACA0;--cam-line:rgba(240,235,225,.28);--cam-ok:#8CCBA0;--cam-ok-bg:#1B2D21;--cam-warn:#E3B867;--cam-warn-bg:#33290F}
 a.btn,a.navlink{text-decoration:none}
@@ -373,7 +383,17 @@ function setUnits(u){const el=$('#units');if(u==null){el.hidden=true;return}el.h
 function setLive(n){if(n==null)return;st.live=n;const el=$('#units');if(el){el.hidden=false;el.title='Shared live-analysis allowance left today';el.textContent='Live today: '+Math.round(n)+' units left'}}
 function limitHtml(m){return '<div class="err">'+esc(m||'Daily live-analysis limit reached.')+' Try the free <a href="#" data-go="sample">sample</a> or watch the <a href="#" data-go="volunteer">real-run replay</a>.</div>'}
 function stepper(n){const l=['Calibrate','Product','Check-in','Verdict'];return '<div class="stepper" aria-label="Progress">'+l.map((x,i)=>`<span class="${i<n?'on':''}"${i===n-1?' aria-current="step"':''}>${i+1} ${x}</span>`).join('')+'</div>'}
-function show(html,wide){st.run++;main.innerHTML=wide?html:'<div class="narrow">'+html+'</div>';window.scrollTo({top:0,behavior:reduce?'auto':'smooth'})}
+function splitWords(el){let i=0;const walk=n=>{[...n.childNodes].forEach(c=>{if(c.nodeType===3){const parts=c.textContent.split(/(\s+)/);const f=document.createDocumentFragment();parts.forEach(t=>{if(!t)return;if(/^\s+$/.test(t)){f.appendChild(document.createTextNode(t));return}const sp=document.createElement('span');sp.className='w';sp.style.setProperty('--i',i++);sp.textContent=t;f.appendChild(sp)});c.replaceWith(f)}else if(c.nodeType===1&&!c.classList.contains('w'))walk(c)})};walk(el);return i}
+let srObs=null;
+function motion(root){if(reduce)return;
+ const top=innerHeight;
+ root.querySelectorAll('h1,h2').forEach(h=>{if(h.closest('.decision,.st'))return;const r=h.getBoundingClientRect();if(r.top>top)return;
+  const n=splitWords(h);const box=h.parentElement;let d=n*55+160;
+  [...box.children].forEach(c=>{if(c===h||c.closest('.st'))return;if(c.compareDocumentPosition(h)&Node.DOCUMENT_POSITION_FOLLOWING){c.classList.add('fx');c.style.setProperty('--d','0ms');return}c.classList.add('fx');c.style.setProperty('--d',d+'ms');d+=90})});
+ if(!('IntersectionObserver' in window))return;
+ srObs=srObs||new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('sr-in');srObs.unobserve(e.target)}}),{rootMargin:'0px 0px -8% 0px'});
+ root.querySelectorAll('.sec,.story,.tenpair,.narrow>.card,.resgrid>*').forEach(el=>{if(el.getBoundingClientRect().top>top){el.classList.add('sr-wait');srObs.observe(el)}})}
+function show(html,wide){st.run++;main.innerHTML=wide?html:'<div class="narrow">'+html+'</div>';window.scrollTo({top:0,behavior:reduce?'auto':'smooth'});const r=st.run;if(document.documentElement.classList.contains('fwait'))(window.fontsGate||Promise.resolve()).then(()=>{if(r===st.run)motion(main)});else motion(main)}
 const IC={check:'<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5l3.2 3.2L13 4.5"/></svg>',x:'<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M4 4l8 8M12 4l-8 8"/></svg>'};
 const guideSvg=`<svg viewBox="0 0 120 160" fill="none" stroke="currentColor" aria-hidden="true"><g stroke-width="2" stroke-linecap="round" opacity=".9"><path d="M8 26V8h18M94 8h18v18M112 134v18H94M26 152H8v-18"/></g><g stroke-width="1" opacity=".35"><path d="M60 8v144M8 80h104M8 53h104M8 107h104"/></g><ellipse cx="60" cy="80" rx="37" ry="50" stroke-width="2" stroke-dasharray="5 5"/><g stroke-width="1.5" opacity=".6"><circle cx="46" cy="70" r="2.5"/><circle cx="74" cy="70" r="2.5"/><path d="M48 100q12 9 24 0" stroke-linecap="round"/></g></svg>`;
 function privacyHtml(){return `<p class="privacy" id="privacy">Photos are sent to YouCam (Perfect Corp) for analysis and stored on this demo server; use the Delete button to remove them. <button class="btn ghost" id="delme" type="button">Delete my data</button></p>`}
